@@ -94,7 +94,7 @@ public sealed class StartupGuardTests : IDisposable
     {
         // Without the attribute the app starts, then dies within seconds with a native error that nothing can log, and only some of the time.
         var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "TidyWindow.slnx"))) root = root.Parent;
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "TSUGU.slnx"))) root = root.Parent;
         Assert.NotNull(root);
         var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TidyWindow.Desktop", "Program.cs"));
         Assert.Matches(@"\[STAThread\]\s+(?:(?:private|public|internal)\s+)?static\s+void\s+Main\b", source);
@@ -105,7 +105,7 @@ public sealed class StartupGuardTests : IDisposable
     {
         // Started as administrator, whatever ran first would already be running with those rights on data any program can change.
         var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "TidyWindow.slnx"))) root = root.Parent;
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "TSUGU.slnx"))) root = root.Parent;
         Assert.NotNull(root);
         var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TidyWindow.Desktop", "Program.cs"));
         var main = source[source.IndexOf("static void Main()", StringComparison.Ordinal)..];
