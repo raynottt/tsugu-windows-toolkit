@@ -1,11 +1,6 @@
 name: Import TSUGU foundations
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/import-foundations.yml
   workflow_dispatch:
 
 permissions:
