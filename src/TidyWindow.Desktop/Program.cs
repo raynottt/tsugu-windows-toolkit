@@ -14,9 +14,9 @@ public static class Program
 {
     // A development build has its own key, so running it never hands over to an installed copy of the app (or the other way round).
 #if DEBUG
-    private const string InstanceKey = "TidyWindow.Next.Debug";
+    private const string InstanceKey = "TSUGU.Debug";
 #else
-    private const string InstanceKey = "TidyWindow.Next";
+    private const string InstanceKey = "TSUGU";
 #endif
 
     /// <summary>The splash covering the window that is opening, or null when there is none. The app dismisses it once its first frame is drawn.</summary>
@@ -33,7 +33,7 @@ public static class Program
         // First of all, before anything is read, started or registered: see AppElevation for why.
         if (AppElevation.IsElevated())
         {
-            MessageBoxW(IntPtr.Zero, AppElevation.Refusal, "TidyWindow", 0x40 /* MB_ICONINFORMATION */);
+            MessageBoxW(IntPtr.Zero, AppElevation.Refusal, "TSUGU", 0x40 /* MB_ICONINFORMATION */);
             return;
         }
         WinRT.ComWrappersSupport.InitializeComWrappers();
