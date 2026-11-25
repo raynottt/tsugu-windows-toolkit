@@ -131,7 +131,7 @@ public sealed partial class SuggestedView : UserControl
             installSpec: new("kaspersky-kvrt", "Kaspersky Virus Removal Tool", SuggestedInstallSource.DirectDownload, SuggestedInstallPayload.PortableScanner,
                 DirectUrl: "https://devbuilds.s.kaspersky-labs.com/devbuilds/KVRT/latest/full/KVRT.exe", ExpectedSigner: "Kaspersky"), glyph: "\uE83D"),
         GitHub("ArtCraft Studio", "Creative", "Official ArtCraft Studio Windows x64 setup from the project's own GitHub releases. TSUGU checks the SHA256SUMS manifest before starting the installer.",
-            "OFFICIAL GITHUB RELEASES · WINDOWS X64", @"storytold/artcraft", @"^ArtCraft_[\w.]+_x64-setup\.exe$", SuggestedInstallPayload.Installer,
+            "storytold/artcraft", @"^ArtCraft_[\w.]+_x64-setup\.exe$", SuggestedInstallPayload.Installer,
             checksumPattern: @"^SHA256SUMS\.txt$", glyph: "\uE8D4"),
         new("qBittorrent Enhanced Edition", "Utilities", "Install the enhanced qBittorrent build through the existing WinGet queue.",
             "WINGET · C0RE100.QBITTORRENT-ENHANCED-EDITION", "Add to queue", "https://winget.run/pkg/c0re100/qBittorrent-Enhanced-Edition",
