@@ -13,7 +13,7 @@ public sealed class InterruptedWork(string path)
 {
     public void Begin(PackageOperation operation)
     {
-        var source = operation.Fix is not null ? "Fixes" : ManagerDefinition.All.Single(x => x.Kind == operation.Manager).Name;
+        var source = operation.Fix is not null ? "Fixes" : operation.SuggestedInstall is not null ? "Suggested apps" : ManagerDefinition.All.Single(x => x.Kind == operation.Manager).Name;
         var kind = operation.Kind switch { PackageOperationKind.Install => "installing", PackageOperationKind.Update => "updating", PackageOperationKind.Uninstall => "uninstalling", _ => "applying" };
         try
         {

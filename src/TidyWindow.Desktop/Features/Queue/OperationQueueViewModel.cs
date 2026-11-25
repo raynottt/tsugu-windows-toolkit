@@ -17,6 +17,7 @@ public sealed class QueueRow(QueueEntry entry) : ObservableState
     public IReadOnlyList<FormattedOutputLine> OutputDocument => formatted ??= CommandOutputFormatter.Format(Entry.OutputSegments is { Count: > 0 } segments ? segments : [new CommandOutput(Output)]);
     public string Name => Entry.Operation.Name;
     public string Detail => Entry.Operation.Fix is not null ? $"Fix · {Entry.Operation.Id}"
+        : Entry.Operation.SuggestedInstall is { } suggested ? $"Suggested app · {(suggested.Source == SuggestedInstallSource.GitHubRelease ? "GitHub Releases" : "Official vendor download")} · {suggested.Id}"
         : $"{Entry.Operation.Kind} · {ManagerDefinition.All.Single(x => x.Kind == Entry.Operation.Manager).Name} · {Entry.Operation.Id}" + (Entry.Operation.Interactive ? " · Installer options" : "");
     private CommandProgress? progress;
     private bool progressRead;

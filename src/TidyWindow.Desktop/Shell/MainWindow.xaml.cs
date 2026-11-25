@@ -93,6 +93,12 @@ public sealed partial class MainWindow : Window
             () => model.Managers.Any(x => x.Definition.Kind == ManagerKind.Winget && x.Status?.Health == ManagerHealth.Ready), ConfirmAsync,
             FontSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe")));
         installations = new(management, model, log, operationQueue, snapshot: new InstalledSnapshot(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "installed-apps.json")));
+        packageQueue.Finished += entry =>
+        {
+            if (entry.Operation.SuggestedInstall is not null &&
+                (entry.Result?.Outcome is ActionOutcome.Completed or ActionOutcome.RestartRequired))
+                Post(() => installations.NeedsRefresh = true);
+        };
         var scoutHost = Path.Combine(AppContext.BaseDirectory, "ScoutHost", "TidyWindow.SearchHost.exe");
         // Two long-running helpers: quick exact searches, and a separate one for slower near-match searches that can be stopped without disturbing typing.
         scout = new(new ScoutService(runner, scoutHost, worker: new PersistentScoutWorker(scoutHost), fuzzyWorker: new PersistentScoutWorker(scoutHost, killOnCancel: true)), log, Post);
@@ -931,23 +937,53 @@ public sealed partial class MainWindow : Window
 
     private void SuggestedInstallRequested(SuggestedApp app) => Run(async () =>
     {
-        var winget = model.Managers.FirstOrDefault(x => x.Definition.Kind == ManagerKind.Winget);
-        if (winget?.Status?.Health != ManagerHealth.Ready)
+        // WinGet stays exactly on the same install path as the Install Hub.
+        if (app.IsWinget)
         {
-            var openOverview = await ConfirmAsync("WinGet is not ready",
-                "TSUGU uses WinGet's existing install queue for this app. Open Overview to check or set up WinGet first?",
-                "Open Overview");
-            if (openOverview) ShowPage(Page.Overview);
+            var winget = model.Managers.FirstOrDefault(x => x.Definition.Kind == ManagerKind.Winget);
+            if (winget?.Status?.Health != ManagerHealth.Ready)
+            {
+                var openOverview = await ConfirmAsync("WinGet is not ready",
+                    "TSUGU uses WinGet's existing install queue for this app. Open Overview to check or set up WinGet first?",
+                    "Open Overview");
+                if (openOverview) ShowPage(Page.Overview);
+                return;
+            }
+
+            var note = app.Interactive
+                ? "This package uses an interactive installer. A separate installer window may appear and require you to complete its steps."
+                : "TSUGU will add this package to its install queue. WinGet may ask for license acceptance or administrator permission.";
+            if (!await ConfirmAsync($"Install {app.Name}?", $"{app.PackageId}\nSource: WinGet\n\n{note}", "Add to queue")) return;
+
+            var package = new Package(ManagerKind.Winget, app.PackageId!, app.Name, "Latest", "WinGet");
+            operationQueue.Enqueue([PackageOperation.Install(package) with { Interactive = app.Interactive }]);
+            ShowPage(Page.Queue);
             return;
         }
 
-        var note = app.Interactive
-            ? "This package uses an interactive installer. A separate installer window may appear and require you to complete its steps."
-            : "TSUGU will add this package to its install queue. WinGet may ask for license acceptance or administrator permission.";
-        if (!await ConfirmAsync($"Install {app.Name}?", $"{app.PackageId}\nSource: WinGet\n\n{note}", "Add to queue")) return;
+        if (app.InstallSpec is not { } recipe) return;
+        var notes = new List<string>
+        {
+            recipe.Source == SuggestedInstallSource.GitHubRelease
+                ? $"TSUGU will query the latest Windows release from {recipe.Repository}, download the matching asset and verify the published SHA-256 checksum or Authenticode signature before launching it."
+                : "TSUGU will download the file directly from the vendor's official HTTPS host and verify its Authenticode publisher before launching it."
+        };
+        if (recipe.AllowUnsigned)
+            notes.Add("This upstream release may not publish a SHA-256 checksum or trusted code signature. TSUGU will show a warning in the install queue and only use the exact repository's latest release asset.");
+        if (recipe.Payload == SuggestedInstallPayload.ArchiveInstaller)
+            notes.Add("This package installs a mouse driver. Its installer may request Windows administrator approval and may require a restart.");
+        if (recipe.Payload == SuggestedInstallPayload.PortableScanner)
+            notes.Add("This is an on-demand portable scanner, not permanent antivirus protection. The scanner may ask for administrator permission when it starts.");
+        if (recipe.Payload == SuggestedInstallPayload.ManualArchive)
+            notes.Add("This is a patch for an existing Equalizer APO installation, not an independent app installer. TSUGU only extracts the package and opens its folder; it will not overwrite audio system files.");
+        if (recipe.Payload == SuggestedInstallPayload.PortableExecutable || recipe.Payload == SuggestedInstallPayload.PortableArchive)
+            notes.Add("TSUGU places this portable app in your local user profile and adds it to the Start menu where supported.");
+        if (recipe.ReadmeUrl is { Length: > 0 } guide)
+            notes.Add($"Upstream instructions: {guide}");
 
-        var package = new Package(ManagerKind.Winget, app.PackageId!, app.Name, "Latest", "WinGet");
-        operationQueue.Enqueue([PackageOperation.Install(package) with { Interactive = app.Interactive }]);
+        var primary = recipe.Payload == SuggestedInstallPayload.ManualArchive ? "Prepare package" : "Download & install";
+        if (!await ConfirmAsync($"{primary}: {app.Name}?", string.Join("\n\n", notes), primary)) return;
+        operationQueue.Enqueue([PackageOperation.InstallSuggested(recipe)]);
         ShowPage(Page.Queue);
     }, "queueing a suggested app install");
     private void InstalledRefreshClick(object sender, RoutedEventArgs e) => Run(() => installations.RefreshAsync(), "refreshing the installed apps");
@@ -1172,7 +1208,15 @@ public sealed partial class MainWindow : Window
 
     private static async Task OpenLinkAsync(string url)
     {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps) return;
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return;
+        // Only this one product-ID scheme is used by the curated Microsoft Store row.
+        if (uri.Scheme.Equals("ms-windows-store", StringComparison.OrdinalIgnoreCase) &&
+            url.Equals("ms-windows-store://pdp/?ProductId=9N97ZCKPD60Q", StringComparison.OrdinalIgnoreCase))
+        {
+            await Launcher.LaunchUriAsync(uri);
+            return;
+        }
+        if (uri.Scheme != Uri.UriSchemeHttps) return;
         await Launcher.LaunchUriAsync(uri);
     }
 
