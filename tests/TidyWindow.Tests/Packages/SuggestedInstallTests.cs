@@ -22,6 +22,15 @@ public sealed class SuggestedInstallTests
     }
 
     [Fact]
+    public void MicrosoftStorePackagesKeepTheirWinGetSource()
+    {
+        var store = new Package(ManagerKind.Winget, "9PLM9XGG6VKS", "Codex", "Latest", "msstore");
+        var regular = new Package(ManagerKind.Winget, "Discord.Discord", "Discord", "Latest", "WinGet");
+        Assert.Contains("--source msstore", PackageService.DisplayInstallCommand(store));
+        Assert.Contains("--source winget", PackageService.DisplayInstallCommand(regular));
+    }
+
+    [Fact]
     public void SuggestedOperationsHaveTheirOwnQueueIdentity()
     {
         var spec = new SuggestedInstallSpec("fulgur", "Fulgur", SuggestedInstallSource.GitHubRelease,

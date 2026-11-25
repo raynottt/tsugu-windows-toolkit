@@ -187,9 +187,10 @@ public sealed class PackageService(ICommandRunner runner, IExecutableLocator loc
         if (manager.Health != ManagerHealth.Ready || manager.Executable is null || manager.Definition.Kind != package.Manager)
             throw new InvalidOperationException("Refresh package managers before installing.");
         if (!PackageOutputParser.IsSafeId(package.Id)) throw new ArgumentException("The package identifier is incomplete or invalid. Search for its full name.");
+        var wingetSource = package.Source.Equals("msstore", StringComparison.OrdinalIgnoreCase) ? "msstore" : "winget";
         string[] args = package.Manager switch
         {
-            ManagerKind.Winget => ["install", "--id", package.Id, "--exact", "--source", "winget", "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"],
+            ManagerKind.Winget => ["install", "--id", package.Id, "--exact", "--source", wingetSource, "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"],
             ManagerKind.Chocolatey => ["install", package.Id, "--yes", "--no-progress", "--source=https://community.chocolatey.org/api/v2/"],
             _ => ["install", package.Id]
         };
@@ -216,7 +217,7 @@ public sealed class PackageService(ICommandRunner runner, IExecutableLocator loc
 
     public static string DisplayInstallCommand(Package package) => package.Manager switch
     {
-        ManagerKind.Winget => $"winget install --id {package.Id} --exact --source winget --accept-package-agreements --accept-source-agreements --disable-interactivity",
+        ManagerKind.Winget => $"winget install --id {package.Id} --exact --source {(package.Source.Equals("msstore", StringComparison.OrdinalIgnoreCase) ? "msstore" : "winget")} --accept-package-agreements --accept-source-agreements --disable-interactivity",
         ManagerKind.Chocolatey => $"choco install {package.Id} --yes --no-progress --source=https://community.chocolatey.org/api/v2/",
         _ => $"scoop install {package.Id}"
     };

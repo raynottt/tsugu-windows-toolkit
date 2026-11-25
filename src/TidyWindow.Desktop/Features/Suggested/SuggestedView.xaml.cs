@@ -10,7 +10,7 @@ public sealed class SuggestedApp
 {
     public SuggestedApp(string name, string category, string description, string sourceLabel, string actionLabel,
         string installUrl, string? sourceUrl = null, string? packageId = null, bool interactive = false,
-        SuggestedInstallSpec? installSpec = null, string glyph = "\uE71D")
+        string? wingetSource = null, SuggestedInstallSpec? installSpec = null, string glyph = "\uE71D")
     {
         Name = name;
         Category = category;
@@ -21,6 +21,7 @@ public sealed class SuggestedApp
         SourceUrl = sourceUrl;
         PackageId = packageId;
         Interactive = interactive;
+        WingetSource = wingetSource;
         InstallSpec = installSpec;
         Glyph = glyph;
     }
@@ -34,6 +35,7 @@ public sealed class SuggestedApp
     public string? SourceUrl { get; }
     public string? PackageId { get; }
     public bool Interactive { get; }
+    public string? WingetSource { get; }
     public SuggestedInstallSpec? InstallSpec { get; }
     public string Glyph { get; }
     public bool IsWinget => !string.IsNullOrWhiteSpace(PackageId);
@@ -95,8 +97,9 @@ public sealed partial class SuggestedView : UserControl
             installSpec: new("google-antigravity", "Google Antigravity", SuggestedInstallSource.OfficialDownloadPage,
                 SuggestedInstallPayload.Installer, AssetPattern: @"/windows-x64/Antigravity-x64\.exe$", DirectUrl: "https://antigravity.google/download/", ExpectedSigner: "Google LLC"),
             glyph: "\uE753"),
-        new("OpenAI Codex", "AI", "Open the official Codex page to choose the supported desktop or editor workflow.",
-            "OFFICIAL OPENAI PAGE", "Open Codex", "https://openai.com/ru-RU/codex/", glyph: "\uE756"),
+        new("OpenAI Codex", "AI", "Official Windows installation through WinGet's Microsoft Store source. The app opens with Codex in the ChatGPT desktop app after you sign in.",
+            "WINGET · MICROSOFT STORE", "Add to queue", "ms-windows-store://pdp/?ProductId=9PLM9XGG6VKS",
+            "https://openai.com/ru-RU/codex/", packageId: "9PLM9XGG6VKS", wingetSource: "msstore", glyph: "\uE756"),
         new("Discord", "Communication", "Install Discord through the existing WinGet queue. Installer options and progress remain in TSUGU.",
             "WINGET · DISCORD.DISCORD", "Add to queue", "https://winget.run/pkg/Discord/Discord",
             packageId: "Discord.Discord", glyph: "\uE8BD"),
