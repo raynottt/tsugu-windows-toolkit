@@ -1,0 +1,110 @@
+name: Build and publish TSUGU preview
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/release.yml
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Three-part release version, for example 0.1.1
+        required: true
+        default: 0.1.0
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tsugu-release-${{ github.event.inputs.version || '0.1.0' }}
+  cancel-in-progress: false
+
+jobs:
+  package-and-release:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      RELEASE_VERSION: ${{ github.event.inputs.version || '0.1.0' }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.300
+
+      - name: Restore solution
+        run: dotnet restore TSUGU.slnx --locked-mode
+
+      - name: Restore self-contained desktop runtime
+        run: dotnet restore src/TidyWindow.Desktop/TidyWindow.Desktop.csproj --locked-mode -p:SelfContained=true
+
+      - name: Build solution
+        run: dotnet build TSUGU.slnx --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj --configuration Release --no-build
+
+      - name: Publish self-contained Windows app
+        run: dotnet publish src/TidyWindow.Desktop/TidyWindow.Desktop.csproj --configuration Release --no-restore --self-contained true -o artifacts/publish
+
+      - name: Verify published app
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $required = @(
+            'TSUGU.exe',
+            'TSUGU.pri',
+            'Shell/MainWindow.xbf',
+            'CleanHost/TidyWindow.CleanHost.exe',
+            'ScoutHost/TidyWindow.SearchHost.exe'
+          )
+          foreach ($item in $required) {
+            if (-not (Test-Path (Join-Path 'artifacts/publish' $item))) {
+              throw "Publish output is missing $item"
+            }
+          }
+          Copy-Item THIRD_PARTY_NOTICES.md artifacts/publish/
+          New-Item -ItemType Directory -Force artifacts/publish/LICENSES | Out-Null
+          Copy-Item LICENSES/TIDYWINDOW-MIT.txt artifacts/publish/LICENSES/
+          Copy-Item LICENSES/SETTINGSUI-MIT.txt artifacts/publish/LICENSES/
+
+      - name: Install Inno Setup 6
+        run: choco install innosetup --version=6.7.1 -y --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: ./installer/build.ps1 -Version $env:RELEASE_VERSION -PublishDir artifacts/publish -OutDir artifacts
+
+      - name: Build portable ZIP
+        shell: pwsh
+        run: |
+          $archive = "artifacts/TSUGU-Portable-win-x64-$env:RELEASE_VERSION.zip"
+          Compress-Archive -Path 'artifacts/publish/*' -DestinationPath $archive -CompressionLevel Optimal
+          if (-not (Test-Path $archive)) { throw 'Portable ZIP was not created.' }
+
+      - name: Publish GitHub prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.RELEASE_VERSION }}
+          name: TSUGU v${{ env.RELEASE_VERSION }} — Preview
+          prerelease: true
+          draft: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            **Early Windows preview.** This release contains the TSUGU WinUI 3 shell and the carried-forward TidyWindow package, cleanup and repair foundation.
+
+            The before/after reinstall profile export/import experience is not implemented yet. Treat this as a preview build, back up important data, and review every maintenance or repair action before running it.
+
+            - Setup: guided Windows installer
+            - Portable: self-contained x64 ZIP
+            - Target: Windows 10 build 19041+ / Windows 11, x64
+          files: |
+            artifacts/TSUGU-Setup-${{ env.RELEASE_VERSION }}.exe
+            artifacts/TSUGU-Portable-win-x64-${{ env.RELEASE_VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
