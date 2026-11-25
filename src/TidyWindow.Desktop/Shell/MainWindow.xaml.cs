@@ -198,7 +198,15 @@ public sealed partial class MainWindow : Window
         initialized = true;
         PrepareSidebar();
         ShowPage(Page.Overview);
-        Root.SizeChanged += (_, _) => ApplyResponsiveLayout();
+        Root.SizeChanged += (_, e) =>
+        {
+            ApplyResponsiveLayout();
+            if (sidebarState is null) return;
+            if (e.NewSize.Width >= AdaptiveLayout.OverlayWidth)
+                sidebarState.InsertScalar("Reveal", (float)AdaptiveLayout.OpenWidth);
+            else if (!sidebarReserved && !sidebarOpen)
+                sidebarState.InsertScalar("Reveal", (float)AdaptiveLayout.RailWidth);
+        };
         // The sidebar stays open while the theme menu it launched is showing.
         AppearanceMenu.Opened += (_, _) => { sidebarMenu = true; UpdateSidebar(); };
         AppearanceMenu.Closed += (_, _) => { sidebarMenu = false; UpdateSidebar(); };
@@ -207,6 +215,7 @@ public sealed partial class MainWindow : Window
             WatchFirstFrames();
             ReportInterruptedRun();
             ApplyResponsiveLayout();
+            sidebarState?.InsertScalar("Reveal", (float)AdaptiveLayout.ForWidth(Root.ActualWidth, sidebarReserved).SidebarWidth);
             _ = CheckCrashesLaterAsync();
             await Refresh();
             await terminal.RefreshAsync();
@@ -449,7 +458,8 @@ public sealed partial class MainWindow : Window
         var compositor = Microsoft.UI.Xaml.Hosting.ElementCompositionPreview.GetElementVisual(Sidebar).Compositor;
         var sidebar = Microsoft.UI.Xaml.Hosting.ElementCompositionPreview.GetElementVisual(Sidebar);
         sidebarState = compositor.CreatePropertySet();
-        sidebarState.InsertScalar("Reveal", (float)AdaptiveLayout.RailWidth);
+        var initialReveal = Root.ActualWidth >= AdaptiveLayout.OverlayWidth ? AdaptiveLayout.OpenWidth : AdaptiveLayout.RailWidth;
+        sidebarState.InsertScalar("Reveal", (float)initialReveal);
 
         var clip = compositor.CreateInsetClip();
         sidebar.Clip = clip;
