@@ -280,7 +280,7 @@ public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLo
         return associated.Count == 1 ? associated.Single() : null;
     }
 
-    private static string? NormalizeSha256(string? value)
+    internal static string? NormalizeSha256(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) return null;
         var hash = value.Trim();

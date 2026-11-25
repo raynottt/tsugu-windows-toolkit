@@ -43,12 +43,12 @@ public sealed class SuggestedInstallTests
     }
 
     [Fact]
-    public void ConfiguredSha256MustBeAHexDigest()
+    public void ConfiguredSha256IsNormalizedAndInvalidValuesAreRejected()
     {
-        var spec = new SuggestedInstallSpec("faceit", "FACEIT", SuggestedInstallSource.DirectDownload,
-            SuggestedInstallPayload.Installer, DirectUrl: "https://anticheat-client.faceit-cdn.net/FACEITInstaller_64.exe",
-            ExpectedSha256: new string('x', 64));
-        Assert.Equal(new string('x', 64), spec.ExpectedSha256);
+        const string upper = "09145A4BD2E846A22FE4E22F0659767DA8EFBA84506496CC97A77640042A404D";
+        Assert.Equal(upper.ToLowerInvariant(), SuggestedInstallService.NormalizeSha256(upper));
+        Assert.Throws<InvalidDataException>(() => SuggestedInstallService.NormalizeSha256(new string('x', 64)));
+        Assert.Null(SuggestedInstallService.NormalizeSha256(null));
     }
 
     [Fact]
