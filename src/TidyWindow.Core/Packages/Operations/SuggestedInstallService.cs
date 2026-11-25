@@ -404,7 +404,7 @@ public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLo
         { return new(ActionOutcome.Failed, "The portable app could not be launched", ex.Message); }
     }
 
-    private static async Task<PackageActionResult> InstallPortableExecutableAsync(SuggestedInstallSpec spec, string downloaded, string appFolder, string version, IProgress<CommandOutput>? progress, CancellationToken token)
+    private async Task<PackageActionResult> InstallPortableExecutableAsync(SuggestedInstallSpec spec, string downloaded, string appFolder, string version, IProgress<CommandOutput>? progress, CancellationToken token)
     {
         var stable = Path.Combine(appFolder, SafeFileName(Path.GetFileName(downloaded)));
         if (!string.Equals(downloaded, stable, StringComparison.OrdinalIgnoreCase))
