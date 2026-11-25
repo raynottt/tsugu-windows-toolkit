@@ -1,124 +1,39 @@
-name: Import TSUGU foundations
+name: TSUGU CI
 
 on:
   push:
     branches:
       - integration/tidywindow-baseline
-    paths:
-      - .github/workflows/import-foundations.yml
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: tsugu-foundation-import
-  cancel-in-progress: false
+  group: tsugu-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  import-and-build:
+  build-and-test:
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - name: Check out TSUGU
+      - name: Check out source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.300
 
-      - name: Import pinned TidyWindow baseline and SettingsUI references
-        shell: pwsh
-        env:
-          TIDYWINDOW_SHA: 6d3a0b43640d21fcf25ad3b6258b69be32c0f09e
-          SETTINGSUI_SHA: 0b6ebad22f8d074fb5dddd07490cc890deb26e84
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $workspace = $env:GITHUB_WORKSPACE
-          $tidy = Join-Path $env:RUNNER_TEMP 'tidywindow-source'
-          $settings = Join-Path $env:RUNNER_TEMP 'settingsui-source'
-
-          git clone https://github.com/Cosmos-0118/TidyWindow.git $tidy
-          git -C $tidy checkout --detach $env:TIDYWINDOW_SHA
-          if ((git -C $tidy rev-parse HEAD).Trim() -ne $env:TIDYWINDOW_SHA) {
-            throw 'TidyWindow source did not resolve to the pinned commit.'
-          }
-
-          # Merge the original source tree into this repository without replacing
-          # TSUGU's README or its own root license decision.
-          robocopy $tidy $workspace /E /XD .git /XF README.md LICENSE
-          if ($LASTEXITCODE -ge 8) { throw "TidyWindow import failed (robocopy $LASTEXITCODE)." }
-
-          # The GitHub App connection does not grant the workflow-write scope.
-          # Keep this bootstrap workflow and omit upstream CI/release workflow files.
-          $workflowFolder = Join-Path $workspace '.github/workflows'
-          if (Test-Path $workflowFolder) {
-            Get-ChildItem $workflowFolder -File |
-              Where-Object { $_.Name -ne 'import-foundations.yml' } |
-              Remove-Item -Force
-          }
-
-          New-Item -ItemType Directory -Force (Join-Path $workspace 'LICENSES') | Out-Null
-          Copy-Item (Join-Path $tidy 'LICENSE') (Join-Path $workspace 'LICENSES/TIDYWINDOW-MIT.txt') -Force
-          if (Test-Path (Join-Path $workspace 'TidyWindow.slnx')) {
-            Move-Item (Join-Path $workspace 'TidyWindow.slnx') (Join-Path $workspace 'TSUGU.slnx') -Force
-          }
-
-          git clone https://github.com/BobbyESP/SettingsUI.git $settings
-          git -C $settings checkout --detach $env:SETTINGSUI_SHA
-          if ((git -C $settings rev-parse HEAD).Trim() -ne $env:SETTINGSUI_SHA) {
-            throw 'SettingsUI source did not resolve to the pinned commit.'
-          }
-
-          # Keep the original UI code as a reference, not as a dependency:
-          # its old Windows App SDK version is incompatible with the TidyWindow baseline.
-          $reference = Join-Path $workspace 'docs/reference/SettingsUI'
-          New-Item -ItemType Directory -Force $reference | Out-Null
-          Copy-Item (Join-Path $settings 'SettingsUI/Controls') $reference -Recurse -Force
-          Copy-Item (Join-Path $settings 'SettingsUI/Themes') $reference -Recurse -Force
-          Copy-Item (Join-Path $settings 'SettingsUI.Demo/ShellPage.xaml') $reference -Force
-          New-Item -ItemType Directory -Force (Join-Path $workspace 'LICENSES') | Out-Null
-          Copy-Item (Join-Path $settings 'LICENSE') (Join-Path $workspace 'LICENSES/SETTINGSUI-MIT.txt') -Force
-
-          # Bring across the colored Fluent icons and module illustrations for
-          # subsequent integration into the TSUGU shell.
-          $uiAssets = Join-Path $workspace 'src/TidyWindow.Desktop/Assets/SettingsUI'
-          New-Item -ItemType Directory -Force $uiAssets | Out-Null
-          Copy-Item (Join-Path $settings 'SettingsUI.Demo/Assets/FluentIcons') $uiAssets -Recurse -Force
-          Copy-Item (Join-Path $settings 'SettingsUI.Demo/Assets/Modules') $uiAssets -Recurse -Force
-
-          $project = Join-Path $workspace 'src/TidyWindow.Desktop/TidyWindow.Desktop.csproj'
-          $projectText = Get-Content $project -Raw
-          if ($projectText -notmatch 'Assets/SettingsUI/\*\*') {
-            $assetItem = '    <Content Include="Assets/SettingsUI/**/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>' + "`r`n"
-            $projectText = [regex]::Replace($projectText, '(?m)^  <ItemGroup>$', "  <ItemGroup`r`n$assetItem", 1)
-            Set-Content -Path $project -Value $projectText -Encoding utf8
-          }
-
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git diff --cached --quiet
-          $stagedChanges = $LASTEXITCODE
-          if ($stagedChanges -eq 1) {
-            git commit -m 'build: import TidyWindow foundation and SettingsUI references'
-            git push origin HEAD:integration/tidywindow-baseline
-          }
-          elseif ($stagedChanges -eq 0) {
-            Write-Host 'The pinned sources are already present; no import commit is needed.'
-          }
-          else {
-            throw "git diff returned unexpected exit code $stagedChanges."
-          }
-
-      - name: Restore solution
+      - name: Restore
         run: dotnet restore TSUGU.slnx --locked-mode
 
-      - name: Build solution
+      - name: Build
         run: dotnet build TSUGU.slnx --configuration Release --no-restore
 
-      - name: Run tests
+      - name: Test
         run: dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj --configuration Release --no-build
