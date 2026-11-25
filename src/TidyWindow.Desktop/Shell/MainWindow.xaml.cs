@@ -329,6 +329,7 @@ public sealed partial class MainWindow : Window
     {
         var layout = AdaptiveLayout.ForWidth(Root.ActualWidth, sidebarReserved);
         SidebarColumn.Width = new GridLength(layout.SidebarWidth);
+        Sidebar.Width = layout.SidebarWidth;
         ContentArea.Padding = new Thickness(layout.Padding, 24, layout.Padding, 24);
         model.ApplyLayout(layout);
         installations.ApplyLayout(layout);
@@ -506,6 +507,8 @@ public sealed partial class MainWindow : Window
 
     private void UpdateSidebar()
     {
+        // At desktop widths the Settings-style pane is always expanded. Only narrow windows use the hover/focus rail.
+        if (Root.ActualWidth >= AdaptiveLayout.OverlayWidth) return;
         var wanted = sidebarPointer || sidebarKeyboard || sidebarMenu;
         if (sidebarTimer is null)
         {
