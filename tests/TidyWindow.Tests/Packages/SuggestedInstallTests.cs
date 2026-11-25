@@ -22,6 +22,36 @@ public sealed class SuggestedInstallTests
     }
 
     [Fact]
+    public void OfficialDownloadPageChecksumIsAssociatedWithTheExactFile()
+    {
+        const string exeHash = "8f41e32df54fd3e14cf3caFC4CBC318070847FE6C4989EFF04D30E3BE7FD4CA0";
+        const string zipHash = "07da694915baae640635aa508ab6c940fcec9a59ce192e758b8f56ffef759c5e";
+        const string page = """
+            <h2>PinTop-11.0.0-x64.exe</h2>
+            <pre>
+            # PinTop-11.0.0-x64.exe
+            # 8F41E32DF54FD3E14CF3CAFC4CBC318070847FE6C4989EFF04D30E3BE7FD4CA0
+            #
+            # PinTop-11.0.0-x64.zip
+            # 07DA694915BAAE640635AA508AB6C940FCEC9A59CE192E758B8F56FFEF759C5E
+            </pre>
+            """;
+
+        Assert.Equal(exeHash.ToLowerInvariant(), SuggestedInstallService.FindChecksumNearFile(page, "PinTop-11.0.0-x64.exe"));
+        Assert.Equal(zipHash, SuggestedInstallService.FindChecksumNearFile(page, "PinTop-11.0.0-x64.zip"));
+        Assert.Null(SuggestedInstallService.FindChecksumNearFile(page, "Unknown.exe"));
+    }
+
+    [Fact]
+    public void ConfiguredSha256MustBeAHexDigest()
+    {
+        var spec = new SuggestedInstallSpec("faceit", "FACEIT", SuggestedInstallSource.DirectDownload,
+            SuggestedInstallPayload.Installer, DirectUrl: "https://anticheat-client.faceit-cdn.net/FACEITInstaller_64.exe",
+            ExpectedSha256: new string('x', 64));
+        Assert.Equal(new string('x', 64), spec.ExpectedSha256);
+    }
+
+    [Fact]
     public void MicrosoftStorePackagesKeepTheirWinGetSource()
     {
         var store = new Package(ManagerKind.Winget, "9PLM9XGG6VKS", "Codex", "Latest", "msstore");

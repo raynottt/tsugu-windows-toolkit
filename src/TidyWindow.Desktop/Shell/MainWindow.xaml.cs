@@ -977,6 +977,8 @@ public sealed partial class MainWindow : Window
             notes.Add("This is a patch for an existing Equalizer APO installation, not an independent app installer. TSUGU only extracts the package and opens its folder; it will not overwrite audio system files.");
         if (recipe.Payload == SuggestedInstallPayload.PortableExecutable || recipe.Payload == SuggestedInstallPayload.PortableArchive)
             notes.Add("TSUGU places this portable app in your local user profile and adds it to the Start menu where supported.");
+        if (recipe.Id.Equals("faceit-anticheat", StringComparison.OrdinalIgnoreCase))
+            notes.Add("FACEIT Anti-Cheat installs a system-level anti-cheat service/driver. Review the official requirements before continuing; Windows may request administrator approval, and a restart may be needed.");
         if (recipe.ReadmeUrl is { Length: > 0 } guide)
             notes.Add($"Upstream instructions: {guide}");
 

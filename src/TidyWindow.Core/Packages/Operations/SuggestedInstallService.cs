@@ -34,7 +34,10 @@ public sealed record SuggestedInstallSpec(
     string? ExpectedSigner = null,
     string? InnerExecutablePattern = null,
     bool UseReleaseBodyChecksum = false,
-    string? ReadmeUrl = null)
+    string? ReadmeUrl = null,
+    string? ExpectedSha256 = null,
+    string? AssetHost = null,
+    bool UsePageChecksum = false)
 {
     public string ResourceKey => "suggested:" + Id.ToUpperInvariant();
 }
@@ -114,7 +117,8 @@ public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLo
             throw new InvalidOperationException($"TSUGU refused an unapproved download host: {uri.Host}");
         var name = Uri.UnescapeDataString(Path.GetFileName(uri.AbsolutePath));
         if (name.Length == 0) throw new InvalidOperationException("The vendor download URL did not provide a file name.");
-        return new(uri, SafeFileName(name), "latest", null, null);
+        var expectedHash = NormalizeSha256(spec.ExpectedSha256);
+        return new(uri, SafeFileName(name), "latest", expectedHash, null);
     }
     private async Task<ResolvedDownload> ResolveOfficialDownloadPageAsync(SuggestedInstallSpec spec, CancellationToken token)
     {
@@ -132,25 +136,53 @@ public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLo
         if (spec.AssetPattern.Length == 0)
             throw new InvalidOperationException("No Windows asset selector is configured for this vendor page.");
 
-        // The curated Google Antigravity row selects only the official Windows x64 EXE link; the ARM64 and IDE links are deliberately excluded.
+        // A vendor page may link to the binary directly or expose its file name in the download button's data attributes.
+        // Match only the configured vendor host; this avoids turning a general web page into an arbitrary download launcher.
+        var assetHost = spec.AssetHost ?? "storage.googleapis.com";
+        if (!AllowedVendorDownloadHosts.Contains(assetHost))
+            throw new InvalidOperationException("The selected download host is not approved by TSUGU.");
         var selector = new Regex(spec.AssetPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2));
-        var links = Regex.Matches(html, @"href\s*=\s*[""']([^""']+)[""']", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2))
-            .Select(match => WebUtility.HtmlDecode(match.Groups[1].Value))
-            .Select(value => Uri.TryCreate(pageUri, value, out var target) ? target : null)
-            .Where(target => target is not null && target.Scheme == Uri.UriSchemeHttps &&
-                target.Host.Equals("storage.googleapis.com", StringComparison.OrdinalIgnoreCase) && selector.IsMatch(target.AbsoluteUri))
-            .Cast<Uri>()
-            .DistinctBy(uri => uri.AbsoluteUri, StringComparer.OrdinalIgnoreCase)
+        var links = Regex.Matches(html, @"(?:href|data-href|data-url|data-download-url)\s*=\s*[""']([^""']+)[""']", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2))
+            .Select(match =>
+            {
+                var value = WebUtility.HtmlDecode(match.Groups[1].Value);
+                if (!Uri.TryCreate(pageUri, value, out var target)) return (Uri: (Uri?)null, FileName: "");
+                var contextStart = Math.Max(0, match.Index - 500);
+                var contextLength = Math.Min(html.Length - contextStart, match.Length + 1200);
+                var context = html.Substring(contextStart, contextLength);
+                var assetMatch = selector.Match(Uri.UnescapeDataString(target.AbsoluteUri));
+                if (!assetMatch.Success) assetMatch = selector.Match(WebUtility.HtmlDecode(context));
+                if (!assetMatch.Success) return (Uri: (Uri?)null, FileName: "");
+                var linkedName = Uri.UnescapeDataString(Path.GetFileName(target.AbsolutePath));
+                var fileName = Regex.IsMatch(linkedName, @"\.(?:exe|msi|zip)$", RegexOptions.IgnoreCase)
+                    ? linkedName : assetMatch.Value;
+                return (Uri: target, FileName: fileName);
+            })
+            .Where(candidate => candidate.Uri is not null &&
+                candidate.Uri.Scheme == Uri.UriSchemeHttps &&
+                (candidate.Uri.Host.Equals(assetHost, StringComparison.OrdinalIgnoreCase) ||
+                 assetHost.Equals("youngsam.net", StringComparison.OrdinalIgnoreCase) &&
+                 candidate.Uri.Host.Equals("www.youngsam.net", StringComparison.OrdinalIgnoreCase)))
+            .Select(candidate => (Uri: candidate.Uri!, candidate.FileName))
+            .DistinctBy(candidate => candidate.Uri.AbsoluteUri, StringComparer.OrdinalIgnoreCase)
             .ToArray();
         if (links.Length != 1)
             throw new InvalidOperationException(links.Length == 0
-                ? "The official Google page did not expose a Windows x64 installer link. Nothing was downloaded."
-                : "The official Google page exposed multiple matching Windows installers. TSUGU will not guess which one to run.");
+                ? "The official download page did not expose one matching Windows asset on the approved host. Nothing was downloaded."
+                : "The official download page exposed multiple matching Windows assets. TSUGU will not guess which one to run.");
 
-        var asset = links[0];
-        var fileName = SafeFileName(Uri.UnescapeDataString(Path.GetFileName(asset.AbsolutePath)));
+        var asset = links[0].Uri;
+        var fileName = SafeFileName(links[0].FileName);
+        var expectedHash = NormalizeSha256(spec.ExpectedSha256);
+        if (spec.UsePageChecksum)
+        {
+            expectedHash = FindChecksumNearFile(html, fileName);
+            if (expectedHash is null)
+                throw new InvalidDataException($"The official page did not expose one unambiguous SHA-256 checksum for {fileName}. Nothing was launched.");
+        }
         var version = Regex.Match(html, @"(?i)Download Google Antigravity.{0,400}?v([0-9]+\.[0-9]+\.[0-9]+)", RegexOptions.Singleline, TimeSpan.FromSeconds(2));
-        return new(asset, fileName, version.Success ? version.Groups[1].Value : "latest", null, null);
+        if (!version.Success) version = Regex.Match(fileName, @"(?i)(?:v)?([0-9]+\.[0-9]+\.[0-9]+)");
+        return new(asset, fileName, version.Success ? version.Groups[1].Value : "latest", expectedHash, null);
     }
 
 
@@ -221,18 +253,60 @@ public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLo
         return new(assetUri, fileName, tag, digest, checksumText);
     }
 
+    internal static string? FindChecksumNearFile(string page, string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(page) || string.IsNullOrWhiteSpace(fileName)) return null;
+
+        var text = WebUtility.HtmlDecode(Regex.Replace(page, @"<[^>]+>", " "));
+        var hashes = Regex.Matches(text, @"(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])")
+            .Select(match => (Value: match.Value.ToLowerInvariant(), Index: match.Index))
+            .ToArray();
+        if (hashes.Length == 0) return null;
+
+        var needle = Path.GetFileName(fileName);
+        var positions = Regex.Matches(text, Regex.Escape(needle), RegexOptions.IgnoreCase)
+            .Select(match => match.Index)
+            .ToArray();
+        var associated = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var position in positions)
+        {
+            var closest = hashes
+                .Select(hash => (hash.Value, Distance: Math.Abs(hash.Index - position)))
+                .Where(x => x.Distance <= 1800)
+                .OrderBy(x => x.Distance)
+                .FirstOrDefault();
+            if (closest.Value is not null) associated.Add(closest.Value);
+        }
+        return associated.Count == 1 ? associated.Single() : null;
+    }
+
+    private static string? NormalizeSha256(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var hash = value.Trim();
+        if (!Regex.IsMatch(hash, @"^[0-9a-fA-F]{64}$"))
+            throw new InvalidDataException("The configured SHA-256 value is not a 64-character hexadecimal digest.");
+        return hash.ToLowerInvariant();
+    }
+
     private static readonly HashSet<string> AllowedVendorHosts = new(StringComparer.OrdinalIgnoreCase)
     {
         "dl.emsisoft.com",
         "devbuilds.s.kaspersky-labs.com",
-        "antigravity.google"
+        "antigravity.google",
+        "youngsam.net",
+        "www.youngsam.net",
+        "anticheat-client.faceit-cdn.net"
     };
 
     private static readonly HashSet<string> AllowedVendorDownloadHosts = new(StringComparer.OrdinalIgnoreCase)
     {
         "dl.emsisoft.com",
         "devbuilds.s.kaspersky-labs.com",
-        "storage.googleapis.com"
+        "storage.googleapis.com",
+        "youngsam.net",
+        "www.youngsam.net",
+        "anticheat-client.faceit-cdn.net"
     };
 
     private static readonly HashSet<string> AllowedGitHubRedirectHosts = new(StringComparer.OrdinalIgnoreCase)
