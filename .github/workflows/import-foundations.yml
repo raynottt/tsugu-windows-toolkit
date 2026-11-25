@@ -86,7 +86,7 @@ jobs:
           $projectText = Get-Content $project -Raw
           if ($projectText -notmatch 'Assets/SettingsUI/\*\*') {
             $assetItem = '    <Content Include="Assets/SettingsUI/**/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>' + "`r`n"
-            $projectText = $projectText.Replace('  <ItemGroup>', "  <ItemGroup>`r`n$assetItem")
+            $projectText = [regex]::Replace($projectText, '(?m)^  <ItemGroup>$', "  <ItemGroup`r`n$assetItem", 1)
             Set-Content -Path $project -Value $projectText -Encoding utf8
           }
 
@@ -110,7 +110,7 @@ jobs:
         run: dotnet restore TSUGU.slnx --locked-mode
 
       - name: Build solution
-        run: dotnet build TSUGU.slnx --configuration Release --no-restore -p:Platform=x64
+        run: dotnet build TSUGU.slnx --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test TSUGU.slnx --configuration Release --no-build -p:Platform=x64
+        run: dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj --configuration Release --no-build
