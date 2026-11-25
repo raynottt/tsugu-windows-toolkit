@@ -1,0 +1,242 @@
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace TidyWindow.Next.Core;
+
+/// <param name="feed">Searches Chocolatey without starting its command line. When absent, or when it fails, the command line is used.</param>
+/// <param name="scoop">Searches Scoop's buckets on disk without starting Scoop. When absent, or when the buckets cannot be read, Scoop itself is asked.</param>
+public sealed class PackageService(ICommandRunner runner, IExecutableLocator locator, IChocolateyFeed? feed = null, ScoopCatalog? scoop = null)
+{
+    private const int SearchLimit = 60;
+    private readonly SemaphoreSlim installGate = new(1, 1);
+    internal SemaphoreSlim OperationGate => installGate;
+    private readonly PackageSearchCache searchCache = new();
+    public void ClearSearchCache() => searchCache.Clear();
+
+    /// <summary>WinGet without a source also reads the registry and the Store's app list, which takes much longer than its own packages on a slow PC or network.</summary>
+    private static readonly TimeSpan WindowsAppsInventoryLimit = TimeSpan.FromSeconds(60);
+
+    /// <summary>Where a fast search path that stops working is noted, once per source per session, so a search that turned slow has an explanation. Searches work without it.</summary>
+    public ActivityLog? Log { get; set; }
+    private int fastPathNoted;
+    public async Task<InstalledInventory> GetInstalledAsync(IReadOnlyList<ManagerStatus> managers, CancellationToken token = default)
+    {
+        var tasks = managers.Where(x => x.Health == ManagerHealth.Ready).Select(x => ReadInstalledAsync(x, token)).ToArray();
+        var windows = await Task.Run(() => OperatingSystem.IsWindows() ? WindowsInstalledApps.Read() : (Apps: (IReadOnlyList<InstalledApp>)Array.Empty<InstalledApp>(), Errors: (IReadOnlyList<string>)Array.Empty<string>()), token).ConfigureAwait(false);
+        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+        return new InstalledInventory(results.SelectMany(x => x.Apps).Concat(windows.Apps),
+            results.Where(x => x.Error is not null).Select(x => $"{x.Manager}: Installed status could not be checked. {x.Error}").Concat(windows.Errors));
+    }
+
+    /// <param name="windowsApps">Also return what WinGet finds on the PC that no source installed: programs from the registry and Store apps. Without it only WinGet's own packages are listed.</param>
+    public async Task<InventoryResult> ReadInstalledAsync(ManagerStatus manager, CancellationToken token = default, bool windowsApps = false)
+    {
+        var kind = manager.Definition.Kind;
+        if (manager.Health != ManagerHealth.Ready || manager.Executable is null) return new(kind, [], "Manager is unavailable.");
+        windowsApps &= kind == ManagerKind.Winget;
+        string[] arguments = kind switch
+        {
+            ManagerKind.Winget when windowsApps => ["list", "--accept-source-agreements", "--disable-interactivity"],
+            ManagerKind.Winget => ["list", "--source", "winget", "--accept-source-agreements", "--disable-interactivity"],
+            // Chocolatey 1.x lists the remote feed unless --local-only is given; 2.x removed the option and lists local packages by default.
+            ManagerKind.Chocolatey => ChocolateyMajor(manager.Version) < 2 ? ["list", "--limit-output", "--local-only"] : ["list", "--limit-output"],
+            _ => ["list"]
+        };
+        try
+        {
+            var result = await runner.RunAsync(BuildCommand(kind, manager.Executable, arguments, windowsApps ? WindowsAppsInventoryLimit : TimeSpan.FromSeconds(20)), token).ConfigureAwait(false);
+            if (result.ExitCode == unchecked((int)0x8A150014)) return new(kind, []);
+            if (kind == ManagerKind.Scoop && result.ExitCode == 1 && result.Output.Contains("There aren't any apps installed", StringComparison.OrdinalIgnoreCase)) return new(kind, []);
+            if (result.ExitCode != 0) return new(kind, [], Failure(result));
+            // Inventory must not inherit the search result cap: an installed app can be row 61+.
+            // One row per package, but a package installed more than once (two versions, or 32-bit and 64-bit) keeps the list of its copies.
+            var apps = PackageOutputParser.ParseAll(kind, result.Output, windowsApps).GroupBy(x => x.Key).Select(group =>
+            {
+                var first = group.First();
+                var copies = group.Select(x => new InstalledCopy(x.Name, x.Version)).ToArray();
+                return new InstalledApp(kind, first.Id, first.Name, first.Version, first.Source, group.Count() > 1 ? copies : null);
+            }).ToArray();
+            var clean = PackageOutputParser.Clean(result.Output);
+            // WinGet's words for "none" differ by the language of Windows, so there a run that succeeded with no rows is an empty list unless the output is laid out as a table that could not be read.
+            if (apps.Length == 0 && !string.IsNullOrWhiteSpace(clean) && (kind != ManagerKind.Winget || PackageOutputParser.LooksLikeTable(clean)) &&
+                !Regex.IsMatch(clean, @"(?m)^\s*-{2,}[\s-]*$|0 packages|no (?:installed |applications |apps |packages)|aren't any installed", RegexOptions.IgnoreCase))
+                return new(kind, [], "The installed-package inventory could not be read. The manager may have a damaged configuration or an unsupported output format.");
+            return new(kind, apps);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) { return new(kind, [], ex.Message); }
+    }
+    public async Task<IReadOnlyList<ManagerStatus>> DetectAsync(CancellationToken token = default) =>
+        await Task.WhenAll(ManagerDefinition.All.Select(async definition =>
+        {
+            var path = locator.Find(definition.Kind);
+            if (path is null) return new ManagerStatus(definition, ManagerHealth.Missing, "", null, "Not installed on this device");
+            try
+            {
+                var result = await runner.RunAsync(BuildCommand(definition.Kind, path, ["--version"], TimeSpan.FromSeconds(8)), token).ConfigureAwait(false);
+                var version = Regex.Match(PackageOutputParser.Clean(result.Output), @"v?\d+\.\d+(?:\.[\w.-]+)*").Value;
+                return result.ExitCode == 0
+                    ? new ManagerStatus(definition, ManagerHealth.Ready, version.Length > 0 ? version : "Available", path, "Ready to search and install")
+                    : new ManagerStatus(definition, ManagerHealth.Unavailable, "", path, Failure(result));
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            { return new ManagerStatus(definition, ManagerHealth.Unavailable, "", path, ex.Message); }
+        })).ConfigureAwait(false);
+
+    /// <summary>Why <paramref name="query"/> cannot be searched for, or null. The one rule for every caller, so the page can refuse before any source starts.</summary>
+    public static string? QueryProblem(string query)
+    {
+        query = query.Trim();
+        return query.Length is < 2 or > 100 || query.Any(char.IsControl) ? "Enter between 2 and 100 characters." : null;
+    }
+
+    public async Task<SearchResult> SearchAsync(ManagerStatus manager, string query, CancellationToken token = default)
+    {
+        query = query.Trim();
+        if (QueryProblem(query) is { } problem) throw new ArgumentException(problem);
+        if (manager.Health != ManagerHealth.Ready || manager.Executable is null)
+            return new(manager.Definition.Kind, [], "This package manager is not ready. Refresh its status on Overview.");
+        return await searchCache.GetAsync($"{manager.Definition.Kind}|{manager.Executable}|{query}",
+            cancellation => SearchSourceAsync(manager, query, cancellation), token).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Searches through the manager's own command line: never the feed, the catalog or the cache. A health or recovery check must prove that the
+    /// manager itself can reach its source, which the fast paths (the app's own connection, the manifests on disk) say nothing about.
+    /// </summary>
+    public Task<SearchResult> ProbeSourceAsync(ManagerStatus manager, string query, CancellationToken token = default)
+    {
+        query = query.Trim();
+        if (QueryProblem(query) is { } problem) throw new ArgumentException(problem);
+        if (manager.Health != ManagerHealth.Ready || manager.Executable is null)
+            return Task.FromResult(new SearchResult(manager.Definition.Kind, [], "This package manager is not ready. Refresh its status on Overview."));
+        return SearchSourceAsync(manager, query, token, viaCommandLine: true);
+    }
+
+    private static int ChocolateyMajor(string version) => int.TryParse(version.TrimStart('v', 'V').Split('.')[0], out var major) ? major : 2;
+
+    /// <summary>Gets the slow sources ready before they are searched: Chocolatey's connection and Scoop's index. Never throws and is safe to leave running.</summary>
+    public Task WarmUpAsync(IReadOnlyList<ManagerStatus> managers, CancellationToken token = default) => Task.Run(async () =>
+    {
+        try
+        {
+            var tasks = new List<Task>();
+            foreach (var manager in managers.Where(x => x.Health == ManagerHealth.Ready))
+            {
+                if (manager.Definition.Kind == ManagerKind.Chocolatey && feed is not null) tasks.Add(feed.WarmAsync(token));
+                else if (manager.Definition.Kind == ManagerKind.Scoop && scoop is not null && ScoopCatalog.RootFor(manager.Executable) is { } root) tasks.Add(Task.Run(() => scoop.Warm(root, token), token));
+            }
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { }
+    }, token);
+
+    /// <summary>The answer from a source's own data when that can be had, or null to ask its command line. A fast path that fails is never worse than the slow one.</summary>
+    private async Task<SearchResult?> SearchDirectlyAsync(ManagerStatus manager, string query, CancellationToken token)
+    {
+        var kind = manager.Definition.Kind;
+        try
+        {
+            if (kind == ManagerKind.Chocolatey && feed is not null)
+                return new(kind, await feed.SearchAsync(query, SearchLimit, token).ConfigureAwait(false));
+            if (kind == ManagerKind.Scoop && scoop is not null && ScoopCatalog.RootFor(manager.Executable) is { } root)
+                return await Task.Run(() => scoop.Search(root, query, SearchLimit, token) is { } found ? new SearchResult(kind, found) : null, token).ConfigureAwait(false);
+        }
+        // A timeout or a feed that changed shape is not the person's cancelling, so it falls back instead of failing.
+        catch (Exception ex) when (!token.IsCancellationRequested)
+        {
+            // Noted once per source: a search that silently took the slow road for a whole session is a mystery to whoever reads the log later.
+            if (Log is not null && (Interlocked.Or(ref fastPathNoted, 1 << (int)kind) & (1 << (int)kind)) == 0)
+                Log.Write(ActivityLevel.Info, ActivityArea.Search, $"{manager.Definition.Name} is searched through its command line", $"Its faster path stopped working: {ex.GetType().Name}: {ex.Message}");
+        }
+        return null;
+    }
+
+    private async Task<SearchResult> SearchSourceAsync(ManagerStatus manager, string query, CancellationToken token, bool viaCommandLine = false)
+    {
+        var kind = manager.Definition.Kind;
+        if (!viaCommandLine && await SearchDirectlyAsync(manager, query, token).ConfigureAwait(false) is { } direct) return direct;
+        // WinGet takes the term after --query; the others take it by position, where a leading dash or slash would make it an option.
+        var switchLike = query[0] is '-' or '/';
+        if (switchLike && kind == ManagerKind.Chocolatey) return new(kind, [], "Chocolatey's command line reads a term that starts with - or / as an option, so it was not asked.");
+        string[] arguments = kind switch
+        {
+            ManagerKind.Winget => ["search", "--query", query, "--source", "winget", "--count", "60", "--accept-source-agreements", "--disable-interactivity"],
+            ManagerKind.Chocolatey => ["search", query, "--limit-output", "--page-size=60", "--page=0", "--source=https://community.chocolatey.org/api/v2/"],
+            _ => ["search", (switchLike ? "\\" : "") + Regex.Escape(query)]
+        };
+        try
+        {
+            var command = BuildCommand(kind, manager.Executable!, arguments, TimeSpan.FromSeconds(35));
+            var result = await runner.RunAsync(command, token).ConfigureAwait(false);
+            // WinGet's documented no-match HRESULT; Scoop uses 1 for an empty search.
+            if (result.ExitCode == unchecked((int)0x8A150014) || (kind == ManagerKind.Scoop && result.ExitCode == 1 && result.Output.Contains("No matches found", StringComparison.OrdinalIgnoreCase)))
+                return new(kind, []);
+            if (result.ExitCode != 0) return new(kind, [], Failure(result));
+            var packages = PackageOutputParser.Parse(kind, result.Output);
+            if (packages.Count == 0 && !string.IsNullOrWhiteSpace(result.Output) && (kind != ManagerKind.Winget || PackageOutputParser.LooksLikeTable(result.Output)) &&
+                !result.Output.Contains("No matches", StringComparison.OrdinalIgnoreCase) &&
+                !result.Output.Contains("No package", StringComparison.OrdinalIgnoreCase))
+                return new(kind, [], "The manager returned no installable rows. Its output format may have changed, or Scoop may require another bucket.");
+            return new(kind, packages);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) { return new(kind, [], ex.Message); }
+    }
+
+    public CommandSpec InstallCommand(ManagerStatus manager, Package package, bool interactive = false)
+    {
+        if (manager.Health != ManagerHealth.Ready || manager.Executable is null || manager.Definition.Kind != package.Manager)
+            throw new InvalidOperationException("Refresh package managers before installing.");
+        if (!PackageOutputParser.IsSafeId(package.Id)) throw new ArgumentException("The package identifier is incomplete or invalid. Search for its full name.");
+        string[] args = package.Manager switch
+        {
+            ManagerKind.Winget => ["install", "--id", package.Id, "--exact", "--source", "winget", "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"],
+            ManagerKind.Chocolatey => ["install", package.Id, "--yes", "--no-progress", "--source=https://community.chocolatey.org/api/v2/"],
+            _ => ["install", package.Id]
+        };
+        // Only WinGet can show its installer without losing the package's own switches. Chocolatey's --not-silent replaces every silent argument the package
+        // sets (InstallAllUsers=1, TargetDir=... for Python) with an empty string, and the installer window it opens is easily lost behind other windows.
+        if (interactive && package.Manager == ManagerKind.Winget) args = [.. args, "--interactive"];
+        return BuildCommand(package.Manager, manager.Executable, args, OperationTimeout) with { Elevate = package.Manager == ManagerKind.Chocolatey, MayShowInstaller = true };
+    }
+
+    /// <summary>
+    /// How long an install, update or uninstall may run. Reaching it ends the command and everything it started, so it is a budget for the slowest honest case (a multi-gigabyte
+    /// download on a slow link, a large product's own setup), not a guess at the typical one. Reads (list, search, version) keep their own short limits.
+    /// </summary>
+    internal static readonly TimeSpan OperationTimeout = TimeSpan.FromHours(2);
+
+    public async Task<CommandResult> InstallAsync(ManagerStatus manager, Package package, CancellationToken token = default, IProgress<CommandOutput>? progress = null, bool interactive = false)
+    {
+        // A command that asks for administrator rights is refused unless its program lives where only administrators can change it (see ElevatedProgram).
+        var command = ElevatedProgram.Checked(InstallCommand(manager, package, interactive) with { Progress = progress }, locator);
+        if (!await installGate.WaitAsync(0, token).ConfigureAwait(false)) throw new InvalidOperationException("An installation is already running.");
+        try { return package.Manager == ManagerKind.Winget ? await InstallFailure.RunAsync(runner, command, package.Name, token, locator).ConfigureAwait(false) : await runner.RunAsync(command, token).ConfigureAwait(false); }
+        finally { installGate.Release(); }
+    }
+
+    public static string DisplayInstallCommand(Package package) => package.Manager switch
+    {
+        ManagerKind.Winget => $"winget install --id {package.Id} --exact --source winget --accept-package-agreements --accept-source-agreements --disable-interactivity",
+        ManagerKind.Chocolatey => $"choco install {package.Id} --yes --no-progress --source=https://community.chocolatey.org/api/v2/",
+        _ => $"scoop install {package.Id}"
+    };
+
+    internal CommandSpec BuildCommand(ManagerKind kind, string path, IReadOnlyList<string> arguments, TimeSpan timeout)
+    {
+        if (kind != ManagerKind.Scoop) return new(path, arguments, timeout);
+        // Only Scoop needs a PowerShell host. Arguments are literal strings, never executable user input.
+        // Scoop runs git, which must fail fast on a repository that asks for a sign-in rather than wait on a prompt nobody can see (or open a sign-in window).
+        // A failure's error id, type and category go out after its message, because the message is in the PC's language and the health check reads the ids.
+        static string Quote(string value) => "'" + value.Replace("'", "''") + "'";
+        var script = "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); $ErrorActionPreference = 'Stop'; $env:GIT_TERMINAL_PROMPT = '0'; $env:GCM_INTERACTIVE = 'never'; try { & " + Quote(path) + " " + string.Join(" ", arguments.Select(Quote)) + "; if ($LASTEXITCODE) { exit $LASTEXITCODE } } catch { [Console]::Error.WriteLine($_); [Console]::Error.WriteLine(($_.FullyQualifiedErrorId, $_.Exception.GetType().FullName, $_.CategoryInfo.Category) -join ' '); exit 1 }";
+        // Scoop's own launcher sets a process policy. RemoteSigned permits local Scoop scripts
+        // without changing the user's saved policy; enterprise Group Policy still takes precedence.
+        return new(locator.PowerShell, ["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "RemoteSigned", "-EncodedCommand", Convert.ToBase64String(Encoding.Unicode.GetBytes(script))], timeout);
+    }
+
+    private static string Failure(CommandResult result)
+    {
+        var detail = PackageOutputParser.Clean(string.IsNullOrWhiteSpace(result.Error) ? result.Output : result.Error).Trim();
+        return $"Exit {result.ExitCode}: " + (detail.Length > 1000 ? detail[^1000..] : detail.Length > 0 ? detail : "The package manager could not complete the request.");
+    }
+}

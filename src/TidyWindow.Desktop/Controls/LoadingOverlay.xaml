@@ -1,0 +1,53 @@
+<UserControl x:Class="TidyWindow.Next.Desktop.LoadingOverlay"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
+ <Grid x:Name="Layer" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False" CornerRadius="8">
+  <Grid.OpacityTransition><ScalarTransition Duration="0:0:0.22" /></Grid.OpacityTransition>
+  <Grid.Background>
+   <AcrylicBrush TintColor="{ThemeResource LoadingTintColor}" TintOpacity="0.5" TintLuminosityOpacity="0.85" FallbackColor="{ThemeResource LoadingFallbackColor}" />
+  </Grid.Background>
+  <StackPanel x:Name="Panel" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="18" MaxWidth="320" Padding="24">
+   <!-- The app icon's three panes, scattering and snapping into a tidy layout. Transform and opacity animations run on the compositor, so they stay smooth while the UI thread is busy. -->
+   <Canvas x:Name="Art" Width="72" Height="72" HorizontalAlignment="Center" AutomationProperties.AccessibilityView="Raw">
+    <Rectangle x:Name="LeftPane" Canvas.Left="3" Canvas.Top="3" Width="30" Height="66" RadiusX="7" RadiusY="7" RenderTransformOrigin="0.5,0.5">
+     <Rectangle.Fill>
+      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+       <GradientStop Color="{ThemeResource LoadingAccentStart}" Offset="0" /><GradientStop Color="{ThemeResource LoadingAccentEnd}" Offset="1" />
+      </LinearGradientBrush>
+     </Rectangle.Fill>
+     <Rectangle.RenderTransform><CompositeTransform x:Name="LeftMove" /></Rectangle.RenderTransform>
+    </Rectangle>
+    <Rectangle x:Name="GoldPane" Canvas.Left="38" Canvas.Top="3" Width="31" Height="29" RadiusX="7" RadiusY="7" Fill="{ThemeResource LoadingGoldBrush}" RenderTransformOrigin="0.5,0.5">
+     <Rectangle.RenderTransform><CompositeTransform x:Name="GoldMove" /></Rectangle.RenderTransform>
+    </Rectangle>
+    <Rectangle x:Name="QuietPane" Canvas.Left="38" Canvas.Top="37" Width="31" Height="32" RadiusX="7" RadiusY="7" Fill="{ThemeResource LoadingQuietBrush}" RenderTransformOrigin="0.5,0.5">
+     <Rectangle.RenderTransform><CompositeTransform x:Name="QuietMove" /></Rectangle.RenderTransform>
+    </Rectangle>
+   </Canvas>
+   <!-- Optional, for long jobs: what is being worked on, how far along, and what already finished. Collapsed unless set. -->
+   <StackPanel Spacing="4" HorizontalAlignment="Center">
+    <TextBlock x:Name="CounterText" Visibility="Collapsed" FontSize="11" TextAlignment="Center" Foreground="{ThemeResource MutedBrush}" />
+    <TextBlock x:Name="HeadingText" Visibility="Collapsed" FontSize="15" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+   </StackPanel>
+   <TextBlock x:Name="Message" FontSize="13" TextAlignment="Center" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+   <!-- For jobs that report steps: CLI-style lines set straight onto the overlay and centred like everything above them, with no card of their own. Finished steps are coloured by outcome and older ones fade back; the last line is what is happening now. The log keeps a steady height so the animation never shifts, and follows the newest line. -->
+   <ScrollViewer x:Name="LogScroll" Visibility="Collapsed" HorizontalAlignment="Center" Width="520" Height="160" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PointerEntered="LogPointerEntered" PointerExited="LogPointerExited">
+    <StackPanel Padding="12,0" Spacing="6">
+     <StackPanel x:Name="LogLines" Spacing="6" AutomationProperties.AccessibilityView="Raw" />
+     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="9">
+      <ProgressRing x:Name="Spinner" Width="14" Height="14" MinWidth="14" MinHeight="14" IsActive="False" VerticalAlignment="Top" Margin="0,2,0,0">
+       <ProgressRing.Foreground>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+         <GradientStop Color="{ThemeResource LoadingAccentStart}" Offset="0" /><GradientStop Color="{ThemeResource LoadingAccentEnd}" Offset="1" />
+        </LinearGradientBrush>
+       </ProgressRing.Foreground>
+      </ProgressRing>
+      <TextBlock x:Name="LiveText" MaxWidth="460" FontSize="12" LineHeight="18" FontFamily="Cascadia Mono, Consolas" TextAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True" AutomationProperties.LiveSetting="Polite" />
+     </StackPanel>
+    </StackPanel>
+   </ScrollViewer>
+   <Button x:Name="CancelButton" Visibility="Collapsed" HorizontalAlignment="Center" FontSize="12" Padding="14,5" Click="CancelClicked" />
+  </StackPanel>
+ </Grid>
+</UserControl>

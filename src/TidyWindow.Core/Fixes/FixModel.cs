@@ -1,0 +1,433 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+
+namespace TidyWindow.Next.Core;
+
+public enum FixGroup { Windows, Network, Devices, Apps }
+/// <summary>Whose settings and files a fix touches. User fixes run in the app; machine fixes need administrator rights.</summary>
+public enum FixScope { User, Machine }
+public enum FixRisk { Safe, Careful }
+public enum FixRestart { Never, Maybe, Always }
+public enum FixStepKind { Run, DeleteFiles, RenameFolder, StopExplorer, StartExplorer, RestartExplorer, StartService, StopService, SetRegistry, DeleteRegistry }
+/// <summary>How a program writes its text. Most Windows tools use the console's OEM code page; sfc writes UTF-16.</summary>
+public enum FixEncoding { Oem, Utf16, Utf8 }
+
+/// <summary>A choice a person makes before running a fix. Options only switch catalog steps on or off; they never carry text into a command.</summary>
+public sealed class FixOption
+{
+    public required string Id { get; init; }
+    public required string Label { get; init; }
+    public string Detail { get; init; } = "";
+    public bool Default { get; init; }
+}
+
+/// <summary>One thing a fix does. Steps are data (fix-catalog.json); nothing outside the catalog can be run.</summary>
+public sealed class FixStep
+{
+    public required string Title { get; init; }
+    public FixStepKind Kind { get; init; } = FixStepKind.Run;
+    /// <summary>Run: a program from the allow-list, such as "sfc.exe", "powershell.exe" or "onedrive".</summary>
+    public string File { get; init; } = "";
+    public string[] Args { get; init; } = [];
+    /// <summary>How long a program may run before it is stopped.</summary>
+    public int Minutes { get; init; } = 5;
+    public int[] Ok { get; init; } = [0];
+    /// <summary>Exit codes that are reported as a warning but do not fail the step.</summary>
+    public int[] Warn { get; init; } = [];
+    /// <summary>Exit codes that mean Windows needs a restart to finish (such as 3010).</summary>
+    public int[] Restart { get; init; } = [];
+    /// <summary>A step that may fail without stopping the fix.</summary>
+    public bool Optional { get; init; }
+    /// <summary>A step that runs even after an earlier step failed, to put things back (for example starting a service that was stopped).</summary>
+    public bool Always { get; init; }
+    /// <summary>An option id that must be on for this step to run, or "!id" when it must be off.</summary>
+    public string When { get; init; } = "";
+    /// <summary>
+    /// A step that must run to the end once started, because ending it half way does more harm than waiting: DISM, SFC, the WMI salvage, setting
+    /// aside the update folders. It is not ended when the fix is stopped or the app closes, and its time limit only says when the output notes
+    /// that it is taking long.
+    /// </summary>
+    public bool Uninterruptible { get; init; }
+    public FixEncoding Encoding { get; init; } = FixEncoding.Oem;
+    /// <summary>DeleteFiles and RenameFolder: the folder. Environment variables are expanded.</summary>
+    public string Path { get; init; } = "";
+    /// <summary>DeleteFiles: the file name patterns inside the folder.</summary>
+    public string[] Patterns { get; init; } = [];
+    /// <summary>StartService and StopService: the service's name. It must be on the guard's list of services a fix may restart.</summary>
+    public string Service { get; init; } = "";
+    /// <summary>SetRegistry and DeleteRegistry: the name of the value inside the key named by <see cref="Path"/>.</summary>
+    public string Name { get; init; } = "";
+    /// <summary>SetRegistry: the number the value is set to.</summary>
+    public int Data { get; init; }
+}
+
+/// <summary>One repair, described for a person. Items are data (fix-catalog.json).</summary>
+public sealed class FixItem
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public required FixGroup Group { get; init; }
+    public required FixScope Scope { get; init; }
+    public string Icon { get; init; } = "";
+    /// <summary>What problem this is for, in a sentence.</summary>
+    public required string Summary { get; init; }
+    /// <summary>What it changes, and what you give up or need to know.</summary>
+    public required string Effect { get; init; }
+    public FixRisk Risk { get; init; } = FixRisk.Safe;
+    public FixRestart Restart { get; init; } = FixRestart.Never;
+    /// <summary>
+    /// A fix that can fail, or report damage it cannot repair, while Windows still has a restart pending from an earlier update or install.
+    /// The page says so before it runs, and the output and summary say so when it ran anyway.
+    /// </summary>
+    public bool RestartFirst { get; init; }
+    /// <summary>How long it usually takes, for example "A few minutes".</summary>
+    public string Duration { get; init; } = "";
+    public string[] Sources { get; init; } = [];
+    public FixOption[] Options { get; init; } = [];
+    public required FixStep[] Steps { get; init; }
+}
+
+/// <summary>A fix a person asked to run, with the options they switched on.</summary>
+public sealed record FixRun(string Id, IReadOnlyList<string> Options);
+
+public static class FixCatalog
+{
+    private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
+    private static IReadOnlyList<FixItem>? loaded;
+
+    public static IReadOnlyList<FixItem> Load() => loaded ??= Read();
+
+    private static IReadOnlyList<FixItem> Read()
+    {
+        using var stream = typeof(FixCatalog).Assembly.GetManifestResourceStream("fix-catalog.json") ?? throw new InvalidOperationException("The fix catalog is missing from the app.");
+        var file = JsonSerializer.Deserialize<CatalogFile>(stream, Options) ?? throw new InvalidOperationException("The fix catalog is empty.");
+        // A catalog that breaks the rules is a bug in the app, so it is refused before anything can run.
+        var problems = FixGuard.Validate(file.Items);
+        if (problems.Count > 0) throw new InvalidOperationException("The fix catalog is not valid: " + string.Join(" ", problems));
+        return file.Items;
+    }
+
+    private sealed class CatalogFile { public List<FixItem> Items { get; init; } = []; }
+}
+
+/// <summary>
+/// The rules for what a fix may run. A fix can only start programs on a short allow-list, with arguments from a short allow-list, and can only
+/// delete or rename the few folders named here. The same rules run again in the administrator helper, which only ever runs a step of the
+/// catalog by its position, so no request can ask it to run anything else.
+/// </summary>
+public static partial class FixGuard
+{
+    private static readonly HashSet<string> System32Programs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "dism.exe", "sfc.exe", "netsh.exe", "ipconfig.exe", "net.exe", "w32tm.exe", "pnputil.exe", "wsreset.exe", "lodctr.exe", "powercfg.exe", "nbtstat.exe"
+    };
+
+    // Programs that live in System32\wbem rather than System32 itself.
+    private static readonly HashSet<string> WbemPrograms = new(StringComparer.OrdinalIgnoreCase) { "winmgmt.exe", "wmiadap.exe" };
+
+    // The 32-bit counterpart of lodctr, which keeps the counters of 32-bit programs. It lives in SysWOW64; it has its own name here so the two cannot be mixed up.
+    private const string Lodctr32 = "lodctr32.exe";
+
+    // Services a fix may stop and start. The service steps only restart; the one fix that can change a startup type (a PowerShell step of its own) is checked by a test.
+    private static readonly HashSet<string> Services = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "spooler", "audiosrv", "AudioEndpointBuilder", "bthserv", "w32time", "WSearch", "bits", "wuauserv", "cryptsvc", "UsoSvc",
+        "FontCache", "FontCache3.0.0.0", "FrameServer", "fdPHost", "FDResPub", "SSDPSRV", "upnphost", "WlanSvc", "NlaSvc",
+        "BTAGService", "BthAvctpSvc", "FrameServerMonitor", "stisvc", "ShellHWDetection", "GameInputSvc", "hidserv",
+        // What the Microsoft Store needs, and the Xbox and Gaming services. These are only ever started: a service that is turned off is reported, never turned on.
+        "InstallService", "ClipSVC", "AppXSvc", "GamingServices", "GamingServicesNet", "XblAuthManager", "XblGameSave", "XboxNetApiSvc"
+    };
+
+    private static readonly string[][] AllowedNetsh =
+    [
+        ["winsock", "reset"], ["int", "ip", "reset"], ["interface", "ip", "delete", "arpcache"], ["interface", "ipv6", "delete", "neighbors"], ["winhttp", "reset", "proxy"],
+        // Read-only reports.
+        ["wlan", "show", "interfaces"], ["int", "tcp", "show", "global"], ["int", "tcp", "show", "heuristics"],
+        // Windows' own defaults for the TCP settings that "network booster" tools change.
+        ["int", "tcp", "set", "global", "autotuninglevel=normal"], ["int", "tcp", "set", "heuristics", "disabled"], ["int", "tcp", "set", "global", "rss=enabled"]
+    ];
+
+    private static readonly HashSet<string> AllowedIpconfig = new(StringComparer.OrdinalIgnoreCase) { "/flushdns", "/release", "/renew", "/registerdns" };
+
+    private static readonly string[][] AllowedDism =
+    [
+        ["/Online", "/Cleanup-Image", "/RestoreHealth"], ["/Online", "/Cleanup-Image", "/StartComponentCleanup"]
+    ];
+
+    // Only the checks and the repair that keeps what can be read. /resetrepository, which wipes the repository, is never allowed.
+    private static readonly string[][] AllowedWinmgmt = [["/verifyrepository"], ["/salvagerepository"], ["/resyncperf"]];
+
+    // The read-only reports, and putting the power plans back to Windows' own. Nothing that changes how the PC sleeps or what may wake it.
+    private static readonly string[][] AllowedPowercfg =
+    [
+        ["/requests"], ["/lastwake"], ["/availablesleepstates"], ["/devicequery", "wake_armed"], ["-restoredefaultschemes"],
+        // USB selective suspend (USB settings > USB selective suspend setting) of the plan in use: read it, turn it off plugged in and on battery, apply it.
+        ["/query", "SCHEME_CURRENT", UsbSubgroup, UsbSelectiveSuspend],
+        ["/setacvalueindex", "SCHEME_CURRENT", UsbSubgroup, UsbSelectiveSuspend, "0"],
+        ["/setdcvalueindex", "SCHEME_CURRENT", UsbSubgroup, UsbSelectiveSuspend, "0"],
+        ["/setactive", "SCHEME_CURRENT"]
+    ];
+
+    private const string UsbSubgroup = "2a737441-1930-4402-8d77-b2bebba308a3", UsbSelectiveSuspend = "48e6b7a6-50f5-4782-a5d4-53bb8f07e226";
+
+    // Clearing the NetBIOS name cache is the only thing nbtstat may do. -RR, which sends release packets to a WINS server, is not.
+    private static readonly string[][] AllowedNbtstat = [["-R"]];
+
+    private static readonly HashSet<string> AllowedOneDrive = new(StringComparer.OrdinalIgnoreCase) { "/reset", "/shutdown" };
+
+    private static readonly string[][] AllowedW32tm = [["/resync", "/rediscover"], ["/config", "/update"], ["/query", "/status"]];
+
+    // Folders a fix may clear or rename, with what it may remove from them.
+    private static readonly (FixScope Scope, string Path, string[] Patterns)[] Deletable =
+    [
+        (FixScope.Machine, @"%ALLUSERSPROFILE%\Microsoft\Network\Downloader", ["qmgr*.dat"]),
+        (FixScope.Machine, @"%SystemRoot%\System32\spool\PRINTERS", ["*"]),
+        (FixScope.Machine, @"%ProgramData%\Microsoft\Search\Data\Applications\Windows", ["Windows.edb", "Windows.db", "Windows.db-wal", "Windows.db-shm", "Windows-gather.db*", "Windows-usn.db*"]),
+        (FixScope.Machine, @"%SystemRoot%\ServiceProfiles\LocalService\AppData\Local\FontCache", ["*.dat", "*.log"]),
+        (FixScope.Machine, @"%SystemRoot%\System32", ["FNTCACHE.DAT"]),
+        (FixScope.User, @"%LOCALAPPDATA%", ["IconCache.db"]),
+        (FixScope.User, @"%LOCALAPPDATA%\Microsoft\Windows\Explorer", ["iconcache_*.db", "thumbcache_*.db"])
+    ];
+
+    private static readonly (FixScope Scope, string Path)[] Renamable =
+    [
+        (FixScope.Machine, @"%SystemRoot%\SoftwareDistribution\Download"),
+        (FixScope.Machine, @"%SystemRoot%\SoftwareDistribution\DataStore"),
+        (FixScope.Machine, @"%SystemRoot%\System32\catroot2")
+    ];
+
+    private const string InternetSettings = @"HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings";
+
+    // Values a fix may set, and the only number each may be set to.
+    private static readonly (FixScope Scope, string Key, string Name, int Data)[] Settable =
+    [
+        (FixScope.Machine, @"HKLM\SOFTWARE\Microsoft\Windows Search", "SetupCompletedSuccessfully", 0),
+        (FixScope.User, InternetSettings, "ProxyEnable", 0)
+    ];
+
+    // Values a fix may remove: the address of a proxy and of a proxy script, which are what a stuck proxy leaves behind.
+    private static readonly (FixScope Scope, string Key, string Name)[] Removable =
+    [
+        (FixScope.User, InternetSettings, "ProxyServer"),
+        (FixScope.User, InternetSettings, "AutoConfigURL")
+    ];
+
+    private static readonly string[] Forbidden =
+    [
+        "Invoke-Expression", "iex ", "iex(", "DownloadString", "DownloadFile", "Invoke-WebRequest", "Invoke-RestMethod", "Start-BitsTransfer", "-EncodedCommand", "WebClient",
+        "Set-ExecutionPolicy", "Enable-PSRemoting", "Clear-Tpm", "Remove-Item", "Format-Volume", "Set-ItemProperty", "reg ", "bootrec", "bcdedit", "slmgr", "manage-bde",
+        // Reading the firewall is fine; changing it never is.
+        "Set-NetFirewall", "New-NetFirewall", "Remove-NetFirewall", "Enable-NetFirewall", "Disable-NetFirewall", "Rename-NetFirewall", "Copy-NetFirewall"
+    ];
+
+    private static readonly string[] UserOnlyVariables = ["%LOCALAPPDATA%", "%APPDATA%", "%USERPROFILE%", "$env:LOCALAPPDATA", "$env:APPDATA", "$env:USERPROFILE", "HKCU"];
+
+    // The modules a PowerShell step may name. Every cmdlet in a step names its module (Appx\Get-AppxPackage), so command discovery never goes
+    // looking for it along the module path, which starts in the user's Documents folder. That is the protection: Windows PowerShell re-adds the
+    // user's Documents module folder on startup even when the executor sets PSModulePath, so a module planted there is only ever ignored because
+    // nothing asks for an unqualified name. The executor still sets PSModulePath to the system folders as defence in depth.
+    private static readonly HashSet<string> Modules = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Microsoft.PowerShell.Core", "Microsoft.PowerShell.Management", "Microsoft.PowerShell.Utility",
+        "Microsoft.PowerShell.Diagnostics", "Appx", "Storage", "Defender", "DeliveryOptimization", "NetAdapter", "PnpDevice", "CimCmdlets",
+        "NetTCPIP", "NetConnection", "NetSecurity", "SmbShare"
+    };
+
+    [GeneratedRegex(@"^[a-z0-9]+(-[a-z0-9]+)*$")]
+    private static partial Regex Slug();
+
+    // A cmdlet name (Verb-Noun), with the module in front of it when there is one. A dash inside a word or after another dash (--disable-interactivity) is not one.
+    [GeneratedRegex(@"(?<![\w\\.\-])(?:(?<module>[A-Za-z][\w.]*)\\)?(?<cmdlet>[A-Za-z]+-[A-Za-z]+)(?![\w\-])")]
+    private static partial Regex Cmdlet();
+
+    // Text in single quotes is literal in PowerShell, so a dash in a sentence there is never a command.
+    [GeneratedRegex(@"'[^']*'")]
+    private static partial Regex Literal();
+
+    /// <summary>The full path of an allowed program, or null when it is not one.</summary>
+    public static string? Resolve(string file)
+    {
+        var system = Environment.GetFolderPath(Environment.SpecialFolder.System);
+        if (System32Programs.Contains(file)) return Path.Combine(system, file);
+        if (WbemPrograms.Contains(file)) return Path.Combine(system, "wbem", file);
+        if (string.Equals(file, Lodctr32, StringComparison.OrdinalIgnoreCase)) return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "SysWOW64", "lodctr.exe");
+        if (string.Equals(file, "powershell.exe", StringComparison.OrdinalIgnoreCase)) return Path.Combine(system, "WindowsPowerShell", "v1.0", "powershell.exe");
+        if (string.Equals(file, "onedrive", StringComparison.OrdinalIgnoreCase))
+            return new[]
+            {
+                @"%LOCALAPPDATA%\Microsoft\OneDrive\OneDrive.exe", @"%ProgramFiles%\Microsoft OneDrive\OneDrive.exe", @"%ProgramFiles(x86)%\Microsoft OneDrive\OneDrive.exe"
+            }.Select(Environment.ExpandEnvironmentVariables).FirstOrDefault(System.IO.File.Exists);
+        return null;
+    }
+
+    public static bool IsKnownProgram(string file) => System32Programs.Contains(file) || WbemPrograms.Contains(file) || file.Equals(Lodctr32, StringComparison.OrdinalIgnoreCase) || file.Equals("powershell.exe", StringComparison.OrdinalIgnoreCase) || file.Equals("onedrive", StringComparison.OrdinalIgnoreCase);
+
+    public static bool AllowsDelete(FixScope scope, string path, string pattern) =>
+        Deletable.Any(x => x.Scope == scope && string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase) && x.Patterns.Contains(pattern, StringComparer.OrdinalIgnoreCase));
+
+    public static bool AllowsService(string service) => Services.Contains(service);
+
+    public static bool AllowsRegistry(FixScope scope, string key, string name, int data) =>
+        Settable.Any(x => x.Scope == scope && x.Data == data && string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase) && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    public static bool AllowsRegistryRemoval(FixScope scope, string key, string name) =>
+        Removable.Any(x => x.Scope == scope && string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase) && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    public static bool AllowsRename(FixScope scope, string path) =>
+        Renamable.Any(x => x.Scope == scope && string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>Everything wrong with a catalog, as sentences. Empty when it is fine.</summary>
+    public static List<string> Validate(IReadOnlyList<FixItem> items)
+    {
+        var problems = new List<string>();
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in items)
+        {
+            var who = $"“{item.Id}”";
+            if (!Slug().IsMatch(item.Id)) problems.Add($"{who} needs a lowercase id with dashes.");
+            if (!ids.Add(item.Id)) problems.Add($"{who} is listed twice.");
+            if (string.IsNullOrWhiteSpace(item.Name) || string.IsNullOrWhiteSpace(item.Summary) || string.IsNullOrWhiteSpace(item.Effect)) problems.Add($"{who} needs a name, a summary and an effect.");
+            if (item.Steps.Length == 0) problems.Add($"{who} does nothing.");
+            var options = item.Options.Select(x => x.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            if (options.Count != item.Options.Length || item.Options.Any(x => !Slug().IsMatch(x.Id))) problems.Add($"{who} has options with missing, repeated or badly written ids.");
+            foreach (var step in item.Steps)
+            {
+                var at = $"{who}, “{step.Title}”";
+                if (string.IsNullOrWhiteSpace(step.Title)) problems.Add($"{who} has a step without a title.");
+                if (step.Minutes is < 1 or > 180) problems.Add($"{at} must time out between 1 and 180 minutes.");
+                if (step.Ok.Length == 0) problems.Add($"{at} needs at least one exit code that counts as success.");
+                if (step.When.Length > 0 && !options.Contains(step.When.TrimStart('!'))) problems.Add($"{at} depends on an option that does not exist.");
+                switch (step.Kind)
+                {
+                    case FixStepKind.Run: ValidateRun(item, step, at, problems); break;
+                    case FixStepKind.DeleteFiles:
+                        if (step.Patterns.Length == 0) problems.Add($"{at} does not say which files to delete.");
+                        foreach (var pattern in step.Patterns)
+                            if (!AllowsDelete(item.Scope, step.Path, pattern)) problems.Add($"{at}: deleting {pattern} in {step.Path} is not allowed here.");
+                        break;
+                    case FixStepKind.RenameFolder:
+                        if (!AllowsRename(item.Scope, step.Path)) problems.Add($"{at}: renaming {step.Path} is not allowed here.");
+                        break;
+                    case FixStepKind.StartService:
+                    case FixStepKind.StopService:
+                        if (!AllowsService(step.Service)) problems.Add($"{at}: {step.Service} is not a service this page restarts.");
+                        if (item.Scope != FixScope.Machine) problems.Add($"{at}: only a fix for the whole PC may control services.");
+                        break;
+                    case FixStepKind.SetRegistry:
+                        if (!AllowsRegistry(item.Scope, step.Path, step.Name, step.Data)) problems.Add($"{at}: setting {step.Name} in {step.Path} to {step.Data} is not allowed here.");
+                        break;
+                    case FixStepKind.DeleteRegistry:
+                        if (!AllowsRegistryRemoval(item.Scope, step.Path, step.Name)) problems.Add($"{at}: removing {step.Name} from {step.Path} is not allowed here.");
+                        break;
+                    case FixStepKind.StopExplorer:
+                    case FixStepKind.StartExplorer:
+                    case FixStepKind.RestartExplorer:
+                        if (item.Scope != FixScope.User) problems.Add($"{at}: only a fix for the current user may restart File Explorer.");
+                        break;
+                }
+            }
+        }
+        return problems;
+    }
+
+    private static void ValidateRun(FixItem item, FixStep step, string at, List<string> problems)
+    {
+        var file = step.File;
+        if (!IsKnownProgram(file)) { problems.Add($"{at}: {file} is not a program fixes may run."); return; }
+        var text = string.Join(' ', step.Args);
+        if (item.Scope == FixScope.Machine && UserOnlyVariables.Any(x => text.Contains(x, StringComparison.OrdinalIgnoreCase)))
+            problems.Add($"{at} reaches into a user's profile, which an administrator helper must never do.");
+        if (item.Scope == FixScope.User && file.Equals("net.exe", StringComparison.OrdinalIgnoreCase)) problems.Add($"{at}: a fix for the current user cannot control services.");
+        bool Is(string[][] allowed) => allowed.Any(x => x.SequenceEqual(step.Args, StringComparer.OrdinalIgnoreCase));
+        switch (file.ToLowerInvariant())
+        {
+            case "net.exe":
+                var stop = step.Args.Length == 3 && step.Args[0].Equals("stop", StringComparison.OrdinalIgnoreCase) && step.Args[2].Equals("/y", StringComparison.OrdinalIgnoreCase);
+                var start = step.Args.Length == 2 && step.Args[0].Equals("start", StringComparison.OrdinalIgnoreCase);
+                if (!(stop || start) || !Services.Contains(step.Args[1])) problems.Add($"{at}: net may only stop or start one of the services this page restarts.");
+                break;
+            case "netsh.exe": if (!Is(AllowedNetsh)) problems.Add($"{at}: that netsh command is not allowed."); break;
+            case "ipconfig.exe": if (step.Args.Length != 1 || !AllowedIpconfig.Contains(step.Args[0])) problems.Add($"{at}: that ipconfig command is not allowed."); break;
+            case "dism.exe": if (!Is(AllowedDism)) problems.Add($"{at}: that DISM command is not allowed."); break;
+            case "sfc.exe": if (step.Args.Length != 1 || step.Args[0] != "/scannow") problems.Add($"{at}: sfc may only run /scannow."); break;
+            case "nbtstat.exe": if (!Is(AllowedNbtstat)) problems.Add($"{at}: nbtstat may only clear the NetBIOS name cache (-R)."); break;
+            case "w32tm.exe": if (!Is(AllowedW32tm)) problems.Add($"{at}: that w32tm command is not allowed."); break;
+            case "pnputil.exe": if (step.Args.Length != 1 || step.Args[0] != "/scan-devices") problems.Add($"{at}: pnputil may only rescan devices."); break;
+            case "wsreset.exe": if (step.Args.Length != 0) problems.Add($"{at}: wsreset takes no arguments."); break;
+            case "winmgmt.exe": if (!Is(AllowedWinmgmt)) problems.Add($"{at}: that winmgmt command is not allowed."); break;
+            case "lodctr.exe":
+            case Lodctr32: if (step.Args.Length != 1 || step.Args[0] != "/R") problems.Add($"{at}: lodctr may only rebuild the counters from the system backup (/R)."); break;
+            case "wmiadap.exe": if (step.Args.Length != 1 || step.Args[0] != "/f") problems.Add($"{at}: wmiadap may only refresh the performance classes (/f)."); break;
+            case "powercfg.exe": if (!Is(AllowedPowercfg)) problems.Add($"{at}: that powercfg command is not allowed."); break;
+            case "onedrive": if (step.Args.Length != 1 || !AllowedOneDrive.Contains(step.Args[0])) problems.Add($"{at}: OneDrive may only be shut down or reset."); break;
+            case "powershell.exe":
+                if (step.Args.Length != 4 || step.Args[0] != "-NoProfile" || step.Args[1] != "-NonInteractive" || step.Args[2] != "-Command") { problems.Add($"{at}: PowerShell must run one fixed -Command."); break; }
+                foreach (var bad in Forbidden)
+                    if (step.Args[3].Contains(bad, StringComparison.OrdinalIgnoreCase)) problems.Add($"{at}: the PowerShell command uses {bad.Trim()}, which fixes must not.");
+                foreach (Match match in Cmdlet().Matches(Literal().Replace(step.Args[3], "''")))
+                {
+                    if (!match.Groups["module"].Success) problems.Add($"{at}: the PowerShell command runs {match.Groups["cmdlet"].Value} without naming its module; write it as Module\\{match.Groups["cmdlet"].Value}.");
+                    else if (!Modules.Contains(match.Groups["module"].Value)) problems.Add($"{at}: the PowerShell command uses the {match.Groups["module"].Value} module, which fixes may not load.");
+                }
+                break;
+        }
+    }
+}
+
+/// <summary>
+/// Whether Windows still has a restart pending from an earlier update or install. DISM and SFC then report damage they cannot repair, and setting
+/// aside the update folders can cut an update off half way, so the fixes that mind say so before they run.
+/// </summary>
+public static class PendingRestart
+{
+    /// <summary>Why a restart is pending, in a few words, or null when none is (or it cannot be told).</summary>
+    public static string? Find()
+    {
+        if (!OperatingSystem.IsWindows()) return null;
+        try { return FindOnWindows(); }
+        catch (Exception ex) when (ex is System.Security.SecurityException or IOException or UnauthorizedAccessException) { return null; }
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    private static string? FindOnWindows()
+    {
+        using var servicing = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending");
+        if (servicing is not null) return "a Windows update or feature change is waiting for a restart";
+        using var update = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired");
+        if (update is not null) return "Windows Update is waiting for a restart";
+        using var session = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Session Manager");
+        if (session?.GetValue("PendingFileRenameOperations") is string[] { Length: > 0 }) return "an install or update is waiting for a restart to replace files";
+        return null;
+    }
+}
+
+/// <summary>Turns a catalog fix and the options a person chose into the steps that will run.</summary>
+public static class FixPlan
+{
+    /// <summary>The option ids a fix starts with.</summary>
+    public static IReadOnlyList<string> DefaultOptions(FixItem item) => item.Options.Where(x => x.Default).Select(x => x.Id).ToList();
+
+    public static IReadOnlyList<FixStep> Build(FixItem item, IEnumerable<string> options)
+    {
+        var on = options.Where(x => item.Options.Any(o => o.Id.Equals(x, StringComparison.OrdinalIgnoreCase))).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return item.Steps.Where(step => step.When.Length == 0 || (step.When[0] == '!' ? !on.Contains(step.When[1..]) : on.Contains(step.When))).ToList();
+    }
+
+    /// <summary>What a step runs, written the way a person would read it, so the page can show the exact commands before anything starts.</summary>
+    public static string Describe(FixStep step) => step.Kind switch
+    {
+        FixStepKind.Run when step.File.Equals("powershell.exe", StringComparison.OrdinalIgnoreCase) => "powershell.exe -Command " + (step.Args.Length > 0 ? step.Args[^1] : ""),
+        FixStepKind.Run when step.File.Equals("onedrive", StringComparison.OrdinalIgnoreCase) => string.Join(' ', step.Args.Prepend("OneDrive.exe")),
+        FixStepKind.Run => string.Join(' ', step.Args.Prepend(step.File)),
+        FixStepKind.DeleteFiles => $"Delete {string.Join(", ", step.Patterns)} in {step.Path}",
+        FixStepKind.RenameFolder => $"Rename {step.Path} to {System.IO.Path.GetFileName(step.Path)}.bak",
+        FixStepKind.StartService => $"Start the {step.Service} service (reported as a failure if it is turned off or does not start)",
+        FixStepKind.StopService => $"Stop the {step.Service} service and the services that depend on it",
+        FixStepKind.SetRegistry => $"Set {step.Path}\\{step.Name} to {step.Data}",
+        FixStepKind.DeleteRegistry => $"Remove {step.Path}\\{step.Name}",
+        FixStepKind.StopExplorer => "Close File Explorer",
+        FixStepKind.StartExplorer => "Start File Explorer",
+        _ => "Restart File Explorer"
+    };
+}
