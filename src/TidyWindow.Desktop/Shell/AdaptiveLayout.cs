@@ -6,7 +6,7 @@ internal sealed record AdaptiveLayout(double SidebarWidth, double Padding, bool 
     public const double RailWidth = 56;
     public const double OpenWidth = 288;
     /// <summary>On wide windows the full pane stays open; on narrow windows an expanded pane pushes content aside.</summary>
-    public const double OverlayWidth = 1200;
+    public const double OverlayWidth = 900;
 
     public static bool PushesContent(double width) => width < OverlayWidth;
 
