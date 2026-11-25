@@ -52,6 +52,15 @@ jobs:
           robocopy $tidy $workspace /E /XD .git /XF README.md LICENSE
           if ($LASTEXITCODE -ge 8) { throw "TidyWindow import failed (robocopy $LASTEXITCODE)." }
 
+          # The GitHub App connection does not grant the workflow-write scope.
+          # Keep this bootstrap workflow and omit upstream CI/release workflow files.
+          $workflowFolder = Join-Path $workspace '.github/workflows'
+          if (Test-Path $workflowFolder) {
+            Get-ChildItem $workflowFolder -File |
+              Where-Object { $_.Name -ne 'import-foundations.yml' } |
+              Remove-Item -Force
+          }
+
           New-Item -ItemType Directory -Force (Join-Path $workspace 'LICENSES') | Out-Null
           Copy-Item (Join-Path $tidy 'LICENSE') (Join-Path $workspace 'LICENSES/TIDYWINDOW-MIT.txt') -Force
           if (Test-Path (Join-Path $workspace 'TidyWindow.slnx')) {
@@ -92,8 +101,18 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'build: import TidyWindow foundation and SettingsUI references'
-          git push origin HEAD:integration/tidywindow-baseline
+          git diff --cached --quiet
+          $stagedChanges = $LASTEXITCODE
+          if ($stagedChanges -eq 1) {
+            git commit -m 'build: import TidyWindow foundation and SettingsUI references'
+            git push origin HEAD:integration/tidywindow-baseline
+          }
+          elseif ($stagedChanges -eq 0) {
+            Write-Host 'The pinned sources are already present; no import commit is needed.'
+          }
+          else {
+            throw "git diff returned unexpected exit code $stagedChanges."
+          }
 
       - name: Restore solution
         run: dotnet restore TSUGU.slnx --locked-mode
