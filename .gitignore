@@ -1,0 +1,24 @@
+# Build output (artifacts/ is ArtifactsDir in Directory.Build.props; TestResults/ is where dotnet test writes)
+bin/
+obj/
+artifacts/
+TestResults/
+*.binlog
+
+# Editors and tools
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# Operating system noise
+Thumbs.db
+*.DS_Store
+
+# Windows ETW/perf trace captures that can land in the repo root
+*.etl
+
+# Claude Code scratch files (one-off check scripts and their results)
+.claude/scratch/

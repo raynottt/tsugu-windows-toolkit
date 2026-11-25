@@ -1,0 +1,603 @@
+{
+  "items": [
+    {
+      "id": "folder-discovery",
+      "name": "Big folders open faster",
+      "group": "speed",
+      "scope": "user",
+      "topic": "File Explorer",
+      "icon": "E8B7",
+      "summary": "File Explorer stops reading a folder's files to guess whether it holds pictures, music or documents, so folders with thousands of files open without a long wait.",
+      "effect": "Folders no longer switch to a picture or music view on their own; you can still pick a view yourself. Folders you have already set a view for keep it.",
+      "takes": "explorer",
+      "sources": ["WinUtil", "Windows Latest"],
+      "targets": [
+        { "key": "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell", "name": "FolderType", "kind": "string", "value": "NotSpecified" }
+      ]
+    },
+    {
+      "id": "shutdown-apps",
+      "name": "Stuck apps do not hold up shutdown",
+      "group": "speed",
+      "scope": "user",
+      "topic": "Shutdown",
+      "icon": "E7E8",
+      "summary": "Shutdown, restart and sign-out stop waiting on apps that will not close. Apps that do not answer are closed after 5 seconds instead of 20.",
+      "effect": "An app with unsaved work that is slow to answer is closed without asking. Save your work before you shut down.",
+      "risk": "careful",
+      "takes": "signOut",
+      "sources": ["Microsoft TechNet (AutoEndTasks)", "Tom's Hardware"],
+      "targets": [
+        { "key": "Control Panel\\Desktop", "name": "AutoEndTasks", "kind": "string", "value": "1" },
+        { "key": "Control Panel\\Desktop", "name": "WaitToKillAppTimeout", "kind": "string", "rule": "atMost", "value": "5000", "normal": "20000" }
+      ]
+    },
+    {
+      "id": "quick-menus",
+      "name": "Menus and windows respond sooner",
+      "group": "speed",
+      "scope": "user",
+      "topic": "Menus and windows",
+      "summary": "Menus open without their short pause, and windows minimize and maximize without animating.",
+      "effect": "Windows lose their small fade and zoom animations.",
+      "takes": "signOut",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Control Panel\\Desktop", "name": "MenuShowDelay", "kind": "string", "rule": "atMost", "value": "200", "normal": "400" },
+        { "key": "Control Panel\\Desktop\\WindowMetrics", "name": "MinAnimate", "kind": "string", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "TaskbarAnimations", "kind": "dword", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "edge-background",
+      "name": "Edge stays closed when closed",
+      "group": "speed",
+      "scope": "machine",
+      "topic": "Microsoft Edge",
+      "icon": "E774",
+      "summary": "Edge no longer starts quietly when you sign in and no longer keeps running after you close it, so fewer msedge.exe processes sit in memory.",
+      "effect": "Edge takes a moment longer to open, and background notifications from Edge web apps stop. Edge also says “managed by your organization”, which is how it shows any policy. Applies the next time Edge starts.",
+      "risk": "careful",
+      "sources": ["Microsoft Learn: StartupBoostEnabled", "Microsoft Learn: BackgroundModeEnabled"],
+      "targets": [
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "StartupBoostEnabled", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "BackgroundModeEnabled", "value": "0" }
+      ]
+    },
+    {
+      "id": "suggestions",
+      "name": "No suggestions or promoted apps",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Start, Settings and lock screen",
+      "summary": "Windows stops suggesting apps and tips in Start, Settings and the lock screen, and stops quietly installing promoted apps for your account.",
+      "effect": "You stop seeing Microsoft's tips and suggestions. Nothing you installed is removed.",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "ContentDeliveryAllowed", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "OemPreinstalledAppsEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "PreInstalledAppsEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "PreInstalledAppsEverEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SilentInstalledAppsEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SoftLandingEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SystemPaneSuggestionsEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-310093Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338387Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338388Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338389Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338393Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-353694Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-353696Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "RotatingLockScreenOverlayEnabled", "value": "0" }
+      ]
+    },
+    {
+      "id": "advertising-id",
+      "name": "No personalized ads in apps",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Advertising",
+      "summary": "Apps can no longer use an advertising ID to show ads based on what you do, and Windows stops tailoring tips from your diagnostic data.",
+      "effect": "You still see ads in apps that show them, just not personalized ones.",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo", "name": "Enabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Privacy", "name": "TailoredExperiencesWithDiagnosticDataEnabled", "value": "0" }
+      ]
+    },
+    {
+      "id": "web-search",
+      "name": "Start search without web results",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Start and Search",
+      "summary": "Searching from Start or the taskbar shows only your PC, apps and settings, with no Bing web suggestions mixed in. This is the “Web Searches” switch in Settings > Privacy & security > Search.",
+      "effect": "You search the web from your browser instead. Microsoft Store suggestions in search are a separate switch and stay as they are. Windows 11 26H2 (build 26300.8697 and later) has this setting, and 24H2 (26100.9278) and 25H2 (26200.9278) got it in the August 2026 update. Windows rolls it out in stages, so it can be missing from Settings for a while even on those builds.",
+      "minBuild": 26300,
+      "minRevision": 8697,
+      "alsoOn": [{ "build": 26100, "revision": 9278 }, { "build": 26200, "revision": 9278 }],
+      "sources": ["Windows Settings (Privacy & security > Search)", "KapilArya", "Windows Latest and Admin365 on the 24H2 and 25H2 update (KB5120998)"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsWebSuggestionsEnabled", "value": "0" }
+      ]
+    },
+    {
+      "id": "activity-history",
+      "name": "No activity history",
+      "group": "cleaner",
+      "scope": "machine",
+      "topic": "Privacy",
+      "summary": "Windows stops recording which apps and files you open into an activity history and stops sending it to Microsoft.",
+      "effect": "Features that continue what you were doing on another device, or list past activities, have nothing to show.",
+      "takes": "restart",
+      "sources": ["WinUtil"],
+      "targets": [
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Windows\\System", "name": "EnableActivityFeed", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Windows\\System", "name": "PublishUserActivities", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Windows\\System", "name": "UploadUserActivities", "value": "0" }
+      ]
+    },
+    {
+      "id": "consumer-features",
+      "name": "No promoted apps on new accounts",
+      "group": "cleaner",
+      "scope": "machine",
+      "topic": "Windows Store",
+      "summary": "Windows stops installing promoted apps and games on new accounts and after updates, for everyone who uses this PC.",
+      "effect": "Windows Spotlight pictures stop on the lock screen and desktop, and the lock screen page in Settings shows as managed by your organization. Apps already installed stay.",
+      "needsPro": true,
+      "takes": "signOut",
+      "sources": ["WinUtil", "Microsoft Learn: CloudContent policy"],
+      "targets": [
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent", "name": "DisableWindowsConsumerFeatures", "value": "1" }
+      ]
+    },
+    {
+      "id": "classic-menu",
+      "name": "Full right-click menu",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Right-click menu",
+      "summary": "Right-clicking shows the full menu straight away, instead of Windows 11's short one with “Show more options”.",
+      "effect": "You get the older, longer menu. The newer short menu is gone until you turn this off.",
+      "minBuild": 22000,
+      "takes": "explorer",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        {
+          "key": "Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32",
+          "name": "",
+          "kind": "string",
+          "value": "",
+          "removeKey": "Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+        }
+      ]
+    },
+    {
+      "id": "mouse-acceleration",
+      "name": "Pointer follows your hand exactly",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Mouse",
+      "summary": "The pointer moves the same distance for the same hand movement, however fast you move the mouse (Enhance pointer precision off).",
+      "effect": "Small, slow movements can feel less precise to some people. You can switch it back here any time.",
+      "takes": "signOut",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Control Panel\\Mouse", "name": "MouseSpeed", "kind": "string", "value": "0", "normal": "1" },
+        { "key": "Control Panel\\Mouse", "name": "MouseThreshold1", "kind": "string", "value": "0", "normal": "6" },
+        { "key": "Control Panel\\Mouse", "name": "MouseThreshold2", "kind": "string", "value": "0", "normal": "10" }
+      ]
+    },
+    {
+      "id": "sticky-keys-prompt",
+      "name": "No Sticky Keys pop-ups",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Accessibility shortcuts",
+      "icon": "E765",
+      "summary": "Pressing Shift five times, or holding Shift or Num Lock, no longer opens the Sticky Keys, Filter Keys or Toggle Keys prompt in the middle of a game or a document.",
+      "effect": "The shortcuts that start these accessibility features stop working. The features themselves can still be turned on in Settings.",
+      "takes": "signOut",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Control Panel\\Accessibility\\StickyKeys", "name": "Flags", "kind": "string", "rule": "clearBits", "value": "4", "normal": "510" },
+        { "key": "Control Panel\\Accessibility\\ToggleKeys", "name": "Flags", "kind": "string", "rule": "clearBits", "value": "4", "normal": "62" },
+        { "key": "Control Panel\\Accessibility\\Keyboard Response", "name": "Flags", "kind": "string", "rule": "clearBits", "value": "4", "normal": "126" }
+      ]
+    },
+    {
+      "id": "file-extensions",
+      "name": "Show file endings",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "File names",
+      "summary": "File names show their real ending, so “invoice.pdf.exe” cannot pass for a PDF.",
+      "effect": "Names are a little longer, and renaming a file lets you change its ending too, so take care when you rename.",
+      "takes": "explorer",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "HideFileExt", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "taskbar-end-task",
+      "name": "End task from the taskbar",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Taskbar",
+      "summary": "Right-click an app on the taskbar and choose End task to close one that is stuck, without opening Task Manager.",
+      "effect": "Nothing you would miss. End task closes the app without asking you to save.",
+      "minBuild": 22621,
+      "takes": "explorer",
+      "sources": ["WinUtil", "Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings", "name": "TaskbarEndTask", "value": "1" }
+      ]
+    },
+    {
+      "id": "long-paths",
+      "name": "Long file paths",
+      "group": "comfort",
+      "scope": "machine",
+      "topic": "Files",
+      "summary": "Apps that support it can open files whose full path is longer than 260 characters, instead of failing with “path too long”.",
+      "effect": "Nothing you would miss. Older apps that do not support long paths keep their old limit.",
+      "takes": "restart",
+      "sources": ["Microsoft Learn: Maximum path length"],
+      "targets": [
+        { "key": "SYSTEM\\CurrentControlSet\\Control\\FileSystem", "name": "LongPathsEnabled", "value": "1", "normal": "0" }
+      ]
+    },
+    {
+      "id": "memory-integrity",
+      "name": "Memory integrity off",
+      "group": "speed",
+      "scope": "machine",
+      "topic": "Games",
+      "icon": "EA18",
+      "risk": "careful",
+      "summary": "Turns off memory integrity (also called HVCI), which runs a security check on drivers inside a protected area. Games and other heavy apps run a few percent faster, up to about 8% in some tests.",
+      "effect": "This lowers your protection. Memory integrity stops malware from loading harmful code into Windows itself, so leave it on unless you have tested that the speed matters to you. A company policy or a firmware lock can still keep it on. It takes effect after a restart, and Windows Security shows a warning while it is off.",
+      "takes": "restart",
+      "sources": ["Microsoft Learn: Enable memory integrity", "Tom's Hardware: Windows 11 VBS and HVCI gaming benchmarks", "ComputerBase: VBS and HVCI in Windows 11, game benchmarks"],
+      "targets": [
+        { "key": "SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity", "name": "Enabled", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "last-active-click",
+      "name": "Taskbar click opens the last window",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Taskbar",
+      "summary": "Clicking an app on the taskbar that has several windows open goes straight to the one you used last, instead of showing a row of previews first. Click again to go to the next window.",
+      "effect": "You can still pick any window from the previews by hovering over the icon. This value is not documented by Microsoft, so a Windows update may stop honoring it.",
+      "takes": "explorer",
+      "sources": ["Windows Eleven Forum: Always use last active click on taskbar", "NinjaOne: Last Active Click on the taskbar"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "LastActiveClick", "value": "1" }
+      ]
+    },
+    {
+      "id": "explorer-this-pc",
+      "name": "File Explorer opens to This PC",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "File Explorer",
+      "summary": "File Explorer opens showing your drives (This PC) instead of Home, which first has to gather your recent and cloud files.",
+      "effect": "Home's recent and pinned files are no longer the first thing you see. They stay one click away in the sidebar.",
+      "sources": ["Win11Debloat", "Windows Eleven Forum: Open File Explorer to This PC"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "LaunchTo", "value": "1" }
+      ]
+    },
+    {
+      "id": "detailed-file-transfer",
+      "name": "File copies show the full details",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "File Explorer",
+      "summary": "Copying or moving files shows the full progress window at once, with the speed graph and the time left, instead of a small box you have to open with “More details”.",
+      "effect": "The progress window is a little taller. Nothing else changes.",
+      "sources": ["The value File Explorer itself saves when you open or close “More details”"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\OperationStatusManager", "name": "EnthusiastMode", "value": "1", "normal": "0" }
+      ]
+    },
+    {
+      "id": "no-gamebar-popup",
+      "name": "No Game Bar pop-ups",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Game Bar",
+      "icon": "E7FC",
+      "summary": "Pressing a controller's Xbox button or starting a game no longer opens Game Bar, or asks you to “get an app to open this ms-gamebar link” when Game Bar has been removed.",
+      "effect": "Game Bar's controller button, clips and “record what happened” stop working. Other recorders, such as OBS, are not affected. The Quiet page has a separate, stronger switch that blocks game recording for everyone.",
+      "sources": ["Microsoft Q&A: ms-gamebar link pop-up", "Technipages: ms-gamingoverlay link pop-ups", "Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Microsoft\\GameBar", "name": "UseNexusForGameBarEnabled", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\GameBar", "name": "ShowStartupPanel", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR", "name": "AppCaptureEnabled", "value": "0", "normal": "1" },
+        { "key": "System\\GameConfigStore", "name": "GameDVR_Enabled", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "wallpaper-quality",
+      "name": "Full-quality wallpaper",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Desktop background",
+      "summary": "A JPEG picture you set as your wallpaper keeps its full quality instead of being compressed again, so gradients and dark pictures show less banding.",
+      "effect": "Only pictures you set from now on are affected: set your wallpaper again after signing back in. The copy Windows keeps is a little larger.",
+      "takes": "signOut",
+      "sources": ["Winaero: Increase desktop wallpaper quality"],
+      "targets": [
+        { "key": "Control Panel\\Desktop", "name": "JPEGImportQuality", "value": "100" }
+      ]
+    },
+    {
+      "id": "no-setup-nags",
+      "name": "No “finish setting up” pages or Explorer banners",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Sign-in and File Explorer",
+      "summary": "Stops the full-screen “Let's finish setting up your device” page after updates, and the OneDrive and Microsoft 365 banners at the top of File Explorer.",
+      "effect": "Nothing you use. You can still finish setup from Settings, and OneDrive keeps syncing.",
+      "takes": "signOut",
+      "sources": ["Windows Eleven Forum: Let's finish setting up your device", "Winaero: How to disable ads in Windows 11"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "ShowSyncProviderNotifications", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\UserProfileEngagement", "name": "ScoobeSystemSettingEnabled", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "clean-start",
+      "name": "Start keeps no recent files or app lists",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Start menu",
+      "summary": "Start's Recommended section stops listing your recent files, recently added apps and most used apps, and stops showing tips and app suggestions. These are the switches in Settings > Personalization > Start, and they work on Windows 11 Home and Pro.",
+      "effect": "Recent files also stop appearing in Jump Lists and in File Explorer's Recent list. Nothing is deleted, and Start's Pinned apps are not touched.",
+      "minBuild": 22000,
+      "takes": "explorer",
+      "sources": ["Windows Eleven Forum: Recommended files in Start", "Windows Eleven Forum: tips, shortcuts and new apps on Start", "Windows Settings (Personalization > Start)"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "Start_TrackDocs", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "Start_IrisRecommendations", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Start", "name": "ShowRecentList", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Start", "name": "ShowFrequentList", "value": "0" }
+      ]
+    },
+    {
+      "id": "no-device-companion-apps",
+      "name": "No maker apps for new devices",
+      "group": "cleaner",
+      "scope": "machine",
+      "topic": "Hardware",
+      "summary": "Windows stops downloading the maker's companion app and custom icons when you plug in a mouse, keyboard, headset or monitor.",
+      "effect": "The device itself still installs through Windows Update and works. If you want the maker's control app, you install it yourself. Applies to every user of this PC.",
+      "sources": ["Windows “Device installation settings”", "Microsoft Learn: Prevent device metadata retrieval from the Internet"],
+      "targets": [
+        { "key": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Device Metadata", "name": "PreventDeviceMetadataFromNetwork", "value": "1", "normal": "0" }
+      ]
+    },
+    {
+      "id": "fast-startup-off",
+      "name": "Shut down really shuts down",
+      "group": "comfort",
+      "scope": "machine",
+      "topic": "Shutdown",
+      "icon": "E7E8",
+      "risk": "careful",
+      "summary": "Shut down turns the PC fully off. Normally Windows saves its running state to disk and resumes from it next time (Fast startup), so uptime never resets and driver, USB audio and dual-boot problems carry over.",
+      "effect": "Starting the PC can take a few seconds longer, more on a hard drive than on an SSD. Restart already shuts Windows down fully, so only Shut down changes.",
+      "takes": "restart",
+      "sources": ["Windows Settings (Power options > Turn on fast startup)"],
+      "targets": [
+        { "key": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", "name": "HiberbootEnabled", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "startup-delay-off",
+      "name": "Startup apps start at once",
+      "group": "speed",
+      "scope": "user",
+      "topic": "Sign-in",
+      "icon": "E7E8",
+      "summary": "Apps in your Startup folder and Run list start the moment the desktop appears, instead of waiting about ten seconds, or longer on Windows 11 while it waits for the PC to go quiet.",
+      "effect": "Everything starts together, so the PC is busier for the first minute after you sign in. It only helps if you have apps that start with Windows; the Startup page lists them. The key is missing on some builds and community reports differ on how much it changes.",
+      "takes": "signOut",
+      "sources": ["Microsoft Q&A: startup apps delayed after sign-in", "Windows Eleven Forum: Delay of running startup apps"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize", "name": "StartupDelayInMSec", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize", "name": "WaitForIdleState", "value": "0" }
+      ]
+    },
+    {
+      "id": "search-clean",
+      "name": "Search without highlights or cloud results",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Start and Search",
+      "minBuild": 22621,
+      "summary": "The search box stops showing daily “search highlights” pictures, and Start search stops looking in your Microsoft account and work or school account cloud content. These are the switches in Settings > Privacy & security > Search permissions.",
+      "effect": "Search still finds your files, apps and settings. It will not suggest items from your OneDrive, Outlook or SharePoint accounts.",
+      "takes": "explorer",
+      "sources": ["Windows Settings (Privacy & security > Search permissions)"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsDynamicSearchBoxEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsMSACloudSearchEnabled", "value": "0" },
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsAADCloudSearchEnabled", "value": "0" }
+      ]
+    },
+    {
+      "id": "no-workplace-join",
+      "name": "No accidental work or school enrollment",
+      "group": "cleaner",
+      "scope": "machine",
+      "topic": "Accounts",
+      "risk": "careful",
+      "summary": "Signing in to Office, Teams or OneDrive with a work or school account no longer offers “Allow my organization to manage my device”, so clicking OK cannot enroll this personal PC in an organization's management.",
+      "effect": "You can still sign in to the apps. You lose single sign-on across apps for those accounts, and this PC cannot be registered with an organization from that prompt, so leave it off on a PC your employer or school manages.",
+      "sources": ["Microsoft Q&A: Suppress “Allow my organization to manage my device”", "MSEndpointMgr: Are you tired of “Allow my organization to manage my device”"],
+      "targets": [
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Windows\\WorkplaceJoin", "name": "BlockAADWorkplaceJoin", "value": "1" }
+      ]
+    },
+    {
+      "id": "edge-clean",
+      "name": "Edge without first-run, shopping and feed pop-ups",
+      "group": "cleaner",
+      "scope": "machine",
+      "topic": "Microsoft Edge",
+      "icon": "E774",
+      "risk": "careful",
+      "summary": "Edge skips its welcome screen, stops showing the MSN feed on new tabs, shopping and coupon pop-ups and recommendations, and stops asking to be your default browser.",
+      "effect": "Edge also says “managed by your organization”, which is how it shows any policy. New tabs show the plain search page. Applies the next time Edge starts.",
+      "sources": ["Microsoft Learn: HideFirstRunExperience", "Microsoft Learn: NewTabPageContentEnabled", "Microsoft Learn: Edge policy reference"],
+      "targets": [
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "HideFirstRunExperience", "value": "1" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "NewTabPageContentEnabled", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "EdgeShoppingAssistantEnabled", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "ShowRecommendationsEnabled", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "SpotlightExperiencesAndRecommendationsEnabled", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "DefaultBrowserSettingEnabled", "value": "0" },
+        { "key": "SOFTWARE\\Policies\\Microsoft\\Edge", "name": "DefaultBrowserSettingsCampaignEnabled", "value": "0" }
+      ]
+    },
+    {
+      "id": "no-onedrive-backup-nag",
+      "name": "OneDrive stops asking to back up your folders",
+      "group": "cleaner",
+      "scope": "machine",
+      "topic": "OneDrive",
+      "summary": "OneDrive stops asking you to move your Desktop, Documents and Pictures folders into OneDrive, and its backup button is turned off.",
+      "effect": "OneDrive still syncs the files you put in it. Folders already moved into OneDrive stay where they are, and you cannot start a new folder backup from OneDrive until this is off. Applies to every user of this PC.",
+      "sources": ["Microsoft Learn: Prevent users from moving their Windows known folders to OneDrive"],
+      "targets": [
+        { "key": "SOFTWARE\\Policies\\Microsoft\\OneDrive", "name": "KFMBlockOptIn", "value": "1" }
+      ]
+    },
+    {
+      "id": "no-typing-profile",
+      "name": "Windows keeps no typing profile",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Privacy",
+      "summary": "Windows stops learning from what you type and write, stops collecting contacts for typing suggestions, and stops sending typing and inking data for “improvement”. These are the switches in Settings > Privacy & security > Inking & typing personalization.",
+      "effect": "Suggestions as you type and handwriting recognition are a little less tailored to you. Spell checking and the keyboard keep working. This is a privacy setting, so you may not notice any difference.",
+      "sources": ["Windows Settings (Privacy & security > Inking & typing personalization)", "Sophia Script"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Input\\TIPC", "name": "Enabled", "value": "0", "normal": "1" },
+        { "key": "Software\\Microsoft\\InputPersonalization", "name": "RestrictImplicitTextCollection", "value": "1", "normal": "0" },
+        { "key": "Software\\Microsoft\\InputPersonalization", "name": "RestrictImplicitInkCollection", "value": "1", "normal": "0" },
+        { "key": "Software\\Microsoft\\InputPersonalization\\TrainedDataStore", "name": "HarvestContacts", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "no-language-list",
+      "name": "Websites cannot read your language list",
+      "group": "cleaner",
+      "scope": "user",
+      "topic": "Privacy",
+      "summary": "Websites no longer get the list of languages installed on this PC, which they can use to tell you apart from other visitors. This is the “Let websites show me local content by accessing my language list” switch.",
+      "effect": "Sites may pick their language from your browser's own setting instead of your Windows languages. This is a privacy setting, so you may not notice any difference.",
+      "sources": ["Windows Settings (Privacy & security > General)", "Sophia Script"],
+      "targets": [
+        { "key": "Control Panel\\International\\User Profile", "name": "HttpAcceptLanguageOptOut", "value": "1" }
+      ]
+    },
+    {
+      "id": "hide-explorer-gallery",
+      "name": "No Gallery in File Explorer",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "File Explorer",
+      "summary": "The Gallery entry in File Explorer's left sidebar is gone. Windows gives no switch for this.",
+      "effect": "Nothing you would miss. Your pictures stay in the Pictures folder and in the Photos app.",
+      "minBuild": 22621,
+      "takes": "explorer",
+      "sources": ["Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Classes\\CLSID\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}", "name": "System.IsPinnedToNameSpaceTree", "value": "0", "normal": "1" }
+      ]
+    },
+    {
+      "id": "explorer-compact-view",
+      "name": "Closer rows in File Explorer",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "File Explorer",
+      "summary": "File Explorer lists files with the tighter spacing of Windows 10, so about a third more fit on screen. This is the “Compact view” switch in File Explorer's View menu.",
+      "effect": "Rows are harder to hit with a finger on a touch screen. Windows already open pick it up when you open a new window.",
+      "minBuild": 22000,
+      "sources": ["File Explorer's View > Show > Compact view", "Win11Debloat"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "UseCompactMode", "value": "1" }
+      ]
+    },
+    {
+      "id": "alt-tab-windows-only",
+      "name": "Alt+Tab shows windows, not browser tabs",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Window switching",
+      "minBuild": 22621,
+      "summary": "Alt+Tab lists your open windows only, without every Edge tab or app tab mixed in. This is the Alt+Tab switch in Settings > System > Multitasking.",
+      "effect": "You switch between tabs inside the browser itself.",
+      "sources": ["Windows Settings (System > Multitasking)"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "MultiTaskingAltTabFilter", "value": "3" }
+      ]
+    },
+    {
+      "id": "no-aero-shake",
+      "name": "Shaking a window does nothing",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Window switching",
+      "summary": "Shaking a window by its title bar no longer minimizes every other window. This is the “Title bar window shake” switch in Settings > System > Multitasking.",
+      "effect": "Nothing you would miss. Windows can still be minimized with the buttons or Win+Home.",
+      "takes": "explorer",
+      "sources": ["Windows Settings (System > Multitasking)", "Microsoft Learn: Aero Shake policy"],
+      "targets": [
+        { "key": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "DisallowShaking", "value": "1" }
+      ]
+    },
+    {
+      "id": "no-f1-help",
+      "name": "F1 does not open a web search",
+      "group": "comfort",
+      "scope": "user",
+      "topic": "Keyboard",
+      "summary": "Pressing F1 by accident in File Explorer or on the desktop no longer opens Edge with a Bing search for “how to get help in Windows”.",
+      "effect": "Apps with their own help, such as Word, still open it. Only the Windows Help page is gone.",
+      "takes": "explorer",
+      "sources": ["Sophia Script"],
+      "targets": [
+        {
+          "key": "Software\\Classes\\Typelib\\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\\1.0\\0\\win64",
+          "name": "",
+          "kind": "string",
+          "value": "",
+          "removeKey": "Software\\Classes\\Typelib\\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}"
+        }
+      ]
+    },
+    {
+      "id": "verbose-status",
+      "name": "Detailed messages at start-up and shutdown",
+      "group": "comfort",
+      "scope": "machine",
+      "topic": "Shutdown",
+      "summary": "While Windows starts, shuts down, signs in and installs updates it says what it is doing, such as “Installing update 2 of 3”, instead of only “Please wait”.",
+      "effect": "The screen shows a few more words. Nothing else changes.",
+      "takes": "restart",
+      "sources": ["Microsoft Learn: Display highly detailed status messages"],
+      "targets": [
+        { "key": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "name": "VerboseStatus", "value": "1", "normal": "0" }
+      ]
+    }
+  ]
+}

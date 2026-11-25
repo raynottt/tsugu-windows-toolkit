@@ -1,0 +1,703 @@
+<Window x:Class="TidyWindow.Next.Desktop.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="using:TidyWindow.Next.Desktop"
+ Title="TSUGU">
+ <Grid x:Name="Root" Background="{ThemeResource CanvasBrush}" KeyboardAcceleratorPlacementMode="Hidden">
+  <Grid.KeyboardAccelerators><KeyboardAccelerator Key="K" Modifiers="Control" Invoked="SearchShortcut" /></Grid.KeyboardAccelerators>
+  <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+  <Grid x:Name="TitleBar" Padding="20,0,140,0">
+   <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+    <Image x:Name="TitleLogo" Width="18" Height="18" Visibility="Collapsed" AutomationProperties.AccessibilityView="Raw" />
+    <Border Width="22" Height="22" CornerRadius="7" Background="#E0E7FF" VerticalAlignment="Center">
+     <TextBlock Text="T" Foreground="#4338CA" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <TextBlock Text="TSUGU" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+   </StackPanel>
+  </Grid>
+  <Grid Grid.Row="1">
+   <Grid.ColumnDefinitions><ColumnDefinition x:Name="SidebarColumn" Width="288" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+   <!-- Permanent Windows Settings-style navigation pane. The navigation width stays readable at every window size. -->
+   <!-- The border is the 1px SidebarEdge below instead of a BorderThickness, so the compositor can slide it along with the reveal. -->
+   <Border x:Name="Sidebar" Grid.ColumnSpan="2" Canvas.ZIndex="1" Width="288" HorizontalAlignment="Left" Background="{ThemeResource CanvasBrush}"
+     PointerEntered="SidebarPointerEntered" PointerExited="SidebarPointerExited" GotFocus="SidebarGotFocus" LostFocus="SidebarLostFocus">
+    <Grid Margin="10,20,10,12">
+     <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+     <!-- Search and navigation stay in a full-width pane; the page content remains independent. -->
+     <Grid>
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+      <StackPanel Grid.Row="0" Margin="8,0,8,14" Spacing="8">
+       <StackPanel Spacing="2">
+        <TextBlock Text="TSUGU" FontSize="23" FontWeight="Bold" CharacterSpacing="-25" />
+        <TextBlock Text="PC SETUP COMPANION" FontSize="10" FontWeight="SemiBold" CharacterSpacing="120" Foreground="{ThemeResource MutedBrush}" />
+       </StackPanel>
+       <TextBox x:Name="NavigationSearchBox" PlaceholderText="Search tools" Height="36" FontSize="13" TextChanged="NavigationSearchTextChanged" />
+      </StackPanel>
+      <ScrollViewer x:Name="NavScroll" Grid.Row="1" VerticalScrollBarVisibility="Hidden" VerticalScrollMode="Enabled" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled" ZoomMode="Disabled" ViewChanged="NavScrolled" SizeChanged="NavScrollSized">
+      <StackPanel Spacing="4">
+     <TextBlock x:Name="NavHomeSection" Text="HOME" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
+     <Button x:Name="OverviewNav" Style="{StaticResource NavButton}" Click="OverviewClick" AutomationProperties.Name="Overview">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E0E7FF"><FontIcon Glyph="&#xE80F;" FontSize="16" Foreground="#4338CA" /></Border><TextBlock x:Name="OverviewLabel" Text="Overview" FontSize="13" /></StackPanel>
+     </Button>
+     <TextBlock x:Name="NavAppsSection" Text="APPS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
+     <Button x:Name="InstallNav" Style="{StaticResource NavButton}" Click="InstallClick" AutomationProperties.Name="Install Hub">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#CCFBF1"><FontIcon Glyph="&#xE7B8;" FontSize="16" Foreground="#0F766E" /></Border><TextBlock x:Name="InstallLabel" Text="Install Hub" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="InstalledNav" Style="{StaticResource NavButton}" Click="InstalledClick" AutomationProperties.Name="Installed apps">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DBEAFE"><FontIcon Glyph="&#xE74C;" FontSize="16" Foreground="#1D4ED8" /></Border><TextBlock x:Name="InstalledLabel" Text="Installed" FontSize="13" /></StackPanel>
+     </Button>
+     <TextBlock x:Name="NavToolsSection" Text="TOOLS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
+     <Button x:Name="ScoutNav" Style="{StaticResource NavButton}" Click="ScoutClick" AutomationProperties.Name="Scout file search">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#CFFAFE"><FontIcon Glyph="&#xE721;" FontSize="16" Foreground="#0E7490" /></Border><TextBlock x:Name="ScoutLabel" Text="Scout" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="CleanupNav" Style="{StaticResource NavButton}" Click="CleanupClick" AutomationProperties.Name="Cleanup">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DCFCE7"><FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="#15803D" /></Border><TextBlock x:Name="CleanupLabel" Text="Cleanup" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="PathsNav" Style="{StaticResource NavButton}" Click="PathsClick" AutomationProperties.Name="Path Doctor">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xE9D9;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="PathsLabel" Text="Path Doctor" FontSize="13" /></StackPanel>
+     </Button>
+     <TextBlock x:Name="NavMaintenanceSection" Text="MAINTENANCE" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
+     <Button x:Name="RepairNav" Style="{StaticResource NavButton}" Click="RepairClick" AutomationProperties.Name="Repair">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE90F;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="RepairLabel" Text="Repair" FontSize="13" /></StackPanel>
+     </Button>
+     <TextBlock x:Name="NavWindowsSection" Text="WINDOWS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
+     <Button x:Name="StartupNav" Style="{StaticResource NavButton}" Click="StartupClick" AutomationProperties.Name="Startup">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#EDE9FE"><FontIcon Glyph="&#xE7E8;" FontSize="16" Foreground="#6D28D9" /></Border><TextBlock x:Name="StartupLabel" Text="Startup" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="QuietNav" Style="{StaticResource NavButton}" Click="QuietClick" AutomationProperties.Name="Quiet Windows">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E2E8F0"><FontIcon Glyph="&#xE708;" FontSize="16" Foreground="#475569" /></Border><TextBlock x:Name="QuietLabel" Text="Quiet" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="TuneNav" Style="{StaticResource NavButton}" Click="TuneClick" AutomationProperties.Name="Tune">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#EDE9FE"><FontIcon Glyph="&#xE9E9;" FontSize="16" Foreground="#7C3AED" /></Border><TextBlock x:Name="TuneLabel" Text="Tune" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="DebloatNav" Style="{StaticResource NavButton}" Click="DebloatClick" AutomationProperties.Name="Debloat">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE738;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="DebloatLabel" Text="Debloat" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="FixesNav" Style="{StaticResource NavButton}" Click="FixesClick" AutomationProperties.Name="Fixes">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xEC7A;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="FixesLabel" Text="Fixes" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="UnstickNav" Style="{StaticResource NavButton}" Click="UnstickClick" AutomationProperties.Name="Unstick">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E0F2FE"><FontIcon Glyph="&#xE72C;" FontSize="16" Foreground="#0369A1" /></Border><TextBlock x:Name="UnstickLabel" Text="Unstick" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="LabNav" Style="{StaticResource NavButton}" Click="LabClick" AutomationProperties.Name="Lab">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xE9D9;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="LabLabel" Text="Lab" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="CrashesNav" Style="{StaticResource NavButton}" Click="CrashesClick" AutomationProperties.Name="Crashes">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+       <Grid>
+        <Border Width="30" Height="30" CornerRadius="9" Background="#FEE2E2"><FontIcon Glyph="&#xE7BA;" FontSize="16" Foreground="#B91C1C" /></Border>
+        <!-- Something new since the page was last opened; visible even when the sidebar is only the icon rail. -->
+        <Ellipse Width="8" Height="8" Fill="{ThemeResource WarnBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-4,0" Visibility="{Binding UnseenVisibility}" />
+       </Grid>
+       <TextBlock x:Name="CrashesLabel" Text="Crashes" FontSize="13" />
+       <Border Background="{ThemeResource WarnSoftBrush}" CornerRadius="8" Padding="6,0" VerticalAlignment="Center" Visibility="{Binding UnseenVisibility}"><TextBlock Text="{Binding UnseenText}" FontSize="11" Foreground="{ThemeResource WarnBrush}" /></Border>
+      </StackPanel>
+     </Button>
+     <TextBlock x:Name="NavActivitySection" Text="ACTIVITY" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
+     <Button x:Name="QueueButton" Style="{StaticResource NavButton}" Click="QueueClick" AutomationProperties.Name="Queue">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#D1FAE5"><FontIcon Glyph="&#xE8FD;" FontSize="16" Foreground="#047857" /></Border><TextBlock x:Name="QueueLabel" Text="{Binding Label}" FontSize="13" /></StackPanel>
+     </Button>
+     <Button x:Name="LogsNav" Style="{StaticResource NavButton}" Click="LogsClick" AutomationProperties.Name="Logs">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E2E8F0"><FontIcon Glyph="&#xE81C;" FontSize="16" Foreground="#334155" /></Border><TextBlock x:Name="LogsLabel" Text="Logs" FontSize="13" /></StackPanel>
+     </Button>
+      </StackPanel>
+      </ScrollViewer>
+      <Border x:Name="NavThumb" Grid.Row="1" Width="3" CornerRadius="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,-6,0" Background="{ThemeResource ScrollThumbBrush}" IsHitTestVisible="False" Opacity="0" />
+     </Grid>
+     <StackPanel Grid.Row="1" Spacing="4">
+     <Button Style="{StaticResource NavButton}" x:Name="AppearanceNav" AutomationProperties.Name="Appearance">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE790;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="AppearanceLabel" Text="Appearance" FontSize="13" /></StackPanel>
+      <Button.Flyout><MenuFlyout x:Name="AppearanceMenu">
+       <RadioMenuFlyoutItem x:Name="SystemThemeItem" Text="Use Windows theme" GroupName="Theme" Tag="System" Click="ThemeClick" />
+       <RadioMenuFlyoutItem x:Name="LightThemeItem" Text="Light" GroupName="Theme" Tag="Light" Click="ThemeClick" />
+       <RadioMenuFlyoutItem x:Name="DarkThemeItem" Text="Dark" GroupName="Theme" Tag="Dark" Click="ThemeClick" />
+      </MenuFlyout></Button.Flyout>
+     </Button>
+     <Button x:Name="SettingsNav" Style="{StaticResource NavButton}" Click="SettingsClick" AutomationProperties.Name="Settings">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DBEAFE"><FontIcon Glyph="&#xE713;" FontSize="16" Foreground="#1D4ED8" /></Border><TextBlock x:Name="SettingsLabel" Text="Settings" FontSize="13" /></StackPanel>
+     </Button>
+     </StackPanel>
+    </Grid>
+   </Border>
+   <Rectangle x:Name="SidebarEdge" Grid.ColumnSpan="2" Canvas.ZIndex="2" Width="1" HorizontalAlignment="Left" Fill="{ThemeResource LineBrush}" IsHitTestVisible="False" />
+   <Grid x:Name="ContentArea" Grid.Column="1" Padding="36,24,36,28">
+    <ScrollViewer x:Name="OverviewPage" Style="{StaticResource PageScrollViewerStyle}" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <!-- Fills the page the way the other views do. -->
+     <Grid HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <StackPanel Spacing="24" Padding="0,0,0,12">
+       <Grid ColumnSpacing="12">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+        <StackPanel Spacing="4" VerticalAlignment="Center">
+         <TextBlock Text="Your setup hub" Style="{StaticResource PageTitle}" />
+         <TextBlock Text="Check your app sources and get this PC ready for its next setup." Style="{StaticResource Muted}" />
+        </StackPanel>
+        <Button Grid.Column="1" Click="RefreshClick" IsEnabled="{Binding CanRefresh}" Padding="12,7" VerticalAlignment="Center">
+         <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE72C;" FontSize="12" /><TextBlock Text="Refresh" FontSize="12" /></StackPanel>
+        </Button>
+       </Grid>
+       <Grid>
+        <!-- One card per manager: who it is and how it is doing on the first line, anything it is busy with or can expand into underneath. -->
+        <ItemsControl ItemsSource="{Binding Managers}" IsTabStop="False" AutomationProperties.Name="Package managers">
+         <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="12" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+         <ItemsControl.ItemTemplate><DataTemplate>
+          <Border Style="{StaticResource Card}" Padding="0">
+           <StackPanel>
+            <Grid Padding="20,16">
+             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+             <!-- Health is the dot on the logo's corner, the way a presence dot sits on an avatar. Only a state that needs attention gets words beside the buttons. The dot sits outside the bordered tile so the tile does not clip it. -->
+             <Grid Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Center">
+              <Border CornerRadius="10" BorderThickness="1" BorderBrush="{ThemeResource LineBrush}" Background="{ThemeResource CanvasBrush}">
+               <Image Source="{Binding Icon}" Width="28" Height="28" Stretch="Uniform" AutomationProperties.AccessibilityView="Raw" />
+              </Border>
+              <Ellipse Width="12" Height="12" Margin="0,0,-4,-4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{Binding StatusBrush}" Stroke="{ThemeResource PanelBrush}" StrokeThickness="2" ToolTipService.ToolTip="{Binding StatusText}" AutomationProperties.Name="{Binding StatusText}" />
+             </Grid>
+             <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+               <TextBlock Text="{Binding Name}" Style="{StaticResource RowTitle}" VerticalAlignment="Center" />
+               <Border Visibility="{Binding VersionVisibility}" Background="{ThemeResource BadgeBrush}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Version}" FontFamily="Cascadia Mono, Consolas" FontSize="11" Foreground="{ThemeResource MutedBrush}" />
+               </Border>
+               <TextBlock Visibility="{Binding UpdateVisibility}" Text="{Binding AvailableVersion}" FontFamily="Cascadia Mono, Consolas" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" ToolTipService.ToolTip="A newer release is available" AutomationProperties.Name="{Binding UpdateName}" />
+              </StackPanel>
+              <TextBlock Text="{Binding Summary}" Style="{StaticResource RowSub}" TextWrapping="Wrap" TextTrimming="None" />
+             </StackPanel>
+             <Button Grid.Column="2" Margin="16,0,0,0" Visibility="{Binding StatusTextVisibility}" Background="Transparent" Padding="0,4" MinWidth="0" MinHeight="0" VerticalAlignment="Center" HorizontalAlignment="Left" UseSystemFocusVisuals="True" ToolTipService.ToolTip="Status details"><Button.Template><ControlTemplate TargetType="Button"><Grid x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}"><ContentPresenter x:Name="Content" Padding="{TemplateBinding Padding}" Content="{TemplateBinding Content}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AutomationProperties.AccessibilityView="Raw" /><VisualStateManager.VisualStateGroups><VisualStateGroup x:Name="CommonStates"><VisualState x:Name="Normal" /><VisualState x:Name="PointerOver"><VisualState.Setters><Setter Target="Root.Opacity" Value="0.8" /></VisualState.Setters></VisualState><VisualState x:Name="Pressed"><VisualState.Setters><Setter Target="Root.Opacity" Value="0.65" /></VisualState.Setters></VisualState><VisualState x:Name="Disabled" /></VisualStateGroup></VisualStateManager.VisualStateGroups></Grid></ControlTemplate></Button.Template>
+              <TextBlock Text="{Binding StatusText}" FontSize="12" FontWeight="Medium" Foreground="{Binding StatusBrush}" VerticalAlignment="Center" />
+              <Button.Flyout><Flyout><ScrollViewer MaxHeight="220" MaxWidth="420"><TextBlock Text="{Binding Detail}" TextWrapping="Wrap" IsTextSelectionEnabled="True" FontSize="12" /></ScrollViewer></Flyout></Button.Flyout>
+             </Button>
+             <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" Margin="12,0,0,0" VerticalAlignment="Center">
+              <Button Visibility="{Binding BucketsToggleVisibility}" Click="BucketsToggleClick" Padding="12,6" AutomationProperties.Name="{Binding BucketsName}" ToolTipService.ToolTip="Choose which app lists Scoop searches">
+               <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="Buckets" FontSize="12" /><FontIcon Glyph="{Binding BucketsChevron}" FontSize="9" /></StackPanel>
+              </Button>
+              <Button Content="{Binding UpdateAction}" IsEnabled="{Binding CanRecover}" Visibility="{Binding UpdateVisibility}" Click="ManagerUpdateClick" Style="{StaticResource AccentButtonStyle}" FontSize="12" Padding="12,6" AutomationProperties.Name="{Binding UpdateName}" />
+              <Button Content="{Binding SetupAction}" IsEnabled="{Binding CanRecover}" Visibility="{Binding SetupVisibility}" Click="ManagerRecoveryClick" FontSize="12" Padding="12,6" />
+             </StackPanel>
+            </Grid>
+            <Border Visibility="{Binding BusyVisibility}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,1,0,0" Padding="20,14,20,16">
+             <StackPanel Spacing="8">
+              <ProgressBar IsIndeterminate="True" />
+              <TextBlock Text="{Binding Progress}" FontSize="12" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+             </StackPanel>
+            </Border>
+            <Border Visibility="{Binding BucketsVisibility}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,1,0,0" Padding="20,20,20,22">
+             <!-- The panel's own bindings read the buckets model; the visibility above must still read the manager row, so the context changes here, not on the border. -->
+             <StackPanel Spacing="24" DataContext="{Binding Buckets}">
+              <StackPanel Spacing="4">
+               <TextBlock Text="Scoop buckets" Style="{StaticResource SectionTitle}" />
+               <TextBlock Text="Buckets are lists of apps Scoop can install. Searching Install apps only covers the buckets you have added." Style="{StaticResource Muted}" FontSize="12" />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="10" Visibility="{Binding LoadingVisibility}"><ProgressRing Width="14" Height="14" IsActive="True" /><TextBlock Text="Reading your buckets…" FontSize="12" Style="{StaticResource Muted}" /></StackPanel>
+              <StackPanel Spacing="10" Visibility="{Binding AddedVisibility}">
+               <TextBlock Text="{Binding AddedTitle}" Style="{StaticResource GroupLabel}" />
+               <Border Background="{ThemeResource CanvasBrush}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="1" CornerRadius="8">
+                <ItemsControl ItemsSource="{Binding Added}" IsTabStop="False" Margin="0,0,0,-1" AutomationProperties.Name="Added Scoop buckets">
+                 <ItemsControl.ItemTemplate><DataTemplate>
+                  <Grid ColumnSpacing="16" Padding="16,12" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                   <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" FontSize="13" />
+                   <TextBlock Grid.Column="1" Text="{Binding Detail}" FontSize="12" Foreground="{ThemeResource MutedBrush}" />
+                  </Grid>
+                 </DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+               </Border>
+              </StackPanel>
+              <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Message="{Binding GitNote}" Visibility="{Binding GitVisibility}" />
+              <StackPanel Spacing="10">
+               <TextBlock Text="{Binding AvailableTitle}" Style="{StaticResource GroupLabel}" />
+               <TextBlock Text="Every bucket in the list is already added." FontSize="12" Style="{StaticResource Muted}" Visibility="{Binding NothingToAddVisibility}" />
+               <Border Visibility="{Binding AvailableVisibility}" Background="{ThemeResource CanvasBrush}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="1" CornerRadius="8">
+                <ItemsControl ItemsSource="{Binding Available}" IsTabStop="False" Margin="0,0,0,-1" AutomationProperties.Name="Scoop buckets you can add">
+                 <ItemsControl.ItemTemplate><DataTemplate>
+                  <Grid ColumnSpacing="16" Padding="16,14" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                   <StackPanel Spacing="4" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                     <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" FontSize="13" VerticalAlignment="Center" />
+                     <Border Background="{ThemeResource BadgeBrush}" CornerRadius="10" Padding="8,1" VerticalAlignment="Center"><TextBlock Text="{Binding Badge}" FontSize="11" Foreground="{ThemeResource MutedBrush}" /></Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Description}" FontSize="12" Style="{StaticResource Muted}" />
+                    <TextBlock Text="{Binding Repository}" FontFamily="Cascadia Mono, Consolas" FontSize="11" Style="{StaticResource Muted}" TextWrapping="NoWrap" IsTextSelectionEnabled="True" />
+                   </StackPanel>
+                   <Button Grid.Column="1" Content="{Binding Action}" IsEnabled="{Binding CanAdd}" Click="AddBucketClick" VerticalAlignment="Center" FontSize="12" Padding="14,6" MinWidth="64" AutomationProperties.Name="{Binding InstallLabel}" />
+                  </Grid>
+                 </DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+               </Border>
+               <TextBlock Text="Community buckets are run by volunteers, not by Scoop. Apps installed from a bucket follow that bucket's instructions, so add only ones you trust." FontSize="12" Style="{StaticResource Muted}" />
+              </StackPanel>
+              <InfoBar IsOpen="True" IsClosable="False" Severity="{Binding MessageSeverity}" Message="{Binding Message}" Visibility="{Binding MessageVisibility}" />
+              <Expander Header="Details" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Visibility="{Binding DetailVisibility}"><ScrollViewer MaxHeight="160"><TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="True" /></ScrollViewer></Expander>
+             </StackPanel>
+            </Border>
+           </StackPanel>
+          </Border>
+         </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <local:LoadingOverlay IsActive="{Binding Detecting}" Text="Checking package managers…" />
+       </Grid>
+       <StackPanel Spacing="10" Visibility="{Binding RecoveryVisibility}">
+        <StackPanel Orientation="Horizontal" Spacing="10"><ProgressRing Width="14" Height="14" IsActive="{Binding Recovering}" Visibility="{Binding RecoveryProgressVisibility}" /><TextBlock Text="{Binding RecoveryMessage}" FontSize="13" TextWrapping="Wrap" /></StackPanel>
+        <Expander Header="Details" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><ScrollViewer MaxHeight="180"><TextBlock Text="{Binding RecoveryDetail}" FontSize="12" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="True" /></ScrollViewer></Expander>
+       </StackPanel>
+       <!-- A fun, optional extra: a themed PowerShell 7 and Windows Terminal. It has its own view model, so the bindings above stay on the managers. -->
+       <StackPanel x:Name="TerminalSection" Spacing="16" Margin="0,16,0,0">
+        <StackPanel Spacing="4">
+         <TextBlock Text="Configure your terminal" Style="{StaticResource PageTitle}" />
+         <TextBlock Text="Optional. Give PowerShell 7 and Windows Terminal a themed prompt, fuzzy search and handy shortcuts. Your current files are backed up first, and Restore previous puts them back." Style="{StaticResource Muted}" TextWrapping="Wrap" />
+        </StackPanel>
+        <Border Style="{StaticResource Card}" Padding="0">
+         <ItemsControl ItemsSource="{Binding Rows}" IsTabStop="False" Margin="0,0,0,-1" AutomationProperties.Name="Terminal setup steps">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <Grid Padding="20,16" ColumnSpacing="16" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Border Width="40" Height="40" CornerRadius="10" BorderThickness="1" BorderBrush="{ThemeResource LineBrush}" Background="{ThemeResource CanvasBrush}" VerticalAlignment="Center">
+             <FontIcon Glyph="{Binding Glyph}" FontSize="16" AutomationProperties.AccessibilityView="Raw" />
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+             <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="{Binding Title}" Style="{StaticResource RowTitle}" VerticalAlignment="Center" />
+              <FontIcon Glyph="&#xE73E;" FontSize="13" Foreground="{ThemeResource GoodBrush}" Visibility="{Binding GoodVisibility}" VerticalAlignment="Center" ToolTipService.ToolTip="Done" AutomationProperties.Name="Done" />
+              <FontIcon Glyph="&#xE7BA;" FontSize="13" Foreground="{ThemeResource WarnBrush}" Visibility="{Binding PendingVisibility}" VerticalAlignment="Center" ToolTipService.ToolTip="Not done yet" AutomationProperties.Name="Not done yet" />
+             </StackPanel>
+             <TextBlock Text="{Binding Detail}" Style="{StaticResource RowSub}" TextWrapping="Wrap" TextTrimming="None" />
+             <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressValue}" IsIndeterminate="{Binding ProgressIndeterminate}" Visibility="{Binding ProgressVisibility}" Height="4" MinHeight="4" Margin="0,4,0,0" CornerRadius="2" IsTabStop="False" AutomationProperties.Name="Progress" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+             <Button Content="{Binding Secondary}" IsEnabled="{Binding CanSecondary}" Visibility="{Binding SecondaryVisibility}" Tag="secondary" Click="TerminalActClick" FontSize="12" Padding="12,6" AutomationProperties.Name="{Binding SecondaryName}" />
+             <Button Content="{Binding Action}" IsEnabled="{Binding CanAct}" Visibility="{Binding ActionVisibility}" Tag="primary" Click="TerminalActClick" FontSize="12" Padding="12,6" AutomationProperties.Name="{Binding ActionName}" />
+            </StackPanel>
+           </Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </Border>
+        <InfoBar IsOpen="True" IsClosable="False" Severity="{Binding MessageSeverity}" Message="{Binding Message}" Visibility="{Binding MessageVisibility}" />
+        <Expander Header="Details" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Visibility="{Binding DetailVisibility}"><ScrollViewer MaxHeight="160"><TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="True" /></ScrollViewer></Expander>
+       </StackPanel>
+      </StackPanel>
+     </Grid>
+    </ScrollViewer>
+    <Grid x:Name="InstallPage" Visibility="Collapsed" HorizontalAlignment="Stretch" RowSpacing="16">
+     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+     <StackPanel Spacing="4" VerticalAlignment="Center">
+        <TextBlock Text="Install apps" Style="{StaticResource PageTitle}" />
+        <TextBlock Text="Search WinGet, Chocolatey and Scoop, then install in one step." Style="{StaticResource Muted}" />
+       </StackPanel>
+     <Grid x:Name="SearchControls" Grid.Row="1" ColumnSpacing="10" RowSpacing="8">
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="FilterColumn" Width="150" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <TextBox x:Name="SearchBox" PlaceholderText="Search apps or package IDs" MaxLength="100" Height="38" VerticalContentAlignment="Center" TextChanged="SearchTextChanged" KeyDown="SearchKeyDown" AutomationProperties.Name="Search packages" />
+      <ComboBox x:Name="SourceFilter" Grid.Column="1" SelectedIndex="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" SelectionChanged="SourceChanged" AutomationProperties.Name="Package source">
+       <ComboBoxItem Content="All sources" /><ComboBoxItem Content="WinGet" /><ComboBoxItem Content="Chocolatey" /><ComboBoxItem Content="Scoop" />
+      </ComboBox>
+      <Button x:Name="SearchButton" Grid.Column="2" Content="Search" Click="SearchClick" Padding="16,8" Height="38" />
+     </Grid>
+     <Grid Grid.Row="2">
+      <Grid>
+       <Grid Visibility="{Binding ResultsVisibility}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Padding="12,8" Visibility="{Binding SourceStatusVisibility}" AutomationProperties.LiveSetting="Polite">
+         <ProgressRing Width="14" Height="14" IsActive="True" Visibility="{Binding SourceBusyVisibility}" VerticalAlignment="Center" />
+         <TextBlock Text="{Binding SourceStatus}" Style="{StaticResource Muted}" VerticalAlignment="Center" TextWrapping="Wrap" />
+        </StackPanel>
+        <Border x:Name="ResultsHeader" Visibility="{Binding ResultsHeaderVisibility}" Height="36" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,0">
+         <Grid ColumnSpacing="16"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="100" /><ColumnDefinition Width="100" /><ColumnDefinition Width="85" /></Grid.ColumnDefinitions>
+          <TextBlock Text="Name" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="Version" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="2" Text="Source" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+         </Grid>
+        </Border>
+        <ListView x:Name="ResultsList" Loaded="ResultsListLoaded" Grid.Row="2" ItemsSource="{Binding Packages}" SelectionMode="None" IsItemClickEnabled="False" Padding="0,0,0,12" HorizontalContentAlignment="Stretch" AutomationProperties.Name="Package search results">
+         <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinHeight" Value="0" /></Style></ListView.ItemContainerStyle>
+         <ListView.ItemTemplate><DataTemplate>
+          <Border BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,14">
+           <Grid ColumnSpacing="16"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="{Binding DetailColumnWidth}" /><ColumnDefinition Width="{Binding DetailColumnWidth}" /><ColumnDefinition Width="85" /></Grid.ColumnDefinitions>
+            <StackPanel Spacing="4" VerticalAlignment="Center">
+             <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" local:TrimTip.Enabled="True" />
+             <TextBlock Text="{Binding Id}" Style="{StaticResource RowSub}" local:TrimTip.Enabled="True" />
+             <TextBlock Text="{Binding CompactDetail}" Visibility="{Binding CompactVisibility}" Style="{StaticResource RowSub}" />
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding Version}" Visibility="{Binding WideVisibility}" FontSize="12" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TrimTip.Enabled="True" />
+            <TextBlock Grid.Column="2" Text="{Binding Source}" Visibility="{Binding WideVisibility}" FontSize="12" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" />
+            <Button Grid.Column="3" Content="{Binding Action}" IsEnabled="{Binding CanInstall}" Click="InstallPackageClick" FontSize="12" Padding="12,6" HorizontalAlignment="Right" VerticalAlignment="Center" AutomationProperties.Name="{Binding InstallLabel}" ToolTipService.ToolTip="{Binding ActionDetail}" />
+           </Grid>
+          </Border>
+         </DataTemplate></ListView.ItemTemplate>
+        </ListView>
+       </Grid>
+       <StackPanel Visibility="{Binding EmptyVisibility}" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400" Spacing="6" Padding="24">
+        <TextBlock Text="{Binding SearchSummary}" Style="{StaticResource EmptyTitle}" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding EmptyDetail}" Style="{StaticResource Muted}" TextAlignment="Center" />
+       </StackPanel>
+       <local:LoadingOverlay IsActive="{Binding SearchLoading}" Text="Searching your sources…" CancelText="Cancel" Cancelled="CancelSearchClick" />
+      </Grid>
+     </Grid>
+    </Grid>
+    <Grid x:Name="InstalledPage" Visibility="Collapsed" HorizontalAlignment="Stretch" RowSpacing="16">
+     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+     <Grid ColumnSpacing="12">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <StackPanel Spacing="4" VerticalAlignment="Center">
+        <TextBlock Text="Installed apps" Style="{StaticResource PageTitle}" />
+        <TextBlock Text="Apps from your package managers, and which have updates." Style="{StaticResource Muted}" />
+       </StackPanel>
+      <Button Grid.Column="1" Click="InstalledRefreshClick" IsEnabled="{Binding CanRefresh}" Padding="12,7" ToolTipService.ToolTip="Refresh apps and check for updates. Scoop uses your current local buckets." AutomationProperties.Name="Refresh installed apps">
+       <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE72C;" FontSize="12" /><TextBlock Text="Refresh" FontSize="12" /></StackPanel>
+      </Button>
+     </Grid>
+     <Grid Grid.Row="1" ColumnSpacing="10" RowSpacing="8">
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="InstalledFilterColumn" Width="Auto" /></Grid.ColumnDefinitions>
+      <TextBox x:Name="InstalledSearch" PlaceholderText="Find an installed app" MaxLength="100" Height="38" VerticalContentAlignment="Center" TextChanged="InstalledFilterChanged" AutomationProperties.Name="Find an installed app" />
+      <ComboBox x:Name="InstalledFilter" Grid.Column="1" SelectedIndex="0" MinWidth="164" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" SelectionChanged="InstalledFilterChanged" AutomationProperties.Name="Installed apps filter">
+       <ComboBoxItem Content="All apps" /><ComboBoxItem Content="Updates available" />
+      </ComboBox>
+     </Grid>
+     <StackPanel Grid.Row="2" Spacing="10">
+      <StackPanel Spacing="6" Visibility="{Binding UpdatingVisibility}">
+       <ProgressBar IsIndeterminate="True" />
+       <TextBlock Text="Checking for changes. You can keep updating and uninstalling meanwhile." FontSize="12" Foreground="{ThemeResource MutedBrush}" AutomationProperties.LiveSetting="Polite" />
+      </StackPanel>
+      <local:SelectionBar x:Name="InstalledSelection" IsAllSelected="{Binding AllSelected}" CanSelect="{Binding CanSelect}" Count="{Binding SelectedCount}" HiddenCount="{Binding HiddenSelectedCount}" SelectAllClick="SelectAllInstalledClick" ClearClick="ClearInstalledSelectionClick">
+       <local:SelectionBar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+         <Button Content="Update selected" Click="UpdateSelectedClick" IsEnabled="{Binding CanUpdateSelected}" FontSize="12" Padding="10,6" />
+         <Button Content="Uninstall selected" Click="UninstallSelectedClick" IsEnabled="{Binding CanUninstallSelected}" FontSize="12" Padding="10,6" />
+        </StackPanel>
+       </local:SelectionBar.Actions>
+      </local:SelectionBar>
+     </StackPanel>
+     <Grid Grid.Row="3">
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+      <Border x:Name="InstalledHeader" Visibility="{Binding TableHeaderVisibility}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,0" Height="34">
+       <Grid ColumnSpacing="16">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="2.5*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="156" /></Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="1" Text="App" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="2" Text="Source" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="3" Text="Installed" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="4" Text="Available" Style="{StaticResource ColumnLabel}" VerticalAlignment="Center" />
+       </Grid>
+      </Border>
+      <ListView x:Name="InstalledList" Loaded="InstalledListLoaded" Grid.Row="1" ItemsSource="{Binding Rows}" SelectionMode="None" IsItemClickEnabled="False" Padding="0,0,0,12" HorizontalContentAlignment="Stretch" ContainerContentChanging="InstalledRowRealized" AutomationProperties.Name="Installed packages">
+       <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinHeight" Value="0" /><Setter Property="IsTabStop" Value="False" /></Style></ListView.ItemContainerStyle>
+       <ListView.ItemTemplate><DataTemplate>
+        <Border BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,12" MinHeight="68">
+         <Grid ColumnSpacing="{Binding ColumnGap}">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="{Binding NameWidth}" /><ColumnDefinition Width="{Binding MetadataWidth}" /><ColumnDefinition Width="{Binding MetadataWidth}" /><ColumnDefinition Width="{Binding MetadataWidth}" /><ColumnDefinition Width="156" /></Grid.ColumnDefinitions>
+          <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding CanAct}" MinWidth="0" Padding="0" VerticalAlignment="Center" AutomationProperties.Name="{Binding Name}" />
+          <Grid Grid.Column="1" ColumnSpacing="12" VerticalAlignment="Center">
+           <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <local:AppIcon Source="{Binding Icon}" Glyph="{Binding Glyph}" />
+           <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" local:TrimTip.Enabled="True" />
+            <TextBlock Text="{Binding Subtitle}" Visibility="{Binding WideVisibility}" Style="{StaticResource RowSub}" local:TrimTip.Enabled="True" />
+            <TextBlock Text="{Binding CompactDetail}" Visibility="{Binding CompactVisibility}" Style="{StaticResource RowSub}" local:TrimTip.Enabled="True" />
+           </StackPanel>
+          </Grid>
+          <TextBlock Grid.Column="2" Text="{Binding Source}" Visibility="{Binding WideVisibility}" FontSize="12" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TrimTip.Enabled="True" />
+          <TextBlock Grid.Column="3" Text="{Binding Version}" Visibility="{Binding WideVisibility}" FontSize="12" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TrimTip.Enabled="True" />
+          <TextBlock Grid.Column="4" Text="{Binding Available}" Visibility="{Binding AvailableVisibility}" FontSize="12" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TrimTip.Enabled="True" />
+          <Button Grid.Column="4" Visibility="{Binding FailedVisibility}" Click="FailedStatusClick" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="0" MinWidth="0" MinHeight="0" UseSystemFocusVisuals="True" ToolTipService.ToolTip="Open the Logs to see why this failed" AutomationProperties.Name="Failed. Open the Logs">
+           <Button.Template><ControlTemplate TargetType="Button">
+            <Border x:Name="Root" Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}" BorderBrush="{ThemeResource SystemFillColorCriticalBrush}" BorderThickness="1" CornerRadius="999" Padding="8,3,10,3">
+             <StackPanel Orientation="Horizontal" Spacing="6" AutomationProperties.AccessibilityView="Raw">
+              <FontIcon Glyph="&#xEA39;" FontSize="13" Foreground="{ThemeResource SystemFillColorCriticalBrush}" VerticalAlignment="Center" />
+              <TextBlock Text="Failed" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource SystemFillColorCriticalBrush}" VerticalAlignment="Center" />
+              <FontIcon Glyph="&#xE76C;" FontSize="9" Foreground="{ThemeResource SystemFillColorCriticalBrush}" VerticalAlignment="Center" />
+             </StackPanel>
+             <VisualStateManager.VisualStateGroups><VisualStateGroup x:Name="CommonStates"><VisualState x:Name="Normal" /><VisualState x:Name="PointerOver"><VisualState.Setters><Setter Target="Root.Opacity" Value="0.8" /></VisualState.Setters></VisualState><VisualState x:Name="Pressed"><VisualState.Setters><Setter Target="Root.Opacity" Value="0.6" /></VisualState.Setters></VisualState></VisualStateGroup></VisualStateManager.VisualStateGroups>
+            </Border>
+           </ControlTemplate></Button.Template>
+          </Button>
+          <Grid Grid.Column="5" ColumnSpacing="8" VerticalAlignment="Center">
+           <Grid.ColumnDefinitions><ColumnDefinition Width="72" /><ColumnDefinition Width="76" /></Grid.ColumnDefinitions>
+           <Button Content="Update" Visibility="{Binding UpdateVisibility}" IsEnabled="{Binding CanUpdate}" Click="UpdateInstalledClick" FontSize="12" Padding="10,6" HorizontalAlignment="Stretch" AutomationProperties.Name="{Binding UpdateName}" ToolTipService.ToolTip="{Binding UpdateDetail}" />
+           <Button Grid.Column="1" Content="Uninstall" IsEnabled="{Binding CanAct}" Click="UninstallInstalledClick" FontSize="12" Padding="10,6" HorizontalAlignment="Stretch" AutomationProperties.Name="{Binding UninstallName}" />
+          </Grid>
+         </Grid>
+        </Border>
+       </DataTemplate></ListView.ItemTemplate>
+      </ListView>
+      <StackPanel Grid.RowSpan="2" Visibility="{Binding EmptyVisibility}" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400" Spacing="6" Padding="24">
+       <TextBlock Text="{Binding EmptyTitle}" Style="{StaticResource EmptyTitle}" TextWrapping="Wrap" />
+       <TextBlock Text="{Binding EmptyDetail}" Style="{StaticResource Muted}" TextAlignment="Center" />
+      </StackPanel>
+      <local:LoadingOverlay Grid.RowSpan="2" IsActive="{Binding ShowLoading}" Text="{Binding ProgressText}" />
+     </Grid>
+    </Grid>
+    <Grid x:Name="ScoutPage" Visibility="Collapsed" RowSpacing="16">
+     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+     <Grid ColumnSpacing="10">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <StackPanel Spacing="4" VerticalAlignment="Center">
+        <TextBlock Text="Scout" Style="{StaticResource PageTitle}" />
+        <TextBlock Text="Look up any file or folder on this PC." Style="{StaticResource Muted}" />
+       </StackPanel>
+        <Button Grid.Column="1" Content="{Binding SetupLabel}" Click="ScoutSetupClick" Visibility="{Binding SetupVisibility}" IsEnabled="{Binding CanSetup}" FontSize="12" Padding="10,7" />
+      <Button Grid.Column="2" Click="ScoutRefreshClick" Padding="10,7" AutomationProperties.Name="Refresh search index" ToolTipService.ToolTip="Refresh search index"><FontIcon Glyph="&#xE72C;" FontSize="12" /></Button>
+     </Grid>
+     <Grid Grid.Row="1" ColumnSpacing="10" RowSpacing="8">
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="ScoutLocationColumn" Width="180" /><ColumnDefinition Width="170" /></Grid.ColumnDefinitions>
+      <TextBox x:Name="ScoutSearchBox" PlaceholderText="Search names and paths, or add kind:pdf size:&gt;10mb date:7d…" MaxLength="200" Height="38" VerticalContentAlignment="Center" TextChanged="ScoutTextChanged" AutomationProperties.Name="Search file and folder names" />
+      <ComboBox x:Name="ScoutLocation" Grid.Column="1" SelectedIndex="0" SelectionChanged="ScoutLocationChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutomationProperties.Name="Search location">
+         <ComboBoxItem Content="Home" /><ComboBoxItem Content="This PC" /><ComboBoxItem Content="Choose folder…" /><ComboBoxItem x:Name="ScoutFolderChoice" Visibility="Collapsed" />
+      </ComboBox>
+      <ComboBox x:Name="ScoutType" Grid.Column="2" SelectedIndex="0" SelectionChanged="ScoutTypeChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutomationProperties.Name="Filter by kind of file" ToolTipService.ToolTip="Only show this kind of file" />
+      <!-- The other filters. Each one is added to the search as a filter you could type, so the two always agree. -->
+      <Grid Grid.Row="2" Grid.ColumnSpan="3" ColumnSpacing="8">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+       <ComboBox x:Name="ScoutModified" SelectedIndex="0" SelectionChanged="ScoutTypeChanged" MinWidth="150" AutomationProperties.Name="Filter by date modified" ToolTipService.ToolTip="Only show things changed this recently" />
+       <ComboBox x:Name="ScoutSize" Grid.Column="1" SelectedIndex="0" SelectionChanged="ScoutTypeChanged" MinWidth="190" AutomationProperties.Name="Filter by size" ToolTipService.ToolTip="Only show files of this size" />
+       <ComboBox x:Name="ScoutSort" Grid.Column="2" SelectedIndex="0" SelectionChanged="ScoutTypeChanged" MinWidth="150" AutomationProperties.Name="Sort results" ToolTipService.ToolTip="How the results are ordered" />
+       <Button Grid.Column="4" Padding="10,7" Background="Transparent" AutomationProperties.Name="Search tips" ToolTipService.ToolTip="Search tips">
+        <FontIcon Glyph="&#xE897;" FontSize="14" />
+        <Button.Flyout>
+         <Flyout Placement="BottomEdgeAlignedRight">
+          <StackPanel Spacing="10" MaxWidth="480">
+           <TextBlock Text="Search tips" Style="{StaticResource ItemTitle}" />
+           <TextBlock Style="{StaticResource Muted}" Text="Type a name, or only a filter, to find files. Every word has to match. The boxes above add the same filters for you." />
+           <TextBlock FontFamily="Cascadia Mono, Consolas" FontSize="12" LineHeight="20" TextWrapping="Wrap">
+            <Run Text="invoice 2026" /><Run Text="         both words" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="&quot;tax return&quot;" /><Run Text="       exact phrase" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="-draft" /><Run Text="               leave out" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="*.png  d?ta*" /><Run Text="        wildcards" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="kind:image|video" /><Run Text="   either kind. Also document," Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="                    pdf, spreadsheet, installer," Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="                    archive, code, folder…" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="ext:psd|ai" /><Run Text="          exact extensions" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="size:&gt;100mb" /><Run Text="        also &lt; &gt;= &lt;= =" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="size:1mb..10mb" /><Run Text="     a range" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="size:empty" /><Run Text="         or tiny, small," Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="                    medium, large, huge" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="date:today" /><Run Text="         or yesterday, week, month," Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="                    7d, 2w, 3m, 1y, 2026-10-25," Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="                    2026-10, 2026" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="after:2026-10-01" /><Run Text="   before:2026-11-01" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="in:downloads" /><Run Text="       inside a folder" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="name:setup" /><Run Text="          in the file name only" Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="sort:newest" /><Run Text="        or oldest, largest," Foreground="{ThemeResource MutedBrush}" /><LineBreak />
+            <Run Text="                    smallest, name" Foreground="{ThemeResource MutedBrush}" />
+           </TextBlock>
+           <TextBlock Style="{StaticResource Muted}" Text="Try: kind:installer in:downloads size:&gt;50mb" />
+          </StackPanel>
+         </Flyout>
+        </Button.Flyout>
+       </Button>
+      </Grid>
+     </Grid>
+     <StackPanel Grid.Row="2" Spacing="8">
+      <!-- How the typed filters were read. -->
+      <ItemsControl ItemsSource="{Binding Chips}" Visibility="{Binding ChipsVisibility}" AutomationProperties.Name="How the search was read">
+       <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+       <ItemsControl.ItemTemplate><DataTemplate>
+        <Border Background="{ThemeResource BadgeBrush}" CornerRadius="10" Padding="9,2"><TextBlock Text="{Binding}" FontSize="12" Foreground="{ThemeResource MutedBrush}" /></Border>
+       </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Grid ColumnSpacing="10">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+       <TextBlock Text="{Binding Status}" FontSize="12" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+       <HyperlinkButton Grid.Column="1" Click="ScoutClearClick" Visibility="{Binding ClearVisibility}" Padding="4,0" FontSize="12" Content="Clear search and filters" />
+       <Button Grid.Column="2" Content="Stop" Click="ScoutCancelClick" Visibility="{Binding ProgressVisibility}" Padding="10,4" FontSize="12" />
+      </Grid>
+      <ProgressBar IsIndeterminate="True" Visibility="{Binding ProgressVisibility}" Height="2" />
+     </StackPanel>
+     <Grid Grid.Row="3">
+      <ListView ItemsSource="{Binding Rows}" SelectionMode="None" HorizontalContentAlignment="Stretch" Padding="0,0,0,12" AutomationProperties.Name="File search results">
+       <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="IsTabStop" Value="False" /><Setter Property="MinHeight" Value="0" /></Style></ListView.ItemContainerStyle>
+       <ListView.ItemTemplate><DataTemplate>
+        <Border BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1" Padding="10,12">
+         <Grid ColumnSpacing="12">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="22" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+          <FontIcon Glyph="{Binding Glyph}" FontSize="17" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Spacing="4">
+           <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" local:TrimTip.Enabled="True" />
+           <TextBlock Text="{Binding Path}" Style="{StaticResource RowSub}" local:TrimTip.Enabled="True" />
+          </StackPanel>
+          <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="12" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+           <Button Click="ScoutCopyClick" Padding="8,6" ToolTipService.ToolTip="Copy path" AutomationProperties.Name="{Binding CopyLabel}"><FontIcon Glyph="&#xE8C8;" FontSize="12" /></Button>
+           <Button Click="ScoutOpenClick" Padding="8,6" ToolTipService.ToolTip="Show in File Explorer" AutomationProperties.Name="{Binding OpenLabel}"><FontIcon Glyph="&#xE838;" FontSize="12" /></Button>
+          </StackPanel>
+         </Grid>
+        </Border>
+       </DataTemplate></ListView.ItemTemplate>
+      </ListView>
+      <StackPanel Visibility="{Binding EmptyVisibility}" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="380" Padding="24" Spacing="6">
+       <local:ScoutIdleArt Visibility="{Binding IdleVisibility}" Margin="0,0,0,14" />
+       <TextBlock Text="{Binding EmptyTitle}" Style="{StaticResource EmptyTitle}" TextWrapping="Wrap" />
+       <TextBlock Text="{Binding EmptyDetail}" Style="{StaticResource Muted}" TextAlignment="Center" />
+      </StackPanel>
+     </Grid>
+    </Grid>
+    <local:CleanupView x:Name="CleanupPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:PathDoctorView x:Name="PathsPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:RepairView x:Name="RepairPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:StartupView x:Name="StartupPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:BackgroundView x:Name="QuietPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:TuneView x:Name="TunePage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:DebloatView x:Name="DebloatPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:FixesView x:Name="FixesPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:UnstickView x:Name="UnstickPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:SettingsView x:Name="SettingsPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:LabView x:Name="LabPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <local:CrashesView x:Name="CrashesPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
+    <Grid x:Name="QueuePage" Visibility="Collapsed" HorizontalAlignment="Stretch" RowSpacing="16">
+     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+     <Grid ColumnSpacing="12">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <StackPanel Spacing="4" VerticalAlignment="Center">
+        <TextBlock Text="Queue" Style="{StaticResource PageTitle}" />
+        <TextBlock Text="Installs and updates you have added, with their output." Style="{StaticResource Muted}" />
+       </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+       <Button Content="Clear waiting" Click="ClearWaitingClick" IsEnabled="{Binding CanClear}" FontSize="12" Padding="10,7" />
+       <Button Content="Clear finished" Click="ClearFinishedQueueClick" IsEnabled="{Binding CanClearFinished}" FontSize="12" Padding="10,7" />
+      </StackPanel>
+     </Grid>
+     <CheckBox Grid.Row="1" IsChecked="{Binding ShowInstallerOptions, Mode=TwoWay}" FontSize="12" ToolTipService.ToolTip="Applies to new WinGet installs and updates. Opens installer options when the package supports them. Chocolatey and Scoop always install silently with the package's own settings.">
+      <TextBlock Text="Show installer options for new operations" TextWrapping="Wrap" />
+     </CheckBox>
+     <Grid Grid.Row="2">
+      <ListView ItemsSource="{Binding Rows}" SelectionMode="None" IsItemClickEnabled="False" HorizontalContentAlignment="Stretch" Padding="0,0,0,12" AutomationProperties.Name="Package queue">
+       <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0,0,0,10" /><Setter Property="IsTabStop" Value="False" /><Setter Property="MinHeight" Value="0" /></Style></ListView.ItemContainerStyle>
+       <ListView.ItemTemplate><DataTemplate>
+        <Border Background="{ThemeResource PanelBrush}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="1" CornerRadius="8">
+         <StackPanel>
+          <Grid ColumnSpacing="4" Padding="4">
+           <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+           <Button Click="QueueRowClick" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="12,10" Background="Transparent" BorderThickness="0" AutomationProperties.Name="{Binding ExpandName}">
+            <Grid ColumnSpacing="12">
+             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+             <StackPanel Spacing="4">
+              <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" local:TrimTip.Enabled="True" />
+              <TextBlock Text="{Binding Detail}" Style="{StaticResource RowSub}" local:TrimTip.Enabled="True" />
+              <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Visibility="{Binding ProgressVisibility}" Height="3" Margin="0,2,0,0" IsTabStop="False" AutomationProperties.AccessibilityView="Raw" />
+             </StackPanel>
+             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Status}" FontSize="12" Foreground="{Binding StatusBrush}" FontWeight="SemiBold" />
+              <FontIcon Glyph="{Binding Chevron}" FontSize="11" Foreground="{ThemeResource MutedBrush}" />
+             </StackPanel>
+            </Grid>
+           </Button>
+           <Button Grid.Column="1" Click="StopRunningClick" Visibility="{Binding StopVisibility}" Background="Transparent" BorderThickness="0" Padding="8" Margin="0,0,6,0" VerticalAlignment="Center" ToolTipService.ToolTip="Stop" AutomationProperties.Name="{Binding StopName}"><FontIcon Glyph="&#xE71A;" FontSize="12" /></Button>
+           <Button Grid.Column="1" Click="StopWaitingClick" Visibility="{Binding StopWaitingVisibility}" Content="Stop waiting" FontSize="12" Background="Transparent" BorderThickness="0" Padding="8,6" Margin="0,0,6,0" VerticalAlignment="Center" ToolTipService.ToolTip="Let the queue move on while this keeps finishing in the background" AutomationProperties.Name="{Binding StopWaitingName}" />
+           <Button Grid.Column="1" Click="RemoveQueuedClick" Visibility="{Binding CancelVisibility}" Background="Transparent" BorderThickness="0" Padding="8" Margin="0,0,6,0" VerticalAlignment="Center" ToolTipService.ToolTip="Remove from queue" AutomationProperties.Name="{Binding CancelName}"><FontIcon Glyph="&#xE711;" FontSize="12" /></Button>
+          </Grid>
+          <Border Visibility="{Binding OutputVisibility}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,1,0,0" Padding="16,12">
+           <StackPanel Spacing="10">
+            <TextBlock Text="{Binding Notice}" Visibility="{Binding NoticeVisibility}" Foreground="{Binding NoticeBrush}" TextWrapping="Wrap" FontSize="12" IsTextSelectionEnabled="True" />
+            <TextBlock Text="{Binding OutputTitle}" FontSize="12" Foreground="{ThemeResource MutedBrush}" />
+            <ScrollViewer MaxHeight="{Binding OutputHeight}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" ViewChanged="QueueOutputViewChanged">
+             <local:CommandOutputView Document="{Binding OutputDocument}" FontFamily="Consolas" FontSize="12" SizeChanged="QueueOutputSizeChanged" />
+            </ScrollViewer>
+           </StackPanel>
+          </Border>
+         </StackPanel>
+        </Border>
+       </DataTemplate></ListView.ItemTemplate>
+      </ListView>
+      <StackPanel Visibility="{Binding EmptyVisibility}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6" MaxWidth="360" Padding="24">
+       <TextBlock Text="Your queue is empty" Style="{StaticResource EmptyTitle}" />
+       <TextBlock Text="Add installs or updates. Select an operation here to see its output." Style="{StaticResource Muted}" TextAlignment="Center" />
+      </StackPanel>
+     </Grid>
+    </Grid>
+    <Grid x:Name="LogsPage" Visibility="Collapsed" HorizontalAlignment="Stretch" RowSpacing="16">
+     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+     <Grid>
+      <StackPanel Spacing="4" VerticalAlignment="Center">
+        <TextBlock Text="Logs" Style="{StaticResource PageTitle}" />
+        <TextBlock Text="A record of what TidyWindow has done." Style="{StaticResource Muted}" />
+       </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+       <Button x:Name="CopyLogsButton" Click="CopyLogsClick" Padding="12,7" ToolTipService.ToolTip="Copy the entries shown" AutomationProperties.Name="Copy entries">
+        <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE8C8;" FontSize="12" /><TextBlock x:Name="CopyLogsLabel" Text="Copy" FontSize="12" /></StackPanel>
+       </Button>
+       <Button Click="OpenLogsFolderClick" Padding="12,7" ToolTipService.ToolTip="Open the folder containing the log files" AutomationProperties.Name="Open log folder">
+        <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE838;" FontSize="12" /><TextBlock x:Name="OpenLogsLabel" Text="Open folder" FontSize="12" /></StackPanel>
+       </Button>
+       <Button Click="ClearLogsClick" Padding="12,7" ToolTipService.ToolTip="Delete all saved entries" AutomationProperties.Name="Clear log">
+        <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE74D;" FontSize="12" /><TextBlock x:Name="ClearLogsLabel" Text="Clear" FontSize="12" /></StackPanel>
+       </Button>
+      </StackPanel>
+     </Grid>
+     <Grid x:Name="LogFilters" Grid.Row="1" ColumnSpacing="10" RowSpacing="8">
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="LogSelectColumn" Width="320" /></Grid.ColumnDefinitions>
+      <TextBox x:Name="LogSearch" PlaceholderText="Search entries" MaxLength="100" Height="38" VerticalContentAlignment="Center" TextChanged="LogFilterTextChanged" AutomationProperties.Name="Search entries" />
+      <Grid x:Name="LogSelects" Grid.Column="1" ColumnSpacing="10">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+       <ComboBox x:Name="LogLevelFilter" SelectedIndex="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" SelectionChanged="LogFilterChanged" AutomationProperties.Name="Severity">
+        <ComboBoxItem Content="All activity" /><ComboBoxItem Content="Problems only" /><ComboBoxItem Content="Errors only" />
+       </ComboBox>
+       <ComboBox x:Name="LogAreaFilter" Grid.Column="1" SelectedIndex="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" SelectionChanged="LogFilterChanged" AutomationProperties.Name="Area">
+        <ComboBoxItem Content="All areas" /><ComboBoxItem Content="Managers" /><ComboBoxItem Content="Search" /><ComboBoxItem Content="Install" /><ComboBoxItem Content="App" />
+       </ComboBox>
+      </Grid>
+     </Grid>
+     <StackPanel Grid.Row="2" Spacing="6">
+      <TextBlock Text="{Binding Summary}" Style="{StaticResource Muted}" />
+      <TextBlock Text="{Binding StorageWarning}" Visibility="{Binding StorageWarningVisibility}" FontSize="12" Foreground="{ThemeResource ErrorBrush}" TextWrapping="Wrap" />
+     </StackPanel>
+     <Grid Grid.Row="3">
+      <ListView ItemsSource="{Binding Rows}" Visibility="{Binding ListVisibility}" SelectionMode="None" IsItemClickEnabled="False" Padding="0,0,0,12" HorizontalContentAlignment="Stretch" AutomationProperties.Name="Log entries">
+       <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinHeight" Value="0" /><Setter Property="IsTabStop" Value="False" /></Style></ListView.ItemContainerStyle>
+       <ListView.ItemTemplate><DataTemplate>
+        <Border Margin="0,4">
+         <Border Background="{Binding CardBrush}" BorderBrush="{Binding CardBorder}" BorderThickness="1" CornerRadius="8">
+          <StackPanel>
+           <Grid>
+            <Button Click="LogRowClick" Background="Transparent" BorderThickness="0" Padding="16,12,16,12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" CornerRadius="8" AutomationProperties.Name="{Binding Message}">
+             <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+              <StackPanel Spacing="4" Margin="0,0,56,0">
+               <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,2" AutomationProperties.AccessibilityView="Raw">
+                <FontIcon Glyph="{Binding BadgeGlyph}" FontSize="14" Foreground="{Binding DotBrush}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Label}" FontSize="12" FontWeight="SemiBold" Foreground="{Binding DotBrush}" VerticalAlignment="Center" />
+                <Border Visibility="{Binding CountVisibility}" Background="{Binding IconBrush}" CornerRadius="4" Padding="5,0,5,1" VerticalAlignment="Center"><TextBlock Text="{Binding CountText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding DotBrush}" /></Border>
+               </StackPanel>
+               <TextBlock Text="{Binding Message}" Style="{StaticResource ItemTitle}" TextWrapping="Wrap" TextAlignment="Left" />
+               <StackPanel Orientation="Horizontal" ToolTipService.ToolTip="{Binding Exact}">
+                <TextBlock Text="{Binding Meta}" FontSize="12" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" TextAlignment="Left" VerticalAlignment="Center" />
+               </StackPanel>
+              </StackPanel>
+              <FontIcon Grid.Column="1" Glyph="{Binding Chevron}" Visibility="{Binding ChevronVisibility}" FontSize="11" Foreground="{ThemeResource MutedBrush}" VerticalAlignment="Top" Margin="0,2,0,0" />
+             </Grid>
+            </Button>
+            <Button Click="CopyEntryClick" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,8,0" Width="32" Height="32" Padding="0" Background="Transparent" BorderThickness="0" ToolTipService.ToolTip="Copy this entry" AutomationProperties.Name="Copy this entry">
+             <FontIcon Glyph="{Binding CopyGlyph}" FontSize="13" />
+            </Button>
+           </Grid>
+           <StackPanel Visibility="{Binding DetailVisibility}" Spacing="8" Margin="16,0,16,14">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+             <Border Visibility="{Binding SourceVisibility}" Background="{Binding ChipBrush}" CornerRadius="999" Padding="10,3"><TextBlock Text="{Binding Source}" FontSize="11" IsTextSelectionEnabled="True" /></Border>
+             <Border Visibility="{Binding ExitCodeVisibility}" Background="{Binding ChipBrush}" CornerRadius="999" Padding="10,3"><TextBlock Text="{Binding ExitCode}" FontSize="11" FontFamily="Consolas" Foreground="{Binding DotBrush}" IsTextSelectionEnabled="True" /></Border>
+            </StackPanel>
+            <Border Visibility="{Binding OutputVisibility}" Background="{Binding OutputBrush}" BorderBrush="{Binding CardBorder}" BorderThickness="1" CornerRadius="6" Padding="12,10">
+             <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <TextBlock Text="{Binding Output}" FontFamily="Consolas" FontSize="12" LineHeight="18" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+             </ScrollViewer>
+            </Border>
+           </StackPanel>
+          </StackPanel>
+         </Border>
+        </Border>
+       </DataTemplate></ListView.ItemTemplate>
+      </ListView>
+      <StackPanel Visibility="{Binding EmptyVisibility}" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400" Spacing="6" Padding="24">
+       <TextBlock Text="{Binding EmptyTitle}" Style="{StaticResource EmptyTitle}" TextWrapping="Wrap" />
+       <TextBlock Text="{Binding EmptyDetail}" Style="{StaticResource Muted}" TextAlignment="Center" />
+      </StackPanel>
+     </Grid>
+    </Grid>
+    <!-- Toasts: every page reports here, so messages never push the page around -->
+    <ScrollViewer x:Name="ToastScroll" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="380" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsTabStop="False">
+     <local:ToastList x:Name="ToastStack" IsTabStop="False" AutomationProperties.Name="Notifications">
+      <!-- Only moving the others when one goes. Coming and going is played by each card itself, so nothing waits for anything else. -->
+      <local:ToastList.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="10"><StackPanel.ChildrenTransitions><TransitionCollection><RepositionThemeTransition IsStaggeringEnabled="False" /></TransitionCollection></StackPanel.ChildrenTransitions></StackPanel></ItemsPanelTemplate></local:ToastList.ItemsPanel>
+     </local:ToastList>
+    </ScrollViewer>
+   </Grid>
+  </Grid>
+ </Grid>
+</Window>
+
