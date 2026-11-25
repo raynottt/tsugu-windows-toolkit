@@ -98,7 +98,7 @@
    </Style>
    <Style x:Key="NavButton" TargetType="Button">
     <Setter Property="HorizontalAlignment" Value="Stretch" /><Setter Property="HorizontalContentAlignment" Value="Left" />
-    <Setter Property="Padding" Value="10,9" /><Setter Property="CornerRadius" Value="6" /><Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="8,7" /><Setter Property="CornerRadius" Value="9" /><Setter Property="BorderThickness" Value="0" />
     <Setter Property="Background" Value="Transparent" /><Setter Property="BorderBrush" Value="Transparent" /><Setter Property="UseSystemFocusVisuals" Value="True" />
     <!-- The fill fades in, the icon and label nudge right, and the page marker (the border brush) shows which page is open. -->
     <Setter Property="Template">
