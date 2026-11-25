@@ -57,11 +57,11 @@ public sealed class AdaptiveLayoutTests
     public void WideWindowKeepsTheSettingsStyleSidebarExpanded()
     {
         var defaultWidth = AdaptiveLayout.ForWidth(1100);
-        var closed = AdaptiveLayout.ForWidth(800);
-        var open = AdaptiveLayout.ForWidth(800, sidebarOpen: true);
+        var wide = AdaptiveLayout.ForWidth(1600);
+        var narrowOpen = AdaptiveLayout.ForWidth(800, sidebarOpen: true);
         Assert.Equal(AdaptiveLayout.OpenWidth, defaultWidth.SidebarWidth);
-        Assert.Equal(AdaptiveLayout.OpenWidth, closed.SidebarWidth);
-        Assert.Equal(AdaptiveLayout.OpenWidth, open.SidebarWidth);
+        Assert.Equal(AdaptiveLayout.OpenWidth, wide.SidebarWidth);
+        Assert.Equal(AdaptiveLayout.OpenWidth, narrowOpen.SidebarWidth);
         Assert.False(AdaptiveLayout.PushesContent(AdaptiveLayout.OverlayWidth));
     }
 }
