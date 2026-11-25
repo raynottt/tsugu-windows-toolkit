@@ -2,7 +2,13 @@
 
 **A Windows setup companion.** Prepare a PC for a clean Windows reinstall, bring the familiar setup back afterwards, tune native settings responsibly, and install the apps you need.
 
-> **Project status:** bootstrap / integration in progress. This repository is not a released application yet.
+> **Project status:** early preview. A Windows x64 installer and portable build are published on the [GitHub Releases page](https://github.com/raynottt/tsugu-windows-toolkit/releases). The reinstall-profile export/import workflow is still under development.
+
+## Download the Windows preview
+
+Get the latest **TSUGU Preview** from [Releases](https://github.com/raynottt/tsugu-windows-toolkit/releases/latest). Choose the setup executable for a guided install or the portable ZIP to unpack and run.
+
+This is an early preview for Windows 10 (build 19041+) and Windows 11, x64. Back up important data before using maintenance or repair tools. The promised before/after reinstall profile is not included in this first preview yet.
 
 ## Product direction
 
