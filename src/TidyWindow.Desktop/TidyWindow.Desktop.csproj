@@ -36,7 +36,6 @@
   </ItemGroup>
   <Target Name="CopyCleanHost" AfterTargets="Build">
     <ItemGroup>
-    <Content Include="Assets/SettingsUI/**/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
 <CleanHostFiles Include="$(ArtifactsDir)clean-host/$(Configuration)/$(ScoutRuntimeMode)/**" Exclude="$(ArtifactsDir)clean-host/$(Configuration)/$(ScoutRuntimeMode)/*.pdb;$(ArtifactsDir)clean-host/$(Configuration)/$(ScoutRuntimeMode)/createdump.exe" /></ItemGroup>
     <RemoveDir Directories="$(OutDir)CleanHost" />
     <Copy SourceFiles="@(CleanHostFiles)" DestinationFiles="@(CleanHostFiles->'$(OutDir)CleanHost/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
@@ -49,7 +48,6 @@
              Properties="Configuration=$(Configuration);SelfContained=$(SelfContained);PublishDir=$(CleanHostPublishDir)"
              RemoveProperties="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishReadyToRun;WindowsAppSDKSelfContained;UseWinUI;RuntimeIdentifier;TargetFramework;Platform;PublishTrimmed;PublishSingleFile;PublishAot" />
     <ItemGroup>
-    <Content Include="Assets/SettingsUI/**/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
 
       <CleanHostPublishedFiles Include="$(CleanHostPublishDir)**/*" Exclude="$(CleanHostPublishDir)**/*.pdb;$(CleanHostPublishDir)**/createdump.exe" />
     </ItemGroup>
@@ -58,7 +56,6 @@
   </Target>
   <Target Name="CopyScoutWorker" AfterTargets="Build">
     <ItemGroup>
-    <Content Include="Assets/SettingsUI/**/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
 <ScoutWorkerFiles Include="$(ArtifactsDir)scout-worker/$(Configuration)/$(ScoutRuntimeMode)/**" Exclude="$(ArtifactsDir)scout-worker/$(Configuration)/$(ScoutRuntimeMode)/*.pdb;$(ArtifactsDir)scout-worker/$(Configuration)/$(ScoutRuntimeMode)/createdump.exe" /></ItemGroup>
     <RemoveDir Directories="$(OutDir)ScoutHost" />
     <Copy SourceFiles="@(ScoutWorkerFiles)" DestinationFiles="@(ScoutWorkerFiles->'$(OutDir)ScoutHost/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
@@ -71,7 +68,6 @@
              Properties="Configuration=$(Configuration);SelfContained=$(SelfContained);PublishDir=$(ScoutWorkerPublishDir)"
              RemoveProperties="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishReadyToRun;WindowsAppSDKSelfContained;UseWinUI;RuntimeIdentifier;TargetFramework;Platform;PublishTrimmed;PublishSingleFile;PublishAot" />
     <ItemGroup>
-    <Content Include="Assets/SettingsUI/**/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
 
       <ScoutPublishedFiles Include="$(ScoutWorkerPublishDir)**/*" Exclude="$(ScoutWorkerPublishDir)**/*.pdb;$(ScoutWorkerPublishDir)**/createdump.exe" />
     </ItemGroup>
