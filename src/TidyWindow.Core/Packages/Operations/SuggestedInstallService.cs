@@ -13,6 +13,11 @@ namespace TidyWindow.Next.Core;
 public enum SuggestedInstallSource { GitHubRelease, DirectDownload, OfficialDownloadPage }
 public enum SuggestedInstallPayload { Installer, PortableExecutable, PortableScanner, ArchiveInstaller, PortableArchive, ManualArchive }
 
+public interface ISuggestedInstallService
+{
+    Task<PackageActionResult> InstallAsync(SuggestedInstallSpec spec, IProgress<CommandOutput>? progress = null, CancellationToken token = default);
+}
+
 /// <summary>
 /// A curated installation recipe. GitHub recipes resolve the latest release at install time; direct downloads are limited
 /// to the official vendor hosts allow-listed below. No shell command is accepted from the catalog.
@@ -27,7 +32,6 @@ public sealed record SuggestedInstallSpec(
     string? ChecksumAssetPattern = null,
     string? DirectUrl = null,
     string? ExpectedSigner = null,
-    bool AllowUnsigned = false,
     string? InnerExecutablePattern = null,
     bool UseReleaseBodyChecksum = false,
     string? ReadmeUrl = null)
@@ -36,7 +40,7 @@ public sealed record SuggestedInstallSpec(
 }
 
 /// <summary>Downloads and launches a curated app from its upstream source, within the normal TSUGU operation queue.</summary>
-public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLocator locator)
+public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLocator locator) : ISuggestedInstallService
 {
     private const long MaximumDownloadBytes = 1_500_000_000;
     private static readonly HttpClient Http = CreateHttpClient();
@@ -332,11 +336,8 @@ public sealed class SuggestedInstallService(ICommandRunner runner, IExecutableLo
             throw new InvalidDataException($"The download is not signed by the expected publisher ({expectedSigner}). The file was not launched.");
 
         if (resolved.ExpectedHash is not { Length: 64 })
-        {
-            if (!spec.AllowUnsigned)
-                throw new InvalidDataException("The publisher did not provide a checksum and the file is unsigned. TSUGU will not run it.");
-            Report(progress, "Warning: this GitHub release asset is unsigned and has no SHA-256 checksum. It was downloaded from the repository's latest release, but its publisher identity could not be verified.", warning: true);
-        }
+            throw new InvalidDataException("The downloaded file is unsigned and the release did not provide a SHA-256 digest. TSUGU will not run an unverified installer.");
+        Report(progress, "The file is not code-signed, but its SHA-256 digest matches the GitHub release metadata.");
     }
 
     private async Task<(string Status, string Subject)> ReadAuthenticodeAsync(string file, CancellationToken token)

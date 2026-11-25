@@ -40,4 +40,47 @@ public sealed class SuggestedInstallTests
         Assert.Equal(PackageOperationKind.Install, operation.Kind);
         Assert.Null(operation.InstallPackage);
     }
+
+    [Fact]
+    public async Task SuggestedInstallIsDispatchedThroughTheQueueAndReleasesTheOperationGate()
+    {
+        var runner = new StubRunner();
+        var locator = new StubLocator();
+        var packages = new PackageService(runner, locator);
+        var installer = new RecordingSuggestedInstaller();
+        var executor = new PackageOperationExecutor(packages, null!, locator, suggestedInstalls: installer);
+        var spec = new SuggestedInstallSpec("fulgur", "Fulgur", SuggestedInstallSource.GitHubRelease,
+            SuggestedInstallPayload.Installer, Repository: "fulgur-app/fulgur", AssetPattern: "^Fulgur-.*-setup\\.exe$");
+
+        var result = await executor.ExecuteAsync(PackageOperation.InstallSuggested(spec), CancellationToken.None);
+
+        Assert.Equal(ActionOutcome.Completed, result.Outcome);
+        Assert.Same(spec, installer.Received);
+        Assert.True(packages.OperationGate.Wait(0));
+        packages.OperationGate.Release();
+    }
+
+    private sealed class RecordingSuggestedInstaller : ISuggestedInstallService
+    {
+        public SuggestedInstallSpec? Received { get; private set; }
+
+        public Task<PackageActionResult> InstallAsync(SuggestedInstallSpec spec,
+            IProgress<CommandOutput>? progress = null, CancellationToken token = default)
+        {
+            Received = spec;
+            return Task.FromResult(new PackageActionResult(ActionOutcome.Completed, "Installed", "Test installer."));
+        }
+    }
+
+    private sealed class StubRunner : ICommandRunner
+    {
+        public Task<CommandResult> RunAsync(CommandSpec command, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new CommandResult(0, string.Empty, string.Empty));
+    }
+
+    private sealed class StubLocator : IExecutableLocator
+    {
+        public string? Find(ManagerKind manager) => null;
+        public string PowerShell => "powershell.exe";
+    }
 }

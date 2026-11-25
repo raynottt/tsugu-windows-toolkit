@@ -353,7 +353,7 @@ public sealed class PackageOperationQueue
 /// <param name="windowsApps">Reads what Windows lists as installed. Apps installed outside a package manager are invisible to
 /// the manager's own list, so this stops an installer being run over an existing installation. Null skips the check.</param>
 /// <param name="downloads">Reads how far a WinGet download has got, which WinGet itself does not print when its output is piped. Null shows no percentage.</param>
-public sealed class PackageOperationExecutor(PackageService packages, InstallationService installations, IExecutableLocator locator, Func<InstalledInventory>? windowsApps = null, ICommandRunner? downloads = null)
+public sealed class PackageOperationExecutor(PackageService packages, InstallationService installations, IExecutableLocator locator, Func<InstalledInventory>? windowsApps = null, ICommandRunner? downloads = null, ISuggestedInstallService? suggestedInstalls = null)
 {
     private async Task<InstalledApp?> FindOnWindowsAsync(Package package)
     {
@@ -367,6 +367,26 @@ public sealed class PackageOperationExecutor(PackageService packages, Installati
 
     public async Task<PackageActionResult> ExecuteAsync(PackageOperation operation, IProgress<CommandOutput>? progress, CancellationToken token)
     {
+        // Suggested installs do not belong to a package manager. Route them before the default enum value
+        // is interpreted as WinGet, and serialize the download/installer with all other package operations.
+        if (operation.SuggestedInstall is { } suggested)
+        {
+            if (suggestedInstalls is null)
+                return new(ActionOutcome.Failed, $"Couldn’t install {suggested.Name}", "The suggested-app installer is not configured.");
+
+            if (!await packages.OperationGate.WaitAsync(0, token).ConfigureAwait(false))
+            {
+                try { progress?.Report(new("Waiting for the previous install or repair to finish…", CommandOutputKind.Notice)); }
+                catch { /* Reporting progress must not stop queued work. */ }
+                await packages.OperationGate.WaitAsync(token).ConfigureAwait(false);
+            }
+            try
+            {
+                return await suggestedInstalls.InstallAsync(suggested, progress, token).ConfigureAwait(false);
+            }
+            finally { packages.OperationGate.Release(); }
+        }
+
         using var download = progress is not null && downloads is not null && operation.Manager == ManagerKind.Winget ? new WingetDownloadWatcher(progress, downloads) : null;
         progress = download ?? progress;
         var path = locator.Find(operation.Manager);

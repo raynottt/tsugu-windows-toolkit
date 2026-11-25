@@ -72,7 +72,8 @@ public sealed partial class MainWindow : Window
         var repairService = new RepairService(installSystem, RegistryRepair.User, repairSession, repairSession.OpenAsync, repairSession.Close, repairHistory, new WindowsInstallerOps(), repairSession, new WingetFetcher(), FileShortcutEditor.User(), repairSession, FileFolderEditor.User(), repairSession);
         var uninstallRecovery = new UninstallRecovery(installSystem, new WindowsUninstallHost(), runner, repairService) { AllowDownload = true };
         var management = new InstallationService(packages, runner, locator, new SkippedUpdates(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "skipped-updates.json")), uninstallRecovery, new StoreUpdateCheck(runner));
-        var executor = new PackageOperationExecutor(packages, management, locator, InstalledInventory.ReadWindows, runner);
+        var suggestedInstallService = new SuggestedInstallService(runner, locator);
+        var executor = new PackageOperationExecutor(packages, management, locator, InstalledInventory.ReadWindows, runner, suggestedInstallService);
         // Fixes share the queue, and so its live output. Machine-wide fixes run in a helper that sends its output back as it is produced.
         fixSession = FixSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
         var fixStore = new FixRunStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Fixes"));
@@ -968,8 +969,6 @@ public sealed partial class MainWindow : Window
                 ? $"TSUGU will query the latest Windows release from {recipe.Repository}, download the matching asset and verify the published SHA-256 checksum or Authenticode signature before launching it."
                 : "TSUGU will download the file directly from the vendor's official HTTPS host and verify its Authenticode publisher before launching it."
         };
-        if (recipe.AllowUnsigned)
-            notes.Add("This upstream release may not publish a SHA-256 checksum or trusted code signature. TSUGU will show a warning in the install queue and only use the exact repository's latest release asset.");
         if (recipe.Payload == SuggestedInstallPayload.ArchiveInstaller)
             notes.Add("This package installs a mouse driver. Its installer may request Windows administrator approval and may require a restart.");
         if (recipe.Payload == SuggestedInstallPayload.PortableScanner)
