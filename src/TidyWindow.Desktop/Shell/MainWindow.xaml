@@ -2,74 +2,89 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:local="using:TidyWindow.Next.Desktop"
- Title="TidyWindow">
+ Title="TSUGU">
  <Grid x:Name="Root" Background="{ThemeResource CanvasBrush}" KeyboardAcceleratorPlacementMode="Hidden">
   <Grid.KeyboardAccelerators><KeyboardAccelerator Key="K" Modifiers="Control" Invoked="SearchShortcut" /></Grid.KeyboardAccelerators>
   <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /></Grid.RowDefinitions>
   <Grid x:Name="TitleBar" Padding="20,0,140,0">
    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-    <Image x:Name="TitleLogo" Width="18" Height="18" AutomationProperties.AccessibilityView="Raw" />
-    <TextBlock Text="TidyWindow" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+    <Border Width="22" Height="22" CornerRadius="7" Background="#E0E7FF" VerticalAlignment="Center">
+     <TextBlock Text="T" Foreground="#4338CA" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <TextBlock Text="TSUGU" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
    </StackPanel>
   </Grid>
   <Grid Grid.Row="1">
-   <Grid.ColumnDefinitions><ColumnDefinition x:Name="SidebarColumn" Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-   <!-- Rests as an icon rail. On a wide window it opens over the page; on a narrower one the page moves aside so the titles stay visible. -->
+   <Grid.ColumnDefinitions><ColumnDefinition x:Name="SidebarColumn" Width="288" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+   <!-- Permanent Windows Settings-style navigation pane. The navigation width stays readable at every window size. -->
    <!-- The border is the 1px SidebarEdge below instead of a BorderThickness, so the compositor can slide it along with the reveal. -->
-   <Border x:Name="Sidebar" Grid.ColumnSpan="2" Canvas.ZIndex="1" Width="56" HorizontalAlignment="Left" Background="{ThemeResource CanvasBrush}"
+   <Border x:Name="Sidebar" Grid.ColumnSpan="2" Canvas.ZIndex="1" Width="288" HorizontalAlignment="Left" Background="{ThemeResource CanvasBrush}"
      PointerEntered="SidebarPointerEntered" PointerExited="SidebarPointerExited" GotFocus="SidebarGotFocus" LostFocus="SidebarLostFocus">
     <Grid Margin="10,20,10,12">
      <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-     <!-- No system bar: on a 56px rail it becomes a gray stripe. A hairline sits in the padding, and only while the pointer is here. -->
+     <!-- Search and navigation stay in a full-width pane; the page content remains independent. -->
      <Grid>
-      <ScrollViewer x:Name="NavScroll" VerticalScrollBarVisibility="Hidden" VerticalScrollMode="Enabled" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled" ZoomMode="Disabled" ViewChanged="NavScrolled" SizeChanged="NavScrollSized">
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+      <StackPanel Grid.Row="0" Margin="8,0,8,14" Spacing="8">
+       <StackPanel Spacing="2">
+        <TextBlock Text="TSUGU" FontSize="23" FontWeight="Bold" CharacterSpacing="-25" />
+        <TextBlock Text="PC SETUP COMPANION" FontSize="10" FontWeight="SemiBold" CharacterSpacing="120" Foreground="{ThemeResource MutedBrush}" />
+       </StackPanel>
+       <TextBox x:Name="NavigationSearchBox" PlaceholderText="Search tools" Height="36" FontSize="13" TextChanged="NavigationSearchTextChanged" />
+      </StackPanel>
+      <ScrollViewer x:Name="NavScroll" Grid.Row="1" VerticalScrollBarVisibility="Hidden" VerticalScrollMode="Enabled" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled" ZoomMode="Disabled" ViewChanged="NavScrolled" SizeChanged="NavScrollSized">
       <StackPanel Spacing="4">
+     <TextBlock x:Name="NavHomeSection" Text="HOME" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="OverviewNav" Style="{StaticResource NavButton}" Click="OverviewClick" AutomationProperties.Name="Overview">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE80F;" FontSize="15" /><TextBlock x:Name="OverviewLabel" Text="Overview" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E0E7FF"><FontIcon Glyph="&#xE80F;" FontSize="16" Foreground="#4338CA" /></Border><TextBlock x:Name="OverviewLabel" Text="Overview" FontSize="13" /></StackPanel>
      </Button>
+     <TextBlock x:Name="NavAppsSection" Text="APPS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="InstallNav" Style="{StaticResource NavButton}" Click="InstallClick" AutomationProperties.Name="Install Hub">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE7B8;" FontSize="15" /><TextBlock x:Name="InstallLabel" Text="Install Hub" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#CCFBF1"><FontIcon Glyph="&#xE7B8;" FontSize="16" Foreground="#0F766E" /></Border><TextBlock x:Name="InstallLabel" Text="Install Hub" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="InstalledNav" Style="{StaticResource NavButton}" Click="InstalledClick" AutomationProperties.Name="Installed apps">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE74C;" FontSize="15" /><TextBlock x:Name="InstalledLabel" Text="Installed" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DBEAFE"><FontIcon Glyph="&#xE74C;" FontSize="16" Foreground="#1D4ED8" /></Border><TextBlock x:Name="InstalledLabel" Text="Installed" FontSize="13" /></StackPanel>
      </Button>
+     <TextBlock x:Name="NavToolsSection" Text="TOOLS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="ScoutNav" Style="{StaticResource NavButton}" Click="ScoutClick" AutomationProperties.Name="Scout file search">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE721;" FontSize="15" /><TextBlock x:Name="ScoutLabel" Text="Scout" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#CFFAFE"><FontIcon Glyph="&#xE721;" FontSize="16" Foreground="#0E7490" /></Border><TextBlock x:Name="ScoutLabel" Text="Scout" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="CleanupNav" Style="{StaticResource NavButton}" Click="CleanupClick" AutomationProperties.Name="Cleanup">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE74D;" FontSize="15" /><TextBlock x:Name="CleanupLabel" Text="Cleanup" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DCFCE7"><FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="#15803D" /></Border><TextBlock x:Name="CleanupLabel" Text="Cleanup" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="PathsNav" Style="{StaticResource NavButton}" Click="PathsClick" AutomationProperties.Name="Path Doctor">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE9D9;" FontSize="15" /><TextBlock x:Name="PathsLabel" Text="Path Doctor" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xE9D9;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="PathsLabel" Text="Path Doctor" FontSize="13" /></StackPanel>
      </Button>
+     <TextBlock x:Name="NavMaintenanceSection" Text="MAINTENANCE" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="RepairNav" Style="{StaticResource NavButton}" Click="RepairClick" AutomationProperties.Name="Repair">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE90F;" FontSize="15" /><TextBlock x:Name="RepairLabel" Text="Repair" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE90F;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="RepairLabel" Text="Repair" FontSize="13" /></StackPanel>
      </Button>
+     <TextBlock x:Name="NavWindowsSection" Text="WINDOWS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="StartupNav" Style="{StaticResource NavButton}" Click="StartupClick" AutomationProperties.Name="Startup">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE7E8;" FontSize="15" /><TextBlock x:Name="StartupLabel" Text="Startup" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#EDE9FE"><FontIcon Glyph="&#xE7E8;" FontSize="16" Foreground="#6D28D9" /></Border><TextBlock x:Name="StartupLabel" Text="Startup" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="QuietNav" Style="{StaticResource NavButton}" Click="QuietClick" AutomationProperties.Name="Quiet Windows">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE708;" FontSize="15" /><TextBlock x:Name="QuietLabel" Text="Quiet" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E2E8F0"><FontIcon Glyph="&#xE708;" FontSize="16" Foreground="#475569" /></Border><TextBlock x:Name="QuietLabel" Text="Quiet" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="TuneNav" Style="{StaticResource NavButton}" Click="TuneClick" AutomationProperties.Name="Tune">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE9E9;" FontSize="15" /><TextBlock x:Name="TuneLabel" Text="Tune" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#EDE9FE"><FontIcon Glyph="&#xE9E9;" FontSize="16" Foreground="#7C3AED" /></Border><TextBlock x:Name="TuneLabel" Text="Tune" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="DebloatNav" Style="{StaticResource NavButton}" Click="DebloatClick" AutomationProperties.Name="Debloat">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE738;" FontSize="15" /><TextBlock x:Name="DebloatLabel" Text="Debloat" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE738;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="DebloatLabel" Text="Debloat" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="FixesNav" Style="{StaticResource NavButton}" Click="FixesClick" AutomationProperties.Name="Fixes">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xEC7A;" FontSize="15" /><TextBlock x:Name="FixesLabel" Text="Fixes" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xEC7A;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="FixesLabel" Text="Fixes" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="UnstickNav" Style="{StaticResource NavButton}" Click="UnstickClick" AutomationProperties.Name="Unstick">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE72C;" FontSize="15" /><TextBlock x:Name="UnstickLabel" Text="Unstick" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E0F2FE"><FontIcon Glyph="&#xE72C;" FontSize="16" Foreground="#0369A1" /></Border><TextBlock x:Name="UnstickLabel" Text="Unstick" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="LabNav" Style="{StaticResource NavButton}" Click="LabClick" AutomationProperties.Name="Lab">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE9D9;" FontSize="15" /><TextBlock x:Name="LabLabel" Text="Lab" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xE9D9;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="LabLabel" Text="Lab" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="CrashesNav" Style="{StaticResource NavButton}" Click="CrashesClick" AutomationProperties.Name="Crashes">
       <StackPanel Orientation="Horizontal" Spacing="10">
        <Grid>
-        <FontIcon Glyph="&#xE7BA;" FontSize="15" />
+        <Border Width="30" Height="30" CornerRadius="9" Background="#FEE2E2"><FontIcon Glyph="&#xE7BA;" FontSize="16" Foreground="#B91C1C" /></Border>
         <!-- Something new since the page was last opened; visible even when the sidebar is only the icon rail. -->
         <Ellipse Width="8" Height="8" Fill="{ThemeResource WarnBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-4,0" Visibility="{Binding UnseenVisibility}" />
        </Grid>
@@ -77,11 +92,12 @@
        <Border Background="{ThemeResource WarnSoftBrush}" CornerRadius="8" Padding="6,0" VerticalAlignment="Center" Visibility="{Binding UnseenVisibility}"><TextBlock Text="{Binding UnseenText}" FontSize="11" Foreground="{ThemeResource WarnBrush}" /></Border>
       </StackPanel>
      </Button>
+     <TextBlock x:Name="NavActivitySection" Text="ACTIVITY" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="QueueButton" Style="{StaticResource NavButton}" Click="QueueClick" AutomationProperties.Name="Queue">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE8FD;" FontSize="15" /><TextBlock x:Name="QueueLabel" Text="{Binding Label}" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#D1FAE5"><FontIcon Glyph="&#xE8FD;" FontSize="16" Foreground="#047857" /></Border><TextBlock x:Name="QueueLabel" Text="{Binding Label}" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="LogsNav" Style="{StaticResource NavButton}" Click="LogsClick" AutomationProperties.Name="Logs">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE81C;" FontSize="15" /><TextBlock x:Name="LogsLabel" Text="Logs" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#E2E8F0"><FontIcon Glyph="&#xE81C;" FontSize="16" Foreground="#334155" /></Border><TextBlock x:Name="LogsLabel" Text="Logs" FontSize="13" /></StackPanel>
      </Button>
       </StackPanel>
       </ScrollViewer>
@@ -89,7 +105,7 @@
      </Grid>
      <StackPanel Grid.Row="1" Spacing="4">
      <Button Style="{StaticResource NavButton}" x:Name="AppearanceNav" AutomationProperties.Name="Appearance">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE790;" FontSize="15" /><TextBlock x:Name="AppearanceLabel" Text="Appearance" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE790;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="AppearanceLabel" Text="Appearance" FontSize="13" /></StackPanel>
       <Button.Flyout><MenuFlyout x:Name="AppearanceMenu">
        <RadioMenuFlyoutItem x:Name="SystemThemeItem" Text="Use Windows theme" GroupName="Theme" Tag="System" Click="ThemeClick" />
        <RadioMenuFlyoutItem x:Name="LightThemeItem" Text="Light" GroupName="Theme" Tag="Light" Click="ThemeClick" />
@@ -97,7 +113,7 @@
       </MenuFlyout></Button.Flyout>
      </Button>
      <Button x:Name="SettingsNav" Style="{StaticResource NavButton}" Click="SettingsClick" AutomationProperties.Name="Settings">
-      <StackPanel Orientation="Horizontal" Spacing="10"><FontIcon Glyph="&#xE713;" FontSize="15" /><TextBlock x:Name="SettingsLabel" Text="Settings" FontSize="13" /></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DBEAFE"><FontIcon Glyph="&#xE713;" FontSize="16" Foreground="#1D4ED8" /></Border><TextBlock x:Name="SettingsLabel" Text="Settings" FontSize="13" /></StackPanel>
      </Button>
      </StackPanel>
     </Grid>
@@ -112,8 +128,8 @@
        <Grid ColumnSpacing="12">
         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
         <StackPanel Spacing="4" VerticalAlignment="Center">
-         <TextBlock Text="Package managers" Style="{StaticResource PageTitle}" />
-         <TextBlock Text="The tools TidyWindow uses to install and update apps." Style="{StaticResource Muted}" />
+         <TextBlock Text="Your setup hub" Style="{StaticResource PageTitle}" />
+         <TextBlock Text="Check your app sources and get this PC ready for its next setup." Style="{StaticResource Muted}" />
         </StackPanel>
         <Button Grid.Column="1" Click="RefreshClick" IsEnabled="{Binding CanRefresh}" Padding="12,7" VerticalAlignment="Center">
          <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE72C;" FontSize="12" /><TextBlock Text="Refresh" FontSize="12" /></StackPanel>
