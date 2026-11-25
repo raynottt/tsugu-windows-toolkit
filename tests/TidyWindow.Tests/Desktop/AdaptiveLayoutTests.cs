@@ -28,7 +28,7 @@ public sealed class AdaptiveLayoutTests
     {
         var layout = AdaptiveLayout.ForWidth(1920);
         Assert.False(layout.CompactResults);
-        Assert.True(1920 - layout.SidebarWidth - layout.Padding * 2 > 1600);
+        Assert.True(1920 - layout.SidebarWidth - layout.Padding * 2 > 1500);
     }
 
     [Fact]
@@ -54,10 +54,12 @@ public sealed class AdaptiveLayoutTests
     }
 
     [Fact]
-    public void WideWindowKeepsTheSidebarOverThePage()
+    public void WideWindowKeepsTheSettingsStyleSidebarExpanded()
     {
+        var closed = AdaptiveLayout.ForWidth(1600);
         var open = AdaptiveLayout.ForWidth(1600, sidebarOpen: true);
-        Assert.Equal(AdaptiveLayout.RailWidth, open.SidebarWidth);
+        Assert.Equal(AdaptiveLayout.OpenWidth, closed.SidebarWidth);
+        Assert.Equal(AdaptiveLayout.OpenWidth, open.SidebarWidth);
         Assert.False(AdaptiveLayout.PushesContent(AdaptiveLayout.OverlayWidth));
     }
 }
