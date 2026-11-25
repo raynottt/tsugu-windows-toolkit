@@ -57,7 +57,6 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $required = @(
             'TSUGU.exe',
-            'TSUGU.pri',
             'Shell/MainWindow.xbf',
             'CleanHost/TidyWindow.CleanHost.exe',
             'ScoutHost/TidyWindow.SearchHost.exe'
@@ -67,6 +66,8 @@ jobs:
               throw "Publish output is missing $item"
             }
           }
+          $pri = Get-ChildItem -LiteralPath 'artifacts/publish' -File -Filter '*.pri' | Select-Object -First 1
+          if (-not $pri) { throw 'Publish output is missing the WinUI .pri resource file.' }
           Copy-Item THIRD_PARTY_NOTICES.md artifacts/publish/
           New-Item -ItemType Directory -Force artifacts/publish/LICENSES | Out-Null
           Copy-Item LICENSES/TIDYWINDOW-MIT.txt artifacts/publish/LICENSES/
