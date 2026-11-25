@@ -979,6 +979,8 @@ public sealed partial class MainWindow : Window
         };
         if (recipe.Payload == SuggestedInstallPayload.ArchiveInstaller)
             notes.Add("This package installs a mouse driver. Its installer may request Windows administrator approval and may require a restart.");
+        if (recipe.Id.Equals("emsisoft-eek", StringComparison.OrdinalIgnoreCase))
+            notes.Add("The Emsisoft download is a self-extracting portable toolkit. Follow its extraction wizard and choose the folder where you want the kit to live; it does not install continuous antivirus protection.");
         if (recipe.Payload == SuggestedInstallPayload.PortableScanner)
             notes.Add("This is an on-demand portable scanner, not permanent antivirus protection. The scanner may ask for administrator permission when it starts.");
         if (recipe.Payload == SuggestedInstallPayload.ManualArchive)
