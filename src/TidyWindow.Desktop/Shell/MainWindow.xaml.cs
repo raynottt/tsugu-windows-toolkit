@@ -965,9 +965,17 @@ public sealed partial class MainWindow : Window
         if (app.InstallSpec is not { } recipe) return;
         var notes = new List<string>
         {
-            recipe.Source == SuggestedInstallSource.GitHubRelease
-                ? $"TSUGU will query the latest Windows release from {recipe.Repository}, download the matching asset and verify the published SHA-256 checksum or Authenticode signature before launching it."
-                : "TSUGU will download the file directly from the vendor's official HTTPS host and verify its Authenticode publisher before launching it."
+            recipe.Source switch
+            {
+                SuggestedInstallSource.GitHubRelease =>
+                    $"TSUGU will query the latest Windows release from {recipe.Repository}, download the one matching asset and verify its GitHub SHA-256 digest or the publisher's checksum before launching it.",
+                SuggestedInstallSource.OfficialDownloadPage when recipe.UsePageChecksum =>
+                    "TSUGU will read the current file link and SHA-256 checksum from the publisher's official page. The download will not launch unless its bytes match that checksum.",
+                _ when recipe.ExpectedSha256 is { Length: 64 } =>
+                    "TSUGU will download from the configured official HTTPS host and compare the file with the SHA-256 checksum pinned in the app catalog before launching it.",
+                _ =>
+                    "TSUGU will download the file directly from the vendor's official HTTPS host and verify the expected Authenticode publisher before launching it."
+            }
         };
         if (recipe.Payload == SuggestedInstallPayload.ArchiveInstaller)
             notes.Add("This package installs a mouse driver. Its installer may request Windows administrator approval and may require a restart.");
@@ -977,6 +985,8 @@ public sealed partial class MainWindow : Window
             notes.Add("This is a patch for an existing Equalizer APO installation, not an independent app installer. TSUGU only extracts the package and opens its folder; it will not overwrite audio system files.");
         if (recipe.Payload == SuggestedInstallPayload.PortableExecutable || recipe.Payload == SuggestedInstallPayload.PortableArchive)
             notes.Add("TSUGU places this portable app in your local user profile and adds it to the Start menu where supported.");
+        if (recipe.Id.Equals("pintop", StringComparison.OrdinalIgnoreCase))
+            notes.Add("PinTop's publisher does not code-sign this portable build. TSUGU relies on the SHA-256 value published on the same official download page and will refuse a mismatch.");
         if (recipe.Id.Equals("faceit-anticheat", StringComparison.OrdinalIgnoreCase))
             notes.Add("FACEIT Anti-Cheat installs a system-level anti-cheat service/driver. Review the official requirements before continuing; Windows may request administrator approval, and a restart may be needed.");
         if (recipe.ReadmeUrl is { Length: > 0 } guide)
