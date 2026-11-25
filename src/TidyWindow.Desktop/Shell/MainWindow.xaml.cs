@@ -944,7 +944,7 @@ public sealed partial class MainWindow : Window
         var note = app.Interactive
             ? "This package uses an interactive installer. A separate installer window may appear and require you to complete its steps."
             : "TSUGU will add this package to its install queue. WinGet may ask for license acceptance or administrator permission.";
-        if (!await ConfirmAsync($"Install {app.Name}?", $"{app.PackageId}\\nSource: WinGet\\n\\n{note}", "Add to queue")) return;
+        if (!await ConfirmAsync($"Install {app.Name}?", $"{app.PackageId}\nSource: WinGet\n\n{note}", "Add to queue")) return;
 
         var package = new Package(ManagerKind.Winget, app.PackageId!, app.Name, "Latest", "WinGet");
         operationQueue.Enqueue([PackageOperation.Install(package) with { Interactive = app.Interactive }]);
