@@ -467,6 +467,43 @@ public sealed partial class MainWindow : Window
         Root.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler((_, _) => keyboardUsed = false), true);
     }
 
+    private void NavigationSearchTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var query = NavigationSearchBox.Text.Trim();
+        static Visibility Match(string value, string filter) =>
+            filter.Length == 0 || value.Contains(filter, StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+        OverviewNav.Visibility = Match("Overview Home", query);
+        InstallNav.Visibility = Match("Install Hub Apps", query);
+        InstalledNav.Visibility = Match("Installed Apps", query);
+        ScoutNav.Visibility = Match("Scout Search Files", query);
+        CleanupNav.Visibility = Match("Cleanup Temporary Files", query);
+        PathsNav.Visibility = Match("Path Doctor Environment Paths", query);
+        RepairNav.Visibility = Match("Repair", query);
+        StartupNav.Visibility = Match("Startup", query);
+        QuietNav.Visibility = Match("Quiet Background", query);
+        TuneNav.Visibility = Match("Tune Settings", query);
+        DebloatNav.Visibility = Match("Debloat Remove Apps", query);
+        FixesNav.Visibility = Match("Fixes", query);
+        UnstickNav.Visibility = Match("Unstick", query);
+        LabNav.Visibility = Match("Lab", query);
+        CrashesNav.Visibility = Match("Crashes", query);
+        QueueButton.Visibility = Match("Queue Operations", query);
+        LogsNav.Visibility = Match("Logs History", query);
+        AppearanceNav.Visibility = Match("Appearance Theme", query);
+        SettingsNav.Visibility = Match("Settings", query);
+
+        var showSections = query.Length == 0;
+        NavHomeSection.Visibility = showSections ? Visibility.Visible : Visibility.Collapsed;
+        NavAppsSection.Visibility = showSections ? Visibility.Visible : Visibility.Collapsed;
+        NavToolsSection.Visibility = showSections ? Visibility.Visible : Visibility.Collapsed;
+        NavWindowsSection.Visibility = showSections ? Visibility.Visible : Visibility.Collapsed;
+        NavMaintenanceSection.Visibility = showSections ? Visibility.Visible : Visibility.Collapsed;
+        NavActivitySection.Visibility = showSections ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     private void UpdateSidebar()
     {
         var wanted = sidebarPointer || sidebarKeyboard || sidebarMenu;
