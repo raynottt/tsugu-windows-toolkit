@@ -12,8 +12,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Program.cs is the entry point, so a second launch can hand over to the open window. -->
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-    <AssemblyName>TidyWindow.Next</AssemblyName>
-    <ApplicationIcon>Assets/Brand/tidywindow.ico</ApplicationIcon>
+    <AssemblyName>TSUGU</AssemblyName>
+    <ApplicationIcon>Assets/Brand/tsugu.ico</ApplicationIcon>
     <ScoutRuntimeMode Condition="'$(SelfContained)' == 'true'">self-contained</ScoutRuntimeMode>
     <ScoutRuntimeMode Condition="'$(ScoutRuntimeMode)' == ''">framework-dependent</ScoutRuntimeMode>
   </PropertyGroup>
