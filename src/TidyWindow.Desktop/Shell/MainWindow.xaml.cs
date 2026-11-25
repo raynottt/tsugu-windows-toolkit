@@ -11,7 +11,7 @@ namespace TidyWindow.Next.Desktop;
 
 public sealed partial class MainWindow : Window
 {
-    private enum Page { Overview, Install, Installed, Scout, Cleanup, Paths, Repair, Startup, Quiet, Tune, Debloat, Fixes, Unstick, Lab, Crashes, Queue, Logs, Settings }
+    private enum Page { Overview, Install, Installed, Suggested, Scout, Cleanup, Paths, Repair, Startup, Quiet, Tune, Debloat, Fixes, Unstick, Lab, Crashes, Queue, Logs, Settings }
     private readonly ActivityLog log;
     private readonly WorkspaceViewModel model;
     private readonly LogsViewModel logs;
@@ -167,6 +167,8 @@ public sealed partial class MainWindow : Window
         LogsPage.DataContext = logs;
         SettingsPage.DataContext = settings;
         InstalledPage.DataContext = installations;
+        SuggestedPage.InstallRequested += SuggestedInstallRequested;
+        SuggestedPage.OpenRequested += SuggestedOpenRequested;
         QueueButton.DataContext = operationQueue;
         QueuePage.DataContext = operationQueue;
         ScoutPage.DataContext = scout;
@@ -489,6 +491,7 @@ public sealed partial class MainWindow : Window
         OverviewNav.Visibility = Match("Overview Home", query);
         InstallNav.Visibility = Match("Install Hub Apps", query);
         InstalledNav.Visibility = Match("Installed Apps", query);
+        SuggestedNav.Visibility = Match("Suggested Recommendations Apps", query);
         ScoutNav.Visibility = Match("Scout Search Files", query);
         CleanupNav.Visibility = Match("Cleanup Temporary Files", query);
         PathsNav.Visibility = Match("Path Doctor Environment Paths", query);
@@ -571,7 +574,7 @@ public sealed partial class MainWindow : Window
 
     private UIElement PageElement(Page value) => value switch
     {
-        Page.Install => InstallPage, Page.Installed => InstalledPage, Page.Scout => ScoutPage, Page.Cleanup => CleanupPage, Page.Paths => PathsPage, Page.Repair => RepairPage, Page.Startup => StartupPage, Page.Quiet => QuietPage, Page.Tune => TunePage, Page.Debloat => DebloatPage, Page.Fixes => FixesPage, Page.Unstick => UnstickPage, Page.Lab => LabPage, Page.Crashes => CrashesPage, Page.Queue => QueuePage, Page.Logs => LogsPage, Page.Settings => SettingsPage, _ => OverviewPage
+        Page.Install => InstallPage, Page.Installed => InstalledPage, Page.Suggested => SuggestedPage, Page.Scout => ScoutPage, Page.Cleanup => CleanupPage, Page.Paths => PathsPage, Page.Repair => RepairPage, Page.Startup => StartupPage, Page.Quiet => QuietPage, Page.Tune => TunePage, Page.Debloat => DebloatPage, Page.Fixes => FixesPage, Page.Unstick => UnstickPage, Page.Lab => LabPage, Page.Crashes => CrashesPage, Page.Queue => QueuePage, Page.Logs => LogsPage, Page.Settings => SettingsPage, _ => OverviewPage
     };
 
     private bool pageShown;
@@ -625,7 +628,7 @@ public sealed partial class MainWindow : Window
     private Brush navSelected = BrushCache.Transparent, navPrimary = BrushCache.Transparent, navMuted = BrushCache.Transparent, navAccent = BrushCache.Transparent;
     private void UpdateNavSelection()
     {
-        foreach (var (button, target) in new[] { (OverviewNav, Page.Overview), (InstallNav, Page.Install), (InstalledNav, Page.Installed), (ScoutNav, Page.Scout), (CleanupNav, Page.Cleanup), (PathsNav, Page.Paths), (RepairNav, Page.Repair), (StartupNav, Page.Startup), (QuietNav, Page.Quiet), (TuneNav, Page.Tune), (DebloatNav, Page.Debloat), (FixesNav, Page.Fixes), (UnstickNav, Page.Unstick), (LabNav, Page.Lab), (CrashesNav, Page.Crashes), (QueueButton, Page.Queue), (LogsNav, Page.Logs), (SettingsNav, Page.Settings) })
+        foreach (var (button, target) in new[] { (OverviewNav, Page.Overview), (InstallNav, Page.Install), (InstalledNav, Page.Installed), (SuggestedNav, Page.Suggested), (ScoutNav, Page.Scout), (CleanupNav, Page.Cleanup), (PathsNav, Page.Paths), (RepairNav, Page.Repair), (StartupNav, Page.Startup), (QuietNav, Page.Quiet), (TuneNav, Page.Tune), (DebloatNav, Page.Debloat), (FixesNav, Page.Fixes), (UnstickNav, Page.Unstick), (LabNav, Page.Lab), (CrashesNav, Page.Crashes), (QueueButton, Page.Queue), (LogsNav, Page.Logs), (SettingsNav, Page.Settings) })
         {
             var active = page == target;
             button.Background = active ? navSelected : BrushCache.Transparent;
@@ -921,6 +924,32 @@ public sealed partial class MainWindow : Window
         ShowPage(Page.Installed);
         if (installations.NeedsRefresh) await installations.RefreshAsync();
     }, "loading the installed apps");
+
+    private void SuggestedClick(object sender, RoutedEventArgs e) => ShowPage(Page.Suggested);
+
+    private void SuggestedOpenRequested(string url) => Run(() => OpenLinkAsync(url), "opening a suggested app source");
+
+    private void SuggestedInstallRequested(SuggestedApp app) => Run(async () =>
+    {
+        var winget = model.Managers.FirstOrDefault(x => x.Definition.Kind == ManagerKind.Winget);
+        if (winget?.Status?.Health != ManagerHealth.Ready)
+        {
+            var openOverview = await ConfirmAsync("WinGet is not ready",
+                "TSUGU uses WinGet's existing install queue for this app. Open Overview to check or set up WinGet first?",
+                "Open Overview");
+            if (openOverview) ShowPage(Page.Overview);
+            return;
+        }
+
+        var note = app.Interactive
+            ? "This package uses an interactive installer. A separate installer window may appear and require you to complete its steps."
+            : "TSUGU will add this package to its install queue. WinGet may ask for license acceptance or administrator permission.";
+        if (!await ConfirmAsync($"Install {app.Name}?", $"{app.PackageId}\\nSource: WinGet\\n\\n{note}", "Add to queue")) return;
+
+        var package = new Package(ManagerKind.Winget, app.PackageId!, app.Name, "Latest", "WinGet");
+        operationQueue.Enqueue([PackageOperation.Install(package) with { Interactive = app.Interactive }]);
+        ShowPage(Page.Queue);
+    }, "queueing a suggested app install");
     private void InstalledRefreshClick(object sender, RoutedEventArgs e) => Run(() => installations.RefreshAsync(), "refreshing the installed apps");
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? installedFilterTimer;
     private void ApplyInstalledFilter() => installations.Filter(InstalledSearch.Text, InstalledFilter.SelectedIndex == 1);

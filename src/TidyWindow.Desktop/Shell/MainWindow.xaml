@@ -46,6 +46,9 @@
      <Button x:Name="InstalledNav" Style="{StaticResource NavButton}" Click="InstalledClick" AutomationProperties.Name="Installed apps">
       <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#DBEAFE"><FontIcon Glyph="&#xE74C;" FontSize="16" Foreground="#1D4ED8" /></Border><TextBlock x:Name="InstalledLabel" Text="Installed" FontSize="13" /></StackPanel>
      </Button>
+     <Button x:Name="SuggestedNav" Style="{StaticResource NavButton}" Click="SuggestedClick" AutomationProperties.Name="Suggested apps">
+      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#F3E8FF"><FontIcon Glyph="&#xE734;" FontSize="16" Foreground="#7E22CE" /></Border><TextBlock x:Name="SuggestedLabel" Text="Suggested" FontSize="13" /></StackPanel>
+     </Button>
      <TextBlock x:Name="NavToolsSection" Text="TOOLS" FontSize="10" FontWeight="SemiBold" CharacterSpacing="110" Foreground="{ThemeResource MutedBrush}" Margin="12,14,0,4" />
      <Button x:Name="ScoutNav" Style="{StaticResource NavButton}" Click="ScoutClick" AutomationProperties.Name="Scout file search">
       <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#CFFAFE"><FontIcon Glyph="&#xE721;" FontSize="16" Foreground="#0E7490" /></Border><TextBlock x:Name="ScoutLabel" Text="Scout" FontSize="13" /></StackPanel>
@@ -423,6 +426,7 @@
       <local:LoadingOverlay Grid.RowSpan="2" IsActive="{Binding ShowLoading}" Text="{Binding ProgressText}" />
      </Grid>
     </Grid>
+    <local:SuggestedView x:Name="SuggestedPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
     <Grid x:Name="ScoutPage" Visibility="Collapsed" RowSpacing="16">
      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
      <Grid ColumnSpacing="10">
