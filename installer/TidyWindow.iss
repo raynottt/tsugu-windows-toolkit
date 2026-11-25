@@ -1,26 +1,26 @@
 ; Inno Setup script for TidyWindow. Built by installer/build.ps1 from a self-contained publish folder.
 ; Written for Inno Setup 6.3 or later. CI installs 6.7.1 from Chocolatey; keep that pin (in .github/workflows) in step with this script.
 
-#define MyAppName "TidyWindow"
+#define MyAppName "TSUGU"
 #ifndef MyAppVersion
   #define MyAppVersion "0.0.0"
 #endif
-#define MyAppPublisher "Cosmos-0118"
-#define MyAppExeName "TidyWindow.Next.exe"
+#define MyAppPublisher "TSUGU contributors"
+#define MyAppExeName "TSUGU.exe"
 #define MyAppDataDir "TidyWindow.Next"
 #ifndef BuildOutput
   #define BuildOutput "..\artifacts\publish"
 #endif
 
 [Setup]
-; A different id from the v4.x installer, so the two never treat each other as an upgrade.
-AppId={{B7C1D5E2-3F4A-4B6D-9E8C-2A1F0D7B5C93}
+; A TSUGU-specific product id; it must not collide with the upstream TidyWindow installer.
+AppId={{E2B6D3A4-9C57-4D3D-AB71-5A0C2F6E8D19}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-AppPublisherURL=https://github.com/Cosmos-0118/TidyWindow
-AppSupportURL=https://github.com/Cosmos-0118/TidyWindow/issues
-AppUpdatesURL=https://github.com/Cosmos-0118/TidyWindow/releases
+AppPublisherURL=https://github.com/raynottt/tsugu-windows-toolkit
+AppSupportURL=https://github.com/raynottt/tsugu-windows-toolkit/issues
+AppUpdatesURL=https://github.com/raynottt/tsugu-windows-toolkit/releases
 ; The version resource of Setup itself, so a downloaded file says what it is under Properties > Details. build.ps1 makes sure the
 ; version has three parts; the fourth is always 0.
 VersionInfoVersion={#MyAppVersion}.0
@@ -34,10 +34,10 @@ VersionInfoCopyright=MIT License
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=TidyWindow-Setup-{#MyAppVersion}
-SetupIconFile=..\src\TidyWindow.Desktop\Assets\Brand\tidywindow.ico
+OutputBaseFilename=TSUGU-Setup-{#MyAppVersion}
+SetupIconFile=..\src\TidyWindow.Desktop\Assets\Brand\tsugu.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
-LicenseFile=..\LICENSE
+LicenseFile=..\LICENSES\TIDYWINDOW-MIT.txt
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -67,6 +67,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
 
 [Files]
+Source: "..\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\LICENSES\TIDYWINDOW-MIT.txt"; DestDir: "{app}\LICENSES"; Flags: ignoreversion
+Source: "..\LICENSES\SETTINGSUI-MIT.txt"; DestDir: "{app}\LICENSES"; Flags: ignoreversion
 Source: "{#BuildOutput}\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
@@ -127,7 +130,7 @@ begin
   end;
   if Folders = '' then
     Exit;
-  if MsgBox('Also delete TidyWindow''s settings, logs and saved undo data?' + #13#10 + #13#10 +
+  if MsgBox('Also delete TSUGU''s settings, logs and saved undo data?' + #13#10 + #13#10 +
       'This includes the files Cleanup is holding for you (old installers and unfinished downloads, kept for 14 days), ' +
       'the backups Repair made, and the saved originals that let Startup, Quiet, Tune and Debloat put things back. ' +
       'Without them, changes TidyWindow made can no longer be undone.' + #13#10 + #13#10 +
