@@ -42,8 +42,8 @@ public sealed class AdaptiveLayoutTests
 
     [Theory]
     [InlineData(480)]
-    [InlineData(1100)]
-    [InlineData(1199)]
+    [InlineData(800)]
+    [InlineData(899)]
     public void NarrowWindowMovesThePageAsideWhileTheSidebarIsOpen(double width)
     {
         var closed = AdaptiveLayout.ForWidth(width);
@@ -56,8 +56,10 @@ public sealed class AdaptiveLayoutTests
     [Fact]
     public void WideWindowKeepsTheSettingsStyleSidebarExpanded()
     {
-        var closed = AdaptiveLayout.ForWidth(1600);
-        var open = AdaptiveLayout.ForWidth(1600, sidebarOpen: true);
+        var defaultWidth = AdaptiveLayout.ForWidth(1100);
+        var closed = AdaptiveLayout.ForWidth(800);
+        var open = AdaptiveLayout.ForWidth(800, sidebarOpen: true);
+        Assert.Equal(AdaptiveLayout.OpenWidth, defaultWidth.SidebarWidth);
         Assert.Equal(AdaptiveLayout.OpenWidth, closed.SidebarWidth);
         Assert.Equal(AdaptiveLayout.OpenWidth, open.SidebarWidth);
         Assert.False(AdaptiveLayout.PushesContent(AdaptiveLayout.OverlayWidth));
