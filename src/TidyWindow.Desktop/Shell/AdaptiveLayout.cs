@@ -2,10 +2,10 @@ namespace TidyWindow.Next.Desktop;
 
 internal sealed record AdaptiveLayout(double SidebarWidth, double Padding, bool CompactManagers, bool CompactResults)
 {
-    /// <summary>The sidebar rests as a narrow icon rail. On a wide window it opens over the page; on a narrower one the page moves aside, because the open rail would otherwise cover the titles.</summary>
-    public const double RailWidth = 56;
-    public const double OpenWidth = 184;
-    /// <summary>At this width and above there is enough page left that the open sidebar can sit on top of it.</summary>
+    /// <summary>The sidebar stays expanded like Windows Settings; the content column is reserved at every size.</summary>
+    public const double RailWidth = 288;
+    public const double OpenWidth = 288;
+    /// <summary>The sidebar always reserves its own column and never overlays the page.</summary>
     public const double OverlayWidth = 1200;
 
     public static bool PushesContent(double width) => width < OverlayWidth;
