@@ -21,9 +21,13 @@ if (-not $iscc) { $iscc = (Get-Command ISCC.exe -ErrorAction SilentlyContinue)?.
 if (-not $iscc) { throw 'Inno Setup 6 (ISCC.exe) was not found.' }
 
 $publish = (Resolve-Path $PublishDir).Path
-foreach ($path in 'TSUGU.exe', 'TSUGU.pri', 'Shell\MainWindow.xbf', 'CleanHost\TidyWindow.CleanHost.exe', 'ScoutHost\TidyWindow.SearchHost.exe') {
+foreach ($path in 'TSUGU.exe', 'Shell\MainWindow.xbf', 'CleanHost\TidyWindow.CleanHost.exe', 'ScoutHost\TidyWindow.SearchHost.exe') {
     if (-not (Test-Path (Join-Path $publish $path))) { throw "The publish folder is missing $path." }
 }
+# WinUI's PRI resource filename follows the project/resource identity and can retain the legacy stem.
+# Keep the file's real name: the app's package/resource lookup may depend on it.
+$pri = Get-ChildItem -LiteralPath $publish -File -Filter '*.pri' | Select-Object -First 1
+if (-not $pri) { throw 'The publish folder is missing its WinUI .pri resource file.' }
 # The helpers live only in their own folders. A second copy beside the app cannot run and just adds search results.
 foreach ($path in 'TidyWindow.CleanHost.exe', 'TidyWindow.SearchHost.exe') {
     if (Test-Path (Join-Path $publish $path)) { throw "The publish folder has a stray helper copy at its root: $path" }
