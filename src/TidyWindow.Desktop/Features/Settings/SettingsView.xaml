@@ -245,7 +245,7 @@
         <TextBlock Text="Third-party notices" Style="{StaticResource ItemTitle}" />
         <TextBlock Text="Licensing and attribution for the upstream components used by TSUGU." Style="{StaticResource Muted}" FontSize="12" />
        </StackPanel>
-       <Button Grid.Column="1" Tag="license" Click="LinkClick" Content="Read notices" Padding="14,7" FontSize="12" VerticalAlignment="Center" AutomationProperties.Name="Read license" />
+       <Button Grid.Column="1" Tag="license" Click="LinkClick" Content="Read notices" Padding="14,7" FontSize="12" VerticalAlignment="Center" AutomationProperties.Name="Read notices" />
       </Grid>
      </StackPanel>
     </Border>
