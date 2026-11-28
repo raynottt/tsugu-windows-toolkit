@@ -1,11 +1,6 @@
 name: One-time TSUGU refactor
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - scripts/refactor-tsugu.ps1
-      - .github/workflows/refactor-tsugu.yml
   workflow_dispatch:
 
 permissions:
@@ -36,8 +31,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Make TSUGU independent and remove Debloat"
-          git push origin HEAD:main
+          if (-not (git diff --cached --quiet)) {
+            git commit -m "Make TSUGU independent and remove Debloat"
+            git push origin HEAD:main
+          } else {
+            Write-Host "No source changes to commit; validating the current main branch."
+          }
       - name: Restore
         run: dotnet restore TSUGU.slnx --locked-mode
       - name: Build
