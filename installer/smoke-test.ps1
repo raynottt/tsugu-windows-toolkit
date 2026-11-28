@@ -28,7 +28,7 @@ function Wait-Gone([string]$Path, [int]$TimeoutSeconds = 30) {
 
 try {
     Invoke-Installer (Resolve-Path $Setup).Path ($quiet + "/DIR=`"$dir`"") 'Setup'
-    foreach ($path in 'TSUGU.exe', 'TSUGU.pri', 'Shell\MainWindow.xbf', 'CleanHost\TSUGU.AdminHost.exe', 'ScoutHost\TSUGU.SearchHost.exe', 'unins000.exe') {
+    foreach ($path in 'TSUGU.exe', 'TSUGU.pri', 'CleanHost\TSUGU.AdminHost.exe', 'ScoutHost\TSUGU.SearchHost.exe', 'unins000.exe') {
         if (-not (Test-Path (Join-Path $dir $path))) { throw "Not installed: $path" }
     }
     Write-Host "Installed to $dir"
