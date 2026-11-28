@@ -150,7 +150,7 @@ public static partial class BackgroundGuard
 /// <summary>Reads what is on this PC and works out, for each catalog item, whether it is present, allowed to run, running, and whether it is safe to turn off.</summary>
 public static class BackgroundScan
 {
-    public const string UcpdLock = "Windows blocks changing this setting directly (User Choice Protection Driver), even with administrator permission. Remove Widgets on the Debloat page, or turn the Widgets button off in Settings > Personalization > Taskbar.";
+    public const string UcpdLock = "Windows blocks changing this setting directly (User Choice Protection Driver), even with administrator permission. Turn the Widgets button off in Settings > Personalization > Taskbar to remove it.";
 
     public static BackgroundScanResult Run(IBackgroundSystem system, IReadOnlyList<BackgroundItem> catalog)
     {
