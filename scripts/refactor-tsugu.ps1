@@ -29,6 +29,7 @@ foreach ($file in $sourceFiles) {
  $after = $after.Replace('TSUGU.AdminHost.exe','TidyWindow.CleanHost.exe').Replace('TSUGU.SearchHost.exe','TidyWindow.SearchHost.exe')
  # Physical source folders stay in place so the existing CI and release workflows keep resolving their project paths.
  $after = $after.Replace('src/TSUGU.Core/','src/TidyWindow.Core/').Replace('src/TSUGU.Desktop/','src/TidyWindow.Desktop/').Replace('src/TSUGU.AdminHost/','src/TidyWindow.CleanHost/').Replace('src/TSUGU.SearchHost/','src/TidyWindow.SearchHost/').Replace('tests/TSUGU.Tests/','tests/TidyWindow.Tests/').Replace('tests/TSUGU.UiSmoke/','tests/TidyWindow.UiSmoke/')
+ $after = $after.Replace('src\TSUGU.Desktop\','src\TidyWindow.Desktop\')
  if ($after -cne $before) { Write-Text $file.FullName $after }
 }
 
