@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - scripts/refactor-tsugu.ps1
+      - .github/workflows/refactor-tsugu.yml
   workflow_dispatch:
 
 permissions:
