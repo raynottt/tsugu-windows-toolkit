@@ -13,7 +13,7 @@
 #endif
 
 [Setup]
-; A TSUGU-specific product id; it must not collide with the upstream TSUGU installer.
+; A TSUGU-specific product id; it must not collide with the original upstream product's installer.
 AppId={{E2B6D3A4-9C57-4D3D-AB71-5A0C2F6E8D19}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -35,7 +35,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=TSUGU-Setup-{#MyAppVersion}
-SetupIconFile=..\src\TSUGU.Desktop\Assets\Brand\tsugu.ico
+SetupIconFile=..\src\TidyWindow.Desktop\Assets\Brand\tsugu.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 LicenseFile=..\LICENSES\TIDYWINDOW-MIT.txt
 Compression=lzma2
