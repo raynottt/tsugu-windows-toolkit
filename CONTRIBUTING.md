@@ -1,102 +1,97 @@
 # Contributing to TSUGU
 
-Thanks for helping. Bug reports, ideas, documentation fixes and pull requests are all welcome.
+Thanks for helping improve TSUGU. Bug reports, thoughtful feature requests, documentation corrections and focused pull requests are welcome.
 
-By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security problem, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
+Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). Security problems must be reported privately as described in [SECURITY.md](SECURITY.md), not in a public issue.
 
 ## Ways to help
 
-- **Report a bug.** [Open a bug report](https://github.com/raynottt/tsugu-windows-toolkit/issues/new/choose) with the page you were using, your TSUGU version (Settings → Current version), how you installed it, your Windows version and what you expected to happen.
-- **Suggest a feature or a catalog change.** Explain the problem first. For a new Tune, Quiet, Cleanup, Debloat or Fixes entry, link the Microsoft documentation or other evidence that shows what it does.
-- **Improve the docs.** The research notes in [`docs/`](docs/) are part of the project. Corrections and better sources are as useful as code.
-- **Send a pull request.** For anything larger than a small fix, open an issue first so we can agree on the approach before you spend time on it.
+- **Report a bug.** [Open a bug report](https://github.com/raynottt/tsugu-windows-toolkit/issues/new/choose). Include the TSUGU version, Windows build, installation type, steps to reproduce and the result you expected.
+- **Suggest a feature or catalog change.** Explain the user problem, expected behavior and any relevant Windows documentation. TSUGU keeps system changes scoped to reviewed catalogs.
+- **Improve documentation.** Architecture notes, research, validation results and safety explanations are part of the project.
+- **Submit a pull request.** For a larger change, open an issue first so the approach can be discussed before implementation.
 
-Issues labelled [`good first issue`](https://github.com/raynottt/tsugu-windows-toolkit/labels/good%20first%20issue) and [`help wanted`](https://github.com/raynottt/tsugu-windows-toolkit/labels/help%20wanted) are good places to start.
+See issues labelled [good first issue](https://github.com/raynottt/tsugu-windows-toolkit/labels/good%20first%20issue) or [help wanted](https://github.com/raynottt/tsugu-windows-toolkit/labels/help%20wanted).
 
-## Sharing logs safely
+## Share logs safely
 
-Logs live in `%LOCALAPPDATA%\TSUGU\Logs`. The account name is replaced by `%USERPROFILE%`, but package names, other local paths and, for a crash, the stack trace can still appear. Read a log before you attach it and remove anything you do not want to be public.
+Logs are stored in %LOCALAPPDATA%\TSUGU\Logs. The account name is replaced by %USERPROFILE%, but package names, other local paths and crash stack traces can still appear. Read the log before attaching it and remove anything you do not want to make public.
 
-## Set up a development environment
+## Development environment
 
 You need:
 
-- **Windows 10 build 19041 or later, x64.** The app is WinUI 3 and only builds and runs on Windows.
-- **The [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).** The exact version and roll-forward policy are in [`global.json`](global.json).
-- Package managers (WinGet, Chocolatey, Scoop) are optional for building.
+- **Windows 10 build 19041 or later, x64**, or Windows 11.
+- The **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**. The pinned SDK and roll-forward policy are in [global.json](global.json).
+- The Windows App SDK build prerequisites. Package managers such as WinGet, Chocolatey and Scoop are optional for compilation.
 
-```powershell
+Clone and build:
+
+\`\`\`powershell
 git clone https://github.com/raynottt/tsugu-windows-toolkit.git
-cd TSUGU
+cd tsugu-windows-toolkit
 
 dotnet restore TSUGU.slnx --locked-mode
-dotnet build src/TSUGU.Desktop/TSUGU.Desktop.csproj -c Release --no-restore --output artifacts/preview
-./artifacts/preview/TSUGU.exe
-```
+dotnet build TSUGU.slnx --configuration Release --no-restore
+dotnet test tests/TSUGU.Tests/TSUGU.Tests.csproj --configuration Release --no-build
+\`\`\`
 
-Use `dotnet build`, not `dotnet publish`, for the desktop app: `publish` leaves out the compiled pages and the app closes at startup.
+The desktop app is a WinUI 3 application and must be built on Windows. To start it during development:
 
-If Windows Search starts listing many `TSUGU.*.exe` copies from `bin/`, `obj/` and `artifacts/`, run `pwsh scripts/exclude-build-output-from-search.ps1` once.
+\`\`\`powershell
+dotnet run --project src/TSUGU.Desktop/TSUGU.Desktop.csproj
+\`\`\`
 
-### Project layout
+## Project layout
 
-| Folder | What is in it |
+| Folder | Purpose |
 | --- | --- |
-| `src/TSUGU.Core` | The work itself, one folder per area (`Packages`, `Cleanup`, `Tune`, `Debloat` and so on). Catalogs such as `tune-catalog.json` sit next to the code that uses them. |
-| `src/TSUGU.Desktop` | The WinUI 3 app: pages in `Features/`, shared controls, styles and the shell. |
-| `src/TSUGU.AdminHost` | The helper that runs Windows-wide changes with administrator rights after the user approves the prompt. |
-| `src/TSUGU.SearchHost` | The Scout search helper and the Everything SDK integration. |
-| `tests/TSUGU.Tests` | The test suite, one folder per area. |
-| `docs/` | Architecture notes and the research behind each tool. |
+| src/TSUGU.Core | Package services, Windows operations, reviewed catalogs, update logic and recovery records. |
+| src/TSUGU.Desktop | WinUI 3 desktop application, feature pages and shared controls. |
+| src/TSUGU.AdminHost | Narrowly scoped helper for operations that require administrator rights. |
+| src/TSUGU.SearchHost | Separate Scout search worker. |
+| tests/TSUGU.Tests | Unit tests and tests for privilege and recovery boundaries. |
+| tests/TSUGU.UiSmoke | WinUI smoke-test application. |
+| docs/ | Architecture, research and validation notes. |
+| installer/ | Inno Setup definition and packaging scripts. |
 
-[`docs/architecture.md`](docs/architecture.md) explains how the pieces fit together.
+See [docs/architecture.md](docs/architecture.md) for the application boundaries and behavior.
 
-## Run the tests
+## Run tests
 
-Run the tests the way CI does, after the restore above:
+Run the test project after restore and build:
 
-```powershell
-dotnet build TSUGU.slnx -c Release --no-restore
-dotnet test tests/TSUGU.Tests/TSUGU.Tests.csproj -c Release --no-build
-```
+\`\`\`powershell
+dotnet test tests/TSUGU.Tests/TSUGU.Tests.csproj --configuration Release --no-build
+\`\`\`
 
-The standard tests do not install packages, change Windows settings or need a network. Tests that look at the real PC are opt-in and are reported as skipped until you switch them on; `dotnet test --filter "Category!=Live"` leaves them out altogether.
+The standard suite avoids changing Windows settings or installing packages. Tests that inspect the real PC or exercise privileged flows are opt-in:
 
-| Variable | What it switches on |
+| Variable | What it enables |
 | --- | --- |
-| `TSUGU_LIVE_TESTS=1` | Read-only checks of this PC's packages, services, registry, installed programs and caches. |
-| `TSUGU_LIVE_DOWNLOAD=1` (with the one above) | Also downloads one vendor installer and unpacks it in a temp folder. |
-| `TSUGU_RECOVERY_TESTS=1` with `TSUGU_TEST_ARTIFACTS=<folder>` | Copies your Scoop into that folder and runs the recovery scripts on the copy. |
-| `TSUGU_ELEVATED_TESTS=1`, in an administrator window | Runs the privileged repair path against a throwaway key under `HKCU`. |
+| TSUGU_LIVE_TESTS=1 | Read-only checks of local packages, services, registry entries, installed programs and caches. |
+| TSUGU_LIVE_DOWNLOAD=1 with the variable above | Downloads and unpacks a vendor installer in a temporary folder. |
+| TSUGU_RECOVERY_TESTS=1 with TSUGU_TEST_ARTIFACTS=<folder> | Copies a Scoop installation into the supplied folder and tests recovery scripts against the copy. |
+| TSUGU_ELEVATED_TESTS=1 | Runs the privileged repair path against disposable test data. Use an administrator terminal only when the test explicitly requires it. |
 
-Add or update tests in `tests/TSUGU.Tests/<Area>/` for the behavior you change.
+Add or update tests in tests/TSUGU.Tests/<Area>/ for the behavior being changed.
 
-## Making a change
+## Engineering guidelines
 
-1. Fork the repository and create a branch from `main`, named for the change, for example `fix/queue-cancel` or `feat/scout-filters`.
-2. Keep the change focused. One fix or feature per pull request is easier to review and to revert.
-3. Follow the existing style. [`.editorconfig`](.editorconfig) sets indentation (4 spaces, 2 for YAML and JSON). [`Directory.Build.props`](Directory.Build.props) treats warnings as errors, including nullable warnings and NuGet vulnerability audits, so a change must build cleanly.
-4. Dependencies are restored in locked mode. If you add or update a NuGet package, commit the updated `packages.lock.json` files too.
-5. Write commit messages that say what changed, for example `fix: Keep the queue running after a cancelled install`. A `feat:` or `fix:` prefix is preferred.
-6. Run the build and the tests before you open the pull request, and fill in the pull request template.
+1. Keep changes focused and explain the user-visible behavior in the pull request.
+2. Preserve the normal-user desktop process and the separate, explicitly elevated AdminHost boundary.
+3. Never pass arbitrary command text across the helper boundary; privileged actions must be rebuilt from reviewed catalogs and allowlists.
+4. Save original state before reversible changes and test the restore path.
+5. Keep Windows Update, Defender, firewall and power-saving defaults intact unless a user explicitly selects a supported change.
+6. Update the relevant research or architecture note when a change affects a Windows operation or its safety assumptions.
+7. Follow .editorconfig. Warnings and NuGet audit findings are build failures by design; update locked package files when dependencies change.
 
-### Rules for catalog changes
+## Pull requests and CI
 
-Cleanup, Quiet, Tune, Debloat and Fixes only act on entries in their catalogs, and the elevated helper rebuilds each action from its own copy of them. Because these entries change Windows for real:
+Create a branch from main, describe the reason for the change and include relevant test results. For UI work, check light and dark themes, keyboard navigation, high contrast and accessible names; screenshots are helpful.
 
-- Tie every entry to documented Windows behavior. Link the source in the pull request.
-- Update the matching research note in `docs/` (for example [`docs/tune-research.md`](docs/tune-research.md)) to say what the entry does, why it is safe and how it is undone.
-- Keep the undo path working: reversible changes must save the original state before they write.
-- Settings with no evidence behind them (common "registry boosters") are left out on purpose and will not be accepted.
+GitHub Actions restores dependencies in locked mode, builds the solution and runs the affected test groups (a push to main runs the full CI suite). The release workflow is manually started from the Actions tab and packages a preview only after the build and tests pass.
 
-### UI changes
+## License and attribution
 
-Check the page in both light and dark themes and with Windows high contrast on. Give new interactive controls an accessible name (`AutomationProperties.Name`) when their visible text does not describe them. Include screenshots in the pull request. See [ACCESSIBILITY.md](ACCESSIBILITY.md) for what the app currently supports.
-
-## Continuous integration
-
-CI builds and tests every pull request. It only runs the test groups affected by the files you changed (the rules are in [`.github/ci/test-areas.json`](.github/ci/test-areas.json)); a push to `main` runs everything. The required check is **CI result**. CodeQL also scans the C# code.
-
-## License
-
-By contributing, you agree that your contributions are licensed under the project's [MIT license](LICENSE).
+Keep the project's existing third-party copyright and license notices intact. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the LICENSES/ directory before redistributing or adapting code.
