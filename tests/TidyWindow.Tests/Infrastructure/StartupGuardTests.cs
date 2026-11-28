@@ -96,7 +96,7 @@ public sealed class StartupGuardTests : IDisposable
         var root = new DirectoryInfo(AppContext.BaseDirectory);
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "TSUGU.slnx"))) root = root.Parent;
         Assert.NotNull(root);
-        var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TSUGU.Desktop", "Program.cs"));
+        var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TidyWindow.Desktop", "Program.cs"));
         Assert.Matches(@"\[STAThread\]\s+(?:(?:private|public|internal)\s+)?static\s+void\s+Main\b", source);
     }
 
