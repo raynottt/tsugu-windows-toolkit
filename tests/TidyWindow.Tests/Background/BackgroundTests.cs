@@ -385,7 +385,7 @@ public sealed class BackgroundScanTests
         var entry = One(pc, UcpdPolicy());
         Assert.False(entry.CanChange);
         Assert.Equal(BackgroundScan.UcpdLock, entry.Lock);
-        Assert.Contains("Debloat", entry.Lock);
+        Assert.Contains("Taskbar", entry.Lock);
 
         pc.UcpdActive = false;
         Assert.True(One(pc, UcpdPolicy()).CanChange);
