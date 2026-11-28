@@ -9,10 +9,16 @@ $replacements = @(
  @('TidyWindow.Next.Core','TSUGU.Core'), @('TidyWindow.Next.Desktop','TSUGU.Desktop'), @('TidyWindow.Next.Tests','TSUGU.Tests'),
  @('TidyWindow.CleanHost','TSUGU.AdminHost'), @('TidyWindow.SearchHost','TSUGU.SearchHost'),
  @('TidyWindow.Desktop','TSUGU.Desktop'), @('TidyWindow.Core','TSUGU.Core'), @('TidyWindow.Tests','TSUGU.Tests'), @('TidyWindow.UiSmoke','TSUGU.UiSmoke'),
- @('TidyWindow.Next','TSUGU'), @('TidyWindow','TSUGU'), @('tidywindow','tsugu'), @('CleanHost','AdminHost'), @('clean-host','admin-host')
+ @('TidyWindow.Next','TSUGU'), @('TidyWindow','TSUGU'), @('tidywindow','tsugu')
 )
 $sourceFiles = Get-ChildItem -LiteralPath $repo -Recurse -File | Where-Object {
- $extensions -contains $_.Extension.ToLowerInvariant() -and $_.FullName -notmatch '[\\/](LICENSES|docs[\\/]reference|scripts)[\\/]' -and $_.FullName -notmatch '[\\/]\.github[\\/]workflows[\\/]' -and $_.FullName -notmatch '[\\/]installer[\\/]build\.ps1
+ $extensions -contains $_.Extension.ToLowerInvariant() -and
+ $_.FullName -notmatch '[\\/](LICENSES|docs[\\/]reference|scripts)[\\/]' -and
+ $_.FullName -notmatch '[\\/]\.github[\\/]workflows[\\/]' -and
+ $_.FullName -notmatch '[\\/]installer[\\/]build\.ps1$' -and
+ ($_.Extension.ToLowerInvariant() -ne '.ps1' -or $_.FullName -match '[\\/]src[\\/]') -and
+ $_.Name -notin @('README.md','THIRD_PARTY_NOTICES.md')
+}
 foreach ($file in $sourceFiles) {
  $before=Read-Text $file.FullName; $after=$before
  foreach($pair in $replacements){$after=$after.Replace($pair[0],$pair[1])}
@@ -43,7 +49,7 @@ if($main -match '\bDebloat'){throw 'Debloat references remain in MainWindow.'};W
 $hostPath=Join-Path $repo 'src/TidyWindow.CleanHost/Program.cs';$adminHostText=Read-Text $hostPath
 $adminHostText=[regex]::Replace($adminHostText,'(?m)^\s*:\s*args\.Length > 0 && args\[0\] == TSUGU\.Core\.DebloatHost\.Command\r?\n\s*\?\s*await TSUGU\.Core\.DebloatHost\.RunAsync\(args\)\r?\n','')
 if($adminHostText -match '\bDebloat'){throw 'Debloat still registered in AdminHost.'};Write-Text $hostPath $adminHostText
-$corePath=Join-Path $repo 'src/TidyWindow.Core/TSUGU.Core.csproj';$core=Read-Text $corePath
+$corePath=Join-Path $repo 'src/TidyWindow.Core/TidyWindow.Core.csproj';$core=Read-Text $corePath
 $core=$core.Replace('<EmbeddedResource Include="Debloat/debloat-catalog.json" LogicalName="debloat-catalog.json" />','')
 $core=$core.Replace('Include="TidyWindow.Tests"','Include="TSUGU.Tests"')
 if($core -notmatch '<AssemblyName>'){$core=$core.Replace('<Project Sdk="Microsoft.NET.Sdk">','<Project Sdk="Microsoft.NET.Sdk">'+[Environment]::NewLine+'  <PropertyGroup><AssemblyName>TSUGU.Core</AssemblyName></PropertyGroup>')};Write-Text $corePath $core
