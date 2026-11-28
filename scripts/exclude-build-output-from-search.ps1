@@ -4,8 +4,8 @@
 
 .DESCRIPTION
   Documents and the rest of the user profile are indexed by default, and Start search shows every indexed .exe under Apps. Each build of
-  this repo leaves TidyWindow.Next.exe, TidyWindow.CleanHost.exe, TidyWindow.SearchHost.exe and others under bin/, obj/ and artifacts/
-  (and again under .claude/worktrees), so a search for "TidyWindow" lists dozens of copies beside the real, installed app.
+  this repo leaves TSUGU.exe, TSUGU.AdminHost.exe, TSUGU.SearchHost.exe and others under bin/, obj/ and artifacts/
+  (and again under .claude/worktrees), so a search for "TSUGU" lists dozens of copies beside the real, installed app.
 
   The "not content indexed" file attribute does not help: it only skips file contents, the names are still indexed and still listed.
   What works is a crawl scope rule that excludes the folder, the same thing Settings > Privacy & security > Searching Windows >

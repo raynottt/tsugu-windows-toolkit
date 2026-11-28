@@ -6,7 +6,7 @@
 # Use a Python release whose setup is still validly signed (Repair refuses to run an unsigned or revoked one, and checks revocation online): 3.12.8's signing certificate has been revoked.
 param([ValidateSet('Install', 'Break', 'Check', 'Cleanup')] [string] $Phase = 'Check',
       [string] $PythonVersion = '3.12.10',
-      [string] $Backup = "$env:TEMP\tidywindow-live-backup")
+      [string] $Backup = "$env:TEMP\tsugu-live-backup")
 
 $winscp = Join-Path $env:LOCALAPPDATA 'Programs\WinSCP'
 $streamlink = Join-Path $env:LOCALAPPDATA 'Programs\Streamlink'   # NSIS; its list entry is in HKLM, so repairing it needs the administrator helper

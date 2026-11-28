@@ -11,7 +11,7 @@ body:
   - type: dropdown
     id: area
     attributes:
-      label: Which part of TidyWindow is this about?
+      label: Which part of TSUGU is this about?
       options:
         - Overview
         - Install Hub, Installed or Queue
@@ -47,7 +47,7 @@ body:
     id: solution
     attributes:
       label: What would you like to happen?
-      description: Describe how you picture it working in TidyWindow.
+      description: Describe how you picture it working in TSUGU.
     validations:
       required: true
 

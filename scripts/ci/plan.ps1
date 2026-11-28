@@ -15,7 +15,7 @@
 
 .EXAMPLE
   ./scripts/ci/plan.ps1 -Base origin/main -Head HEAD          # what would a pull request from this branch run?
-  ./scripts/ci/plan.ps1 -Files src/TidyWindow.Core/Crashes/X.cs # what would changing this file run?
+  ./scripts/ci/plan.ps1 -Files src/TSUGU.Core/Crashes/X.cs # what would changing this file run?
 #>
 [CmdletBinding()]
 param(
@@ -24,7 +24,7 @@ param(
     [string[]]$Files,
     [switch]$Everything,
     [string]$ConfigPath = '.github/ci/test-areas.json',
-    [string]$TestRoot = 'tests/TidyWindow.Tests'
+    [string]$TestRoot = 'tests/TSUGU.Tests'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -35,7 +35,7 @@ $areas = $config.areas
 # Optional keys get their defaults here, so the rest of the script can read them without checking.
 foreach ($name in @($areas.Keys)) {
     foreach ($key in 'dependsOn', 'testsUse') { if (-not $areas[$name].ContainsKey($key)) { $areas[$name][$key] = @() } }
-    if (-not $areas[$name].ContainsKey('source')) { $areas[$name]['source'] = @("src/TidyWindow.Core/$name/**") }
+    if (-not $areas[$name].ContainsKey('source')) { $areas[$name]['source'] = @("src/TSUGU.Core/$name/**") }
 }
 
 # ---- The config has to describe the tests that exist -----------------------------------------------------------------------------------------------------------

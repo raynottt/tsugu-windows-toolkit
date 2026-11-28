@@ -1,8 +1,8 @@
 # Third-party notices
 
-TSUGU's planned implementation is based on/adapts code from these MIT-licensed projects. Keep the corresponding notices with any copied or substantial portions of source.
+TSUGU includes adapted code and assets from the projects listed below. These attributions are retained for license compliance and do not represent runtime or build-time project dependencies. Keep this file and the accompanying license texts with redistributed copies.
 
-- **TidyWindow** — Copyright (c) 2026 Cosmos-0118. License text: [LICENSES/TIDYWINDOW-MIT.txt](LICENSES/TIDYWINDOW-MIT.txt). Source: https://github.com/Cosmos-0118/TidyWindow
-- **SettingsUI** — Copyright (c) 2021 Mahdi Hosseini. License text: [LICENSES/SETTINGSUI-MIT.txt](LICENSES/SETTINGSUI-MIT.txt). Source: https://github.com/BobbyESP/SettingsUI
+- **TidyWindow** — Copyright (c) 2026 Cosmos-0118. License text: [LICENSES/TIDYWINDOW-MIT.txt](LICENSES/TIDYWINDOW-MIT.txt). Original source: https://github.com/Cosmos-0118/TidyWindow
+- **SettingsUI** — Copyright (c) 2021 Mahdi Hosseini. License text: [LICENSES/SETTINGSUI-MIT.txt](LICENSES/SETTINGSUI-MIT.txt). Original source: https://github.com/BobbyESP/SettingsUI
 
-The root project license has not yet been selected. Third-party notices do not grant rights to any non-MIT assets or dependencies; their individual terms must be checked before redistribution.
+The TSUGU application, its project structure, product identity and build configuration are maintained in this repository. Third-party license notices remain in place where required by their terms.

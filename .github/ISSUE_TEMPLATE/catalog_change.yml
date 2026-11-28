@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Cleanup, Quiet, Tune, Debloat and Fixes only act on reviewed catalog entries, and each entry has to be tied to documented Windows behavior.
-        Settings with no evidence behind them, such as common "registry boosters", are left out on purpose. The research notes in [`docs/`](https://github.com/Cosmos-0118/TidyWindow/tree/main/docs) explain what is already covered and what was rejected.
+        Settings with no evidence behind them, such as common "registry boosters", are left out on purpose. The research notes in [`docs/`](https://github.com/Cosmos-0118/TSUGU/tree/main/docs) explain what is already covered and what was rejected.
 
   - type: dropdown
     id: tool
@@ -47,7 +47,7 @@ body:
   - type: textarea
     id: why
     attributes:
-      label: Why should TidyWindow include it?
+      label: Why should TSUGU include it?
       description: The benefit to the user, in plain words.
     validations:
       required: true

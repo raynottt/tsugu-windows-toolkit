@@ -86,10 +86,10 @@ Checked by hand: the five Admin actions were run by the maintainer on 1 November
 
 | Part | File |
 | --- | --- |
-| Catalog text, `IUnstickSystem`, the runner and its messages | [`UnstickModel.cs`](../src/TidyWindow.Core/Unstick/UnstickModel.cs) |
-| The Windows calls: processes, services, `SendInput`, clipboard, DNS (the Admin actions call `FixService` instead) | [`WindowsUnstickSystem.cs`](../src/TidyWindow.Core/Unstick/WindowsUnstickSystem.cs) |
-| Page, rows, timing, toasts and log entries | [`Features/Unstick/`](../src/TidyWindow.Desktop/Features/Unstick/) |
-| Tests | [`UnstickTests.cs`](../tests/TidyWindow.Tests/Unstick/UnstickTests.cs) |
+| Catalog text, `IUnstickSystem`, the runner and its messages | [`UnstickModel.cs`](../src/TSUGU.Core/Unstick/UnstickModel.cs) |
+| The Windows calls: processes, services, `SendInput`, clipboard, DNS (the Admin actions call `FixService` instead) | [`WindowsUnstickSystem.cs`](../src/TSUGU.Core/Unstick/WindowsUnstickSystem.cs) |
+| Page, rows, timing, toasts and log entries | [`Features/Unstick/`](../src/TSUGU.Desktop/Features/Unstick/) |
+| Tests | [`UnstickTests.cs`](../tests/TSUGU.Tests/Unstick/UnstickTests.cs) |
 
 The catalog is in code, not JSON like Fixes or Tune, because each action runs its own logic rather than a list of commands. The text on each row comes from the same records the runner uses, so what the page says is what runs.
 

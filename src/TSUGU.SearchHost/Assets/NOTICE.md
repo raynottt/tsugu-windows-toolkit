@@ -1,3 +1,5 @@
+# Bundled asset notices
+
 Scout includes the official voidtools Everything SDK x64 library.
 
 - Source: https://www.voidtools.com/Everything-SDK.zip

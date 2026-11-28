@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in TidyWindow does not work as it should.
+description: Something in TSUGU does not work as it should.
 title: "[Bug]: "
 labels: ["bug"]
 body:
@@ -8,14 +8,14 @@ body:
       value: |
         Thanks for taking the time to report a problem.
 
-        **Security problems:** do not report them here. Follow the [security policy](https://github.com/Cosmos-0118/TidyWindow/security/policy) instead.
+        **Security problems:** do not report them here. Follow the [security policy](https://github.com/Cosmos-0118/TSUGU/security/policy) instead.
 
-        Please search [existing issues](https://github.com/Cosmos-0118/TidyWindow/issues?q=is%3Aissue) first. TidyWindow 4.x (the `legacy` branch) is no longer developed, so reports for it will be closed.
+        Please search [existing issues](https://github.com/Cosmos-0118/TSUGU/issues?q=is%3Aissue) first. TSUGU 4.x (the `legacy` branch) is no longer developed, so reports for it will be closed.
 
   - type: input
     id: version
     attributes:
-      label: TidyWindow version
+      label: TSUGU version
       description: Shown in Settings → Current version.
       placeholder: "5.0.0"
     validations:
@@ -65,7 +65,7 @@ body:
         - Crashes
         - Logs
         - Settings or updates
-        - Installing, starting or uninstalling TidyWindow
+        - Installing, starting or uninstalling TSUGU
         - Somewhere else
     validations:
       required: true
@@ -117,7 +117,7 @@ body:
     attributes:
       label: Logs (optional)
       description: |
-        Logs are in `%LOCALAPPDATA%\TidyWindow.Next\Logs`, and the Logs page shows the recent ones.
+        Logs are in `%LOCALAPPDATA%\TSUGU\Logs`, and the Logs page shows the recent ones.
         **Read them before pasting.** The account name is replaced by `%USERPROFILE%`, but package names, other local paths and, for a crash, the stack trace can still appear.
       render: text
 

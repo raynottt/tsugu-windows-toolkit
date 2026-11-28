@@ -25,13 +25,13 @@
     "TSUGU.slnx",
     "**/*.csproj",
     "**/packages.lock.json",
-    "tests/TidyWindow.Tests/xunit.runner.json"
+    "tests/TSUGU.Tests/xunit.runner.json"
   ],
   "installer": [
     "installer/**"
   ],
   "buildOnly": [
-    "tests/TidyWindow.UiSmoke/**"
+    "tests/TSUGU.UiSmoke/**"
   ],
   "groups": {
     "packages": [
@@ -70,8 +70,8 @@
     },
     "Cleanup": {
       "source": [
-        "src/TidyWindow.Core/Cleanup/**",
-        "src/TidyWindow.CleanHost/**"
+        "src/TSUGU.Core/Cleanup/**",
+        "src/TSUGU.AdminHost/**"
       ],
       "dependsOn": [
         "Infrastructure",
@@ -83,7 +83,7 @@
     },
     "Desktop": {
       "source": [
-        "src/TidyWindow.Desktop/**"
+        "src/TSUGU.Desktop/**"
       ],
       "dependsOn": [
         "Infrastructure"
@@ -145,8 +145,8 @@
     },
     "Scout": {
       "source": [
-        "src/TidyWindow.Core/Scout/**",
-        "src/TidyWindow.SearchHost/**"
+        "src/TSUGU.Core/Scout/**",
+        "src/TSUGU.SearchHost/**"
       ],
       "dependsOn": [
         "Packages",
