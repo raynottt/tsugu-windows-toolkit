@@ -11,8 +11,7 @@ using System.Text.RegularExpressions;
 namespace TSUGU.Core;
 
 /// <summary>
-/// Finds TSUGU 5 releases on GitHub and downloads the installer or the portable ZIP.
-/// v4 releases are ignored: that app is a different product, and its installer must not replace this one.
+/// Finds versioned TSUGU releases on GitHub and downloads the installer or the portable ZIP.
 /// </summary>
 public sealed class AppUpdateService
 {
