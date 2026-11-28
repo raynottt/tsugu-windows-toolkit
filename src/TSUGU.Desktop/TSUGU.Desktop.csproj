@@ -21,16 +21,16 @@
     <Content Include="Assets/Managers/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
     <Content Include="Assets/Brand/*" Exclude="Assets/Brand/logo-512.png"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.6.5" />
-    <ProjectReference Include="../TidyWindow.Core/TidyWindow.Core.csproj" />
+    <ProjectReference Include="../TSUGU.Core/TSUGU.Core.csproj" />
     <!-- The helpers are plain net10.0 programs with their own output folders. Output paths, a -f on the app, and publish shaping
          (trimming, single file, AOT, ReadyToRun) given to the app on the command line must not reach them. Platform is left alone on
          purpose: a solution build gives it to every project, and removing it here would make MSBuild build each helper twice.
          Private="false" stops the SDK from also copying each helper's apphost, deps.json and runtimeconfig.json into the app's own
-         folder. Those copies had no assembly beside them, so they could not run, but they showed up as extra TidyWindow.CleanHost.exe
-         and TidyWindow.SearchHost.exe entries in Windows Search. The real helpers are copied into CleanHost/ and ScoutHost/ below.
+         folder. Those copies had no assembly beside them, so they could not run, but they showed up as extra TSUGU.AdminHost.exe
+         and TSUGU.SearchHost.exe entries in Windows Search. The real helpers are copied into CleanHost/ and ScoutHost/ below.
          The runtime's createdump.exe is likewise left out of those two folders; the app's own copy stays. -->
-    <ProjectReference Include="../TidyWindow.SearchHost/TidyWindow.SearchHost.csproj" ReferenceOutputAssembly="false" Private="false" GlobalPropertiesToRemove="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishDir;TargetFramework;PublishTrimmed;PublishSingleFile;PublishAot;PublishReadyToRun" />
-    <ProjectReference Include="../TidyWindow.CleanHost/TidyWindow.CleanHost.csproj" ReferenceOutputAssembly="false" Private="false" GlobalPropertiesToRemove="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishDir;TargetFramework;PublishTrimmed;PublishSingleFile;PublishAot;PublishReadyToRun" />
+    <ProjectReference Include="../TSUGU.SearchHost/TSUGU.SearchHost.csproj" ReferenceOutputAssembly="false" Private="false" GlobalPropertiesToRemove="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishDir;TargetFramework;PublishTrimmed;PublishSingleFile;PublishAot;PublishReadyToRun" />
+    <ProjectReference Include="../TSUGU.AdminHost/TSUGU.AdminHost.csproj" ReferenceOutputAssembly="false" Private="false" GlobalPropertiesToRemove="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishDir;TargetFramework;PublishTrimmed;PublishSingleFile;PublishAot;PublishReadyToRun" />
   </ItemGroup>
   <Target Name="CopyCleanHost" AfterTargets="Build">
     <ItemGroup><CleanHostFiles Include="$(ArtifactsDir)clean-host/$(Configuration)/$(ScoutRuntimeMode)/**" Exclude="$(ArtifactsDir)clean-host/$(Configuration)/$(ScoutRuntimeMode)/*.pdb;$(ArtifactsDir)clean-host/$(Configuration)/$(ScoutRuntimeMode)/createdump.exe" /></ItemGroup>
@@ -41,7 +41,7 @@
     <PropertyGroup>
       <CleanHostPublishDir>$(ArtifactsDir)clean-publish/$(Configuration)/$(ScoutRuntimeMode)/</CleanHostPublishDir>
     </PropertyGroup>
-    <MSBuild Projects="../TidyWindow.CleanHost/TidyWindow.CleanHost.csproj" Targets="Publish"
+    <MSBuild Projects="../TSUGU.AdminHost/TSUGU.AdminHost.csproj" Targets="Publish"
              Properties="Configuration=$(Configuration);SelfContained=$(SelfContained);PublishDir=$(CleanHostPublishDir)"
              RemoveProperties="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishReadyToRun;WindowsAppSDKSelfContained;UseWinUI;RuntimeIdentifier;TargetFramework;Platform;PublishTrimmed;PublishSingleFile;PublishAot" />
     <ItemGroup>
@@ -59,7 +59,7 @@
     <PropertyGroup>
       <ScoutWorkerPublishDir>$(ArtifactsDir)scout-publish/$(Configuration)/$(ScoutRuntimeMode)/</ScoutWorkerPublishDir>
     </PropertyGroup>
-    <MSBuild Projects="../TidyWindow.SearchHost/TidyWindow.SearchHost.csproj" Targets="Publish"
+    <MSBuild Projects="../TSUGU.SearchHost/TSUGU.SearchHost.csproj" Targets="Publish"
              Properties="Configuration=$(Configuration);SelfContained=$(SelfContained);PublishDir=$(ScoutWorkerPublishDir)"
              RemoveProperties="OutDir;OutputPath;IntermediateOutputPath;BaseIntermediateOutputPath;PublishReadyToRun;WindowsAppSDKSelfContained;UseWinUI;RuntimeIdentifier;TargetFramework;Platform;PublishTrimmed;PublishSingleFile;PublishAot" />
     <ItemGroup>

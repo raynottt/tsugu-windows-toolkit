@@ -35,16 +35,16 @@ jobs:
         run: dotnet restore TSUGU.slnx --locked-mode
 
       - name: Restore self-contained desktop runtime
-        run: dotnet restore src/TidyWindow.Desktop/TidyWindow.Desktop.csproj --locked-mode -p:SelfContained=true
+        run: dotnet restore src/TSUGU.Desktop/TSUGU.Desktop.csproj --locked-mode -p:SelfContained=true
 
       - name: Build solution
         run: dotnet build TSUGU.slnx --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj --configuration Release --no-build
+        run: dotnet test tests/TSUGU.Tests/TSUGU.Tests.csproj --configuration Release --no-build
 
       - name: Publish self-contained Windows app
-        run: dotnet publish src/TidyWindow.Desktop/TidyWindow.Desktop.csproj --configuration Release --no-restore --self-contained true -o artifacts/publish
+        run: dotnet publish src/TSUGU.Desktop/TSUGU.Desktop.csproj --configuration Release --no-restore --self-contained true -o artifacts/publish
 
       - name: Verify published app
         shell: pwsh
@@ -52,8 +52,8 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $required = @(
             'TSUGU.exe',
-            'CleanHost/TidyWindow.CleanHost.exe',
-            'ScoutHost/TidyWindow.SearchHost.exe'
+            'CleanHost/TSUGU.AdminHost.exe',
+            'ScoutHost/TSUGU.SearchHost.exe'
           )
           foreach ($item in $required) {
             if (-not (Test-Path (Join-Path 'artifacts/publish' $item))) {
@@ -64,7 +64,7 @@ jobs:
           if (-not $pri) { throw 'Publish output is missing the WinUI .pri resource file.' }
           Copy-Item THIRD_PARTY_NOTICES.md artifacts/publish/
           New-Item -ItemType Directory -Force artifacts/publish/LICENSES | Out-Null
-          Copy-Item LICENSES/TIDYWINDOW-MIT.txt artifacts/publish/LICENSES/
+          Copy-Item LICENSES/TSUGU-MIT.txt artifacts/publish/LICENSES/
           Copy-Item LICENSES/SETTINGSUI-MIT.txt artifacts/publish/LICENSES/
 
       - name: Install Inno Setup 6

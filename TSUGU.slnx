@@ -1,8 +1,8 @@
 <Solution>
-  <Project Path="src/TidyWindow.Core/TidyWindow.Core.csproj" />
-  <Project Path="src/TidyWindow.SearchHost/TidyWindow.SearchHost.csproj" />
-  <Project Path="src/TidyWindow.CleanHost/TidyWindow.CleanHost.csproj" />
-  <Project Path="src/TidyWindow.Desktop/TidyWindow.Desktop.csproj" />
-  <Project Path="tests/TidyWindow.Tests/TidyWindow.Tests.csproj" />
-  <Project Path="tests/TidyWindow.UiSmoke/TidyWindow.UiSmoke.csproj" />
+  <Project Path="src/TSUGU.Core/TSUGU.Core.csproj" />
+  <Project Path="src/TSUGU.SearchHost/TSUGU.SearchHost.csproj" />
+  <Project Path="src/TSUGU.AdminHost/TSUGU.AdminHost.csproj" />
+  <Project Path="src/TSUGU.Desktop/TSUGU.Desktop.csproj" />
+  <Project Path="tests/TSUGU.Tests/TSUGU.Tests.csproj" />
+  <Project Path="tests/TSUGU.UiSmoke/TSUGU.UiSmoke.csproj" />
 </Solution>

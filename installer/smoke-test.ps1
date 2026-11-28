@@ -1,13 +1,13 @@
 # Installs the setup silently into a scratch folder, checks the app and both helpers arrived, starts the app a few times, uninstalls and
 # checks it is gone. Whatever happens on the way, the finally block removes the install and the scratch folder again.
-#   pwsh installer/smoke-test.ps1 -Setup artifacts/TidyWindow-Setup-0.0.0.exe
+#   pwsh installer/smoke-test.ps1 -Setup artifacts/TSUGU-Setup-0.0.0.exe
 # Setup installs for all users unless told otherwise, so run this from an administrator window (CI runners are one).
 param([Parameter(Mandatory)][string]$Setup)
 $ErrorActionPreference = 'Stop'
 
-$dir = Join-Path ([IO.Path]::GetTempPath()) ('tidywindow-smoke-' + [Guid]::NewGuid().ToString('N'))
+$dir = Join-Path ([IO.Path]::GetTempPath()) ('tsugu-smoke-' + [Guid]::NewGuid().ToString('N'))
 $quiet = '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-'
-$exe = Join-Path $dir 'TidyWindow.Next.exe'
+$exe = Join-Path $dir 'TSUGU.exe'
 $uninstaller = Join-Path $dir 'unins000.exe'
 
 # Runs Setup or the uninstaller and waits, but not forever: a hung installer fails this check instead of the job's timeout ending it.
@@ -28,7 +28,7 @@ function Wait-Gone([string]$Path, [int]$TimeoutSeconds = 30) {
 
 try {
     Invoke-Installer (Resolve-Path $Setup).Path ($quiet + "/DIR=`"$dir`"") 'Setup'
-    foreach ($path in 'TidyWindow.Next.exe', 'TidyWindow.Next.pri', 'Shell\MainWindow.xbf', 'CleanHost\TidyWindow.CleanHost.exe', 'ScoutHost\TidyWindow.SearchHost.exe', 'unins000.exe') {
+    foreach ($path in 'TSUGU.exe', 'TSUGU.pri', 'Shell\MainWindow.xbf', 'CleanHost\TSUGU.AdminHost.exe', 'ScoutHost\TSUGU.SearchHost.exe', 'unins000.exe') {
         if (-not (Test-Path (Join-Path $dir $path))) { throw "Not installed: $path" }
     }
     Write-Host "Installed to $dir"
@@ -38,9 +38,9 @@ try {
     $launches = 4
     # The app declines to start with a full administrator token (User Account Control on, and this console elevated), and would sit on its message
     # looking like a window that stayed open. GitHub's Windows runners have User Account Control off, so there the launches below do run.
-    Add-Type -Namespace TidyWindowSmoke -Name Token -MemberDefinition '[DllImport("advapi32.dll", SetLastError = true)] public static extern bool GetTokenInformation(IntPtr token, int informationClass, out int information, int length, out int returned);'
+    Add-Type -Namespace TSUGUSmoke -Name Token -MemberDefinition '[DllImport("advapi32.dll", SetLastError = true)] public static extern bool GetTokenInformation(IntPtr token, int informationClass, out int information, int length, out int returned);'
     $elevationType = 0; $returned = 0
-    [void][TidyWindowSmoke.Token]::GetTokenInformation([Security.Principal.WindowsIdentity]::GetCurrent().Token, 18, [ref]$elevationType, 4, [ref]$returned)
+    [void][TSUGUSmoke.Token]::GetTokenInformation([Security.Principal.WindowsIdentity]::GetCurrent().Token, 18, [ref]$elevationType, 4, [ref]$returned)
     if ($elevationType -eq 2) {
         $launches = 0
         Write-Warning 'This console is elevated, so the app would decline to start: the launch checks were skipped.'
@@ -70,7 +70,7 @@ try {
 }
 finally {
     # Leave nothing behind after a failure: no app process, no registered install, no scratch folder.
-    foreach ($process in Get-Process -Name 'TidyWindow.Next', 'TidyWindow.CleanHost', 'TidyWindow.SearchHost' -ErrorAction SilentlyContinue) {
+    foreach ($process in Get-Process -Name 'TSUGU', 'TSUGU.AdminHost', 'TSUGU.SearchHost' -ErrorAction SilentlyContinue) {
         $path = $null
         try { $path = $process.Path } catch { }
         if ($path -and $path.StartsWith($dir, [StringComparison]::OrdinalIgnoreCase)) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }

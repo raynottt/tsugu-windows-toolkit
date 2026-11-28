@@ -35,13 +35,13 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=TSUGU-Setup-{#MyAppVersion}
-SetupIconFile=..\src\TidyWindow.Desktop\Assets\Brand\tsugu.ico
+SetupIconFile=..\src\TSUGU.Desktop\Assets\Brand\tsugu.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
-LicenseFile=..\LICENSES\TIDYWINDOW-MIT.txt
+LicenseFile=..\LICENSES\TSUGU-MIT.txt
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
-; The app itself runs without administrator rights, but its administrator helper (CleanHost\TidyWindow.CleanHost.exe) starts from the
+; The app itself runs without administrator rights, but its administrator helper (CleanHost\TSUGU.AdminHost.exe) starts from the
 ; install folder every time the person approves a Windows prompt. Under Program Files only administrators can change that folder. A
 ; per-user install puts it under the profile, where any program running as that account could replace the helper before the next
 ; approved prompt. So the default is an all-users install. The dialog at the start still offers the per-user choice (as does
@@ -68,7 +68,7 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 
 [Files]
 Source: "..\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\LICENSES\TIDYWINDOW-MIT.txt"; DestDir: "{app}\LICENSES"; Flags: ignoreversion
+Source: "..\LICENSES\TSUGU-MIT.txt"; DestDir: "{app}\LICENSES"; Flags: ignoreversion
 Source: "..\LICENSES\SETTINGSUI-MIT.txt"; DestDir: "{app}\LICENSES"; Flags: ignoreversion
 Source: "{#BuildOutput}\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
