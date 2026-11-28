@@ -99,7 +99,11 @@ To publish a self-contained app and build the Inno Setup installer, first publis
 
 ## License and third-party notices
 
-TSUGU contains original project work and adapted third-party components. Their copyright and license notices are retained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the `LICENSES/` directory. Please keep those notices with redistributed builds.
+TSUGU's original project work is licensed under the [MIT License](LICENSE). You may use, copy, modify, publish, distribute and sell copies of TSUGU, provided you retain the copyright and permission notice in the license.
+
+The TSUGU project is offered free of charge from this repository. MIT does not require other people or companies who redistribute TSUGU or publish modified versions to offer their copies for free.
+
+Adapted third-party components retain their own copyright and license notices. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the `LICENSES/` directory, and keep the applicable notices with redistributed builds.
 
 ---
 
