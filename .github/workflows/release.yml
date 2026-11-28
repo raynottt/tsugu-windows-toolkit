@@ -24,7 +24,7 @@ jobs:
       RELEASE_VERSION: ${{ github.event.inputs.version || '0.1.0' }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
