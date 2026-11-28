@@ -202,6 +202,12 @@ if ($pc.Contains($old)) {
 }
 Write-Text $pathCommandsPath $pc
 
+# Keep installer verification aligned with the WinUI publish output: MainWindow.xbf is not a guaranteed loose file.
+$installerBuildPath = Join-Path $repo 'installer/build.ps1'
+$installerBuild = Read-Text $installerBuildPath
+$installerBuild = $installerBuild.Replace("'TSUGU.exe', 'Shell\MainWindow.xbf', 'CleanHost\TidyWindow.CleanHost.exe'", "'TSUGU.exe', 'CleanHost\TidyWindow.CleanHost.exe'")
+Write-Text $installerBuildPath $installerBuild
+
 # Remove only the obsolete upstream product icon; keep source-license attribution intact.
 $oldIcon = Join-Path $repo 'src/TidyWindow.Desktop/Assets/Brand/tidywindow.ico'
 if (Test-Path $oldIcon) { Remove-Item $oldIcon -Force }
