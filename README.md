@@ -100,3 +100,9 @@ To publish a self-contained app and build the Inno Setup installer, first publis
 ## License and third-party notices
 
 TSUGU contains original project work and adapted third-party components. Their copyright and license notices are retained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the `LICENSES/` directory. Please keep those notices with redistributed builds.
+
+---
+
+## AI-generated code
+
+Parts of TSUGU's code and documentation were created or modified with AI assistance using **OpenAI Codex**. The changes were committed and published to this GitHub repository through a Codex-assisted workflow. AI-generated contributions are subject to the same review, testing, and maintenance standards as the rest of the project.
