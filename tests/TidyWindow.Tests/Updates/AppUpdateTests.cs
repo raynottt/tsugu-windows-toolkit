@@ -9,7 +9,6 @@ public sealed class AppUpdateTests : IDisposable
 {
     private const string Sample = """
     [
-      {"tag_name":"v4.7.0","name":"Legacy","draft":false,"prerelease":false,"published_at":"2024-01-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v4.7.0","body":"legacy","assets":[]},
       {"tag_name":"v5.0","name":"Short","draft":false,"prerelease":false,"published_at":"2026-08-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.0","body":"short","assets":[]},
       {"tag_name":"v5.0.0","name":"Hidden","draft":true,"prerelease":false,"published_at":"2026-09-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.0.0","body":"draft","assets":[]},
       {"tag_name":"v5.2.0-beta","name":"Beta","draft":false,"prerelease":true,"published_at":"2026-11-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.2.0-beta","body":"beta","assets":[]},
@@ -28,7 +27,7 @@ public sealed class AppUpdateTests : IDisposable
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     [Fact]
-    public void ParseReleasesKeepsStableTSUGU5ReleasesAndTheirAssets()
+    public void ParseReleasesKeepsVersionedTSUGUReleasesAndTheirAssets()
     {
         var release = Assert.Single(AppUpdateService.ParseReleases(Sample));
         Assert.Equal("v5.1.0", release.TagName);
@@ -39,6 +38,17 @@ public sealed class AppUpdateTests : IDisposable
         Assert.Equal("TSUGU-Setup-5.1.0.exe", release.InstallerAsset!.Name);
         Assert.Equal(6, release.InstallerAsset.SizeBytes);
         Assert.Equal("TSUGU-Portable-win-x64-5.1.0.zip", release.PortableAsset!.Name);
+    }
+
+    [Fact]
+    public void ParseReleasesAcceptsTSUGUPreOnePrereleases()
+    {
+        const string json = """
+        [{"tag_name":"v0.1.0","name":"TSUGU Preview","draft":false,"prerelease":true,"published_at":"2026-11-28T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v0.1.0","body":"preview","assets":[]}]
+        """;
+        var release = Assert.Single(AppUpdateService.ParseReleases(json));
+        Assert.Equal("v0.1.0", release.TagName);
+        Assert.Equal(new Version(0, 1, 0), release.Version);
     }
 
     [Fact]
