@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.IO.Enumeration;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Measures what each rule would remove without touching anything. Every folder is split into its top-level

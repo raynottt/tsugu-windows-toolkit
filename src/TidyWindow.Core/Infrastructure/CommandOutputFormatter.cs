@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum OutputTone { Normal, Information, Progress, Success, Warning, Error }
 public sealed record FormattedOutputLine(string Text, OutputTone Tone)

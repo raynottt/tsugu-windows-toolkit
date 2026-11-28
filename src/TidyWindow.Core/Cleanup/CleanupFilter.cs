@@ -1,6 +1,6 @@
 using System.IO.Enumeration;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Decides which files in a folder belong to a rule. Scanning and cleaning share it, so the size shown is the size removed.</summary>
 public readonly struct CleanupFilter

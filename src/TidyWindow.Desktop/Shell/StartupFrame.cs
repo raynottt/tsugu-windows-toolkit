@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Windows.Graphics;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// Where the main window opens. Worked out once with plain Win32 calls, so the splash (before any interface exists) and the window that

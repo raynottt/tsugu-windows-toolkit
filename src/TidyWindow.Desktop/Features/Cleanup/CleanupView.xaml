@@ -1,7 +1,7 @@
-<UserControl x:Class="TidyWindow.Next.Desktop.CleanupView"
+<UserControl x:Class="TSUGU.Desktop.CleanupView"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- xmlns:local="using:TidyWindow.Next.Desktop"
+ xmlns:local="using:TSUGU.Desktop"
  HorizontalContentAlignment="Stretch">
  <Grid RowSpacing="16">
   <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>

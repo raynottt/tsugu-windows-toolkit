@@ -2,7 +2,7 @@ using System.Net;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Searches the Chocolatey community feed directly. Starting <c>choco.exe</c> for every search costs seconds; asking the feed itself takes a fraction of one.</summary>
 public interface IChocolateyFeed
@@ -24,7 +24,7 @@ public sealed class ChocolateyFeed : IChocolateyFeed
     private static readonly Lazy<HttpClient> Shared = new(() =>
     {
         var client = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5), AutomaticDecompression = DecompressionMethods.All }) { Timeout = TimeSpan.FromSeconds(12) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("TidyWindow/" + (typeof(ChocolateyFeed).Assembly.GetName().Version?.ToString(3) ?? "0"));
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("TSUGU/" + (typeof(ChocolateyFeed).Assembly.GetName().Version?.ToString(3) ?? "0"));
         client.DefaultRequestHeaders.Accept.ParseAdd("application/atom+xml");
         return client;
     });

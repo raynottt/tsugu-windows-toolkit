@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What the codes in a crash record mean, in words a person can act on. Unknown codes stay as the code; nothing is guessed.</summary>
 public static class CrashKnowledge

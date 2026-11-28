@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class FixesView : UserControl
 {

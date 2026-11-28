@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 #  PowerShell 7 profile — Catppuccin Mocha + Starship + zoxide + fzf
 #  Interactive sessions only; kept light for fast startup.
-#  Installed by TidyWindow (Overview > Configure your terminal).
+#  Installed by TSUGU (Overview > Configure your terminal).
 #  "Restore previous" there puts your earlier profile back.
 # ─────────────────────────────────────────────────────────────
 if (-not [Environment]::UserInteractive -or $Host.Name -ne 'ConsoleHost') { return }

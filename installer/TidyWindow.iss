@@ -1,4 +1,4 @@
-; Inno Setup script for TidyWindow. Built by installer/build.ps1 from a self-contained publish folder.
+; Inno Setup script for TSUGU. Built by installer/build.ps1 from a self-contained publish folder.
 ; Written for Inno Setup 6.3 or later. CI installs 6.7.1 from Chocolatey; keep that pin (in .github/workflows) in step with this script.
 
 #define MyAppName "TSUGU"
@@ -7,13 +7,13 @@
 #endif
 #define MyAppPublisher "TSUGU contributors"
 #define MyAppExeName "TSUGU.exe"
-#define MyAppDataDir "TidyWindow.Next"
+#define MyAppDataDir "TSUGU"
 #ifndef BuildOutput
   #define BuildOutput "..\artifacts\publish"
 #endif
 
 [Setup]
-; A TSUGU-specific product id; it must not collide with the upstream TidyWindow installer.
+; A TSUGU-specific product id; it must not collide with the upstream TSUGU installer.
 AppId={{E2B6D3A4-9C57-4D3D-AB71-5A0C2F6E8D19}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -35,7 +35,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=TSUGU-Setup-{#MyAppVersion}
-SetupIconFile=..\src\TidyWindow.Desktop\Assets\Brand\tsugu.ico
+SetupIconFile=..\src\TSUGU.Desktop\Assets\Brand\tsugu.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 LicenseFile=..\LICENSES\TIDYWINDOW-MIT.txt
 Compression=lzma2
@@ -53,7 +53,7 @@ PrivilegesRequiredOverridesAllowed=commandline dialog
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.19041
-; Closes a running TidyWindow (and its helpers) so its files can be replaced during an upgrade. The app refuses to close while a package
+; Closes a running TSUGU (and its helpers) so its files can be replaced during an upgrade. The app refuses to close while a package
 ; operation is running, so Restart Manager may report it as still in use; Setup then lets the person retry or go on once the app has
 ; been closed by hand. AppMutex would let Setup say so before it copies anything, but the app announces its instance through the
 ; Windows App SDK (AppInstance), not a named mutex, so there is nothing for AppMutex to name.
@@ -81,7 +81,7 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: po
 
 [InstallDelete]
 ; Remove the files of an earlier build so files dropped in a newer version do not linger, but only when the chosen folder is one a
-; previous TidyWindow Setup registered. Without the check, a folder picked by mistake (a shared tools folder, say) would be emptied.
+; previous TSUGU Setup registered. Without the check, a folder picked by mistake (a shared tools folder, say) would be emptied.
 Type: filesandordirs; Name: "{app}\*"; Check: AppFolderIsOurs
 
 [Code]
@@ -126,14 +126,14 @@ begin
   begin
     if DirExists(SharedData) then
       Folders := Folders + SharedData + #13#10;
-    Note := 'Only these folders are deleted; other accounts on this PC keep their own TidyWindow folders. ';
+    Note := 'Only these folders are deleted; other accounts on this PC keep their own TSUGU folders. ';
   end;
   if Folders = '' then
     Exit;
   if MsgBox('Also delete TSUGU''s settings, logs and saved undo data?' + #13#10 + #13#10 +
       'This includes the files Cleanup is holding for you (old installers and unfinished downloads, kept for 14 days), ' +
       'the backups Repair made, and the saved originals that let Startup, Quiet, Tune and Debloat put things back. ' +
-      'Without them, changes TidyWindow made can no longer be undone.' + #13#10 + #13#10 +
+      'Without them, changes TSUGU made can no longer be undone.' + #13#10 + #13#10 +
       Folders + #13#10 +
       Note + 'Choose No to keep everything.',
       mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then

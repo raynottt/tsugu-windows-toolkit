@@ -1,13 +1,13 @@
 using System.Text.Json;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 internal enum Appearance { System, Light, Dark }
 
 /// <summary>Which theme the person picked, kept on disk. This file is also compiled into the tests, so it uses nothing from WinUI; the part that does is in AppearanceTheme.cs.</summary>
 internal sealed partial class AppearanceSettings(string path)
 {
-    public static readonly string DefaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "appearance.json");
+    public static readonly string DefaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "appearance.json");
 
     public Appearance Load()
     {

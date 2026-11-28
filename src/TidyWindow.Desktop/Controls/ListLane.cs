@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Keeps the column titles above a list lined up with the columns in its rows. A list's scroll lane takes 12 pixels from the rows when it is showing and the titles do not know that, so the titles move in by the same amount.</summary>
 public static class ListLane

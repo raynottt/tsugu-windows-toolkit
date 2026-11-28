@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Searches the Scoop buckets already on disk without starting Scoop. <c>scoop search</c> parses thousands of manifests in PowerShell on every call

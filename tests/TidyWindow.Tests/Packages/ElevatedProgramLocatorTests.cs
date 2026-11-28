@@ -1,13 +1,13 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>What may run with administrator rights, and where each manager is looked for.</summary>
 public sealed class ElevatedProgramLocatorTests : IDisposable
 {
-    private readonly string temp = Path.Combine(Path.GetTempPath(), "tidywindow-elevated-" + Guid.NewGuid().ToString("N"));
+    private readonly string temp = Path.Combine(Path.GetTempPath(), "tsugu-elevated-" + Guid.NewGuid().ToString("N"));
 
     public ElevatedProgramLocatorTests() => Directory.CreateDirectory(temp);
     public void Dispose() { try { Directory.Delete(temp, true); } catch (IOException) { } }
@@ -50,7 +50,7 @@ public sealed class ElevatedProgramLocatorTests : IDisposable
         Assert.Contains("not a full path", ElevatedProgram.ProtectedPathProblem("choco.exe"));
         Assert.Contains("not a full path", ElevatedProgram.ProtectedPathProblem(@"\\server\share\choco.exe"));
         Assert.Contains("not a full path", ElevatedProgram.ProtectedPathProblem(""));
-        if (OperatingSystem.IsWindows()) Assert.Contains("does not exist", ElevatedProgram.ProtectedPathProblem(@"C:\Windows\System32\tidywindow-nope.exe"));
+        if (OperatingSystem.IsWindows()) Assert.Contains("does not exist", ElevatedProgram.ProtectedPathProblem(@"C:\Windows\System32\tsugu-nope.exe"));
     }
 
     [Fact]

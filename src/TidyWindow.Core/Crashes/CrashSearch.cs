@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// What the person typed, understood. Plain words must all match (anywhere in an event, with typos forgiven); "quoted phrases" must match exactly; a leading

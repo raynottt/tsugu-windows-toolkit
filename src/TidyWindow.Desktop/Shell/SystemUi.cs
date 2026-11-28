@@ -2,7 +2,7 @@ using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// What Windows says about animations, high contrast and its colours, read in one guarded place. Some unpackaged installations refuse

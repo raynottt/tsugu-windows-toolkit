@@ -1,13 +1,13 @@
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>What the health check concludes from what a manager says, and what it refuses to run at all.</summary>
 public sealed class ManagerHealthTests : IDisposable
 {
-    private readonly string temp = Path.Combine(Path.GetTempPath(), "tidywindow-health-" + Guid.NewGuid().ToString("N"));
+    private readonly string temp = Path.Combine(Path.GetTempPath(), "tsugu-health-" + Guid.NewGuid().ToString("N"));
 
     public ManagerHealthTests() => Directory.CreateDirectory(temp);
     public void Dispose() { try { Directory.Delete(temp, true); } catch (IOException) { } }

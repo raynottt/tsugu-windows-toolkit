@@ -1,9 +1,9 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
-/// <summary>When Windows' administrator prompt is reported: only while TidyWindow has work, only after it has waited, and until it is gone.</summary>
+/// <summary>When Windows' administrator prompt is reported: only while TSUGU has work, only after it has waited, and until it is gone.</summary>
 public sealed class UacPromptWatcherTests
 {
     private static readonly TimeSpan Poll = TimeSpan.FromMilliseconds(10);
@@ -40,7 +40,7 @@ public sealed class UacPromptWatcherTests
     }
 
     [Fact]
-    public async Task APromptThatOpensWhileTidyWindowIsIdleBelongsToSomethingElse()
+    public async Task APromptThatOpensWhileTSUGUIsIdleBelongsToSomethingElse()
     {
         var events = 0;
         using var watcher = new UacPromptWatcher(() => true, () => false, Poll, TimeSpan.FromMilliseconds(20));

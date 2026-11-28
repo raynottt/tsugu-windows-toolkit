@@ -4,7 +4,7 @@ using System.Runtime.Versioning;
 using System.Xml;
 using Microsoft.Win32.SafeHandles;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Where the events come from. Newest first, so a caller that only wants the latest few can stop early.</summary>
 public interface ICrashEventSource

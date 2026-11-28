@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>One line of the terminal checklist: what it is, whether it is done, and what the person can do about it.</summary>
 public sealed class TerminalRow(string title, string glyph) : ObservableState

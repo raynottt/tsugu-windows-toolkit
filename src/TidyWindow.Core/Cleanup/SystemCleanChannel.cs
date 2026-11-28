@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
-/// <summary>One line on the pipe between TidyWindow and its elevated helper.</summary>
+/// <summary>One line on the pipe between TSUGU and its elevated helper.</summary>
 public sealed record HostMessage(string Kind, string? Name = null, long Freed = 0, int Removed = 0, SystemCleanReport? Report = null, string? Error = null, bool Starting = false, List<MeasuredItem>? Measured = null, bool Partial = false, string? Detail = null);
 
 /// <summary>
-/// The elevated side. It is a separate process because TidyWindow itself never runs as administrator. It takes rule names only,
+/// The elevated side. It is a separate process because TSUGU itself never runs as administrator. It takes rule names only,
 /// never paths: everything it touches comes from the built-in catalog, so a forged request cannot point it at other files.
 /// </summary>
 public static class SystemCleanHost

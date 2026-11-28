@@ -41,7 +41,7 @@ function New-ProtectedFolder([string]$path) {
 function Use-ProtectedWorkspace() {
     # An administrator-only working folder under ProgramData, named after the job. Anything in the way that administrators do not own is moved aside, never used.
     $path = [Environment]::GetFolderPath('CommonApplicationData')
-    foreach ($part in 'TidyWindow.Next', 'Recovery', (Split-Path -Leaf $job)) {
+    foreach ($part in 'TSUGU', 'Recovery', (Split-Path -Leaf $job)) {
         $path = Join-Path $path $part
         if (Test-Path -LiteralPath $path) {
             if (Test-ProtectedFolder $path) { continue }

@@ -484,7 +484,7 @@
       "topic": "Startup",
       "icon": "E7E8",
       "summary": "Shows a notice when you have a lot of startup apps.",
-      "effect": "Windows stops reminding you about startup apps. The Startup page in TidyWindow still lists them.",
+      "effect": "Windows stops reminding you about startup apps. The Startup page in TSUGU still lists them.",
       "targets": [
         {
           "kind": "task",

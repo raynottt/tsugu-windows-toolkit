@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// WinGet draws no progress bar when its output is piped: it prints "Downloading https://…" and then nothing until the hash check. It downloads through

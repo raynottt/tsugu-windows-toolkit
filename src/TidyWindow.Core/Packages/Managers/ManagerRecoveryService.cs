@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record RecoveryResult(bool Success, ManagerStatus Status, string Message, string? LogDirectory, bool Changed = false);
 
@@ -17,14 +17,14 @@ public sealed class ManagerRecoveryService
     private readonly string protectedRoot;
 
     /// <param name="elevatedProblem">See <see cref="ManagerHealthService"/>.</param>
-    /// <param name="protectedRoot">Where an elevated recovery keeps its own working folder: %ProgramData%\TidyWindow.Next by default, which the script makes administrator-only.</param>
+    /// <param name="protectedRoot">Where an elevated recovery keeps its own working folder: %ProgramData%\TSUGU by default, which the script makes administrator-only.</param>
     public ManagerRecoveryService(PackageService packages, ICommandRunner runner, IExecutableLocator locator,
         Func<ManagerKind, ManagerLocation>? locations = null, string? jobsRoot = null, Func<ManagerKind, string, string?>? elevatedProblem = null, string? protectedRoot = null)
     {
         this.packages = packages; this.runner = runner; this.locator = locator;
         health = new(packages, runner, locator, elevatedProblem);
         this.locations = locations ?? new ManagerLocations().Get;
-        this.jobsRoot = jobsRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Recovery");
+        this.jobsRoot = jobsRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Recovery");
         this.protectedRoot = protectedRoot ?? ProtectedStore.DefaultRoot;
     }
 

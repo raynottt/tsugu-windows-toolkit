@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum SuggestedInstallSource { GitHubRelease, DirectDownload, OfficialDownloadPage }
 public enum SuggestedInstallPayload { Installer, PortableExecutable, PortableScanner, ArchiveInstaller, PortableArchive, ManualArchive }

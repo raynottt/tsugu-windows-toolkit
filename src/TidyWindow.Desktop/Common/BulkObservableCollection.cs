@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>An observable list that can swap its whole content with one change notification.
 /// Clearing and re-adding hundreds of items one at a time makes a list control re-measure on every step.</summary>

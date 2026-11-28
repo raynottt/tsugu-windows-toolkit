@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum ActivityLevel { Info, Success, Warning, Error }
 public enum ActivityArea { App, Managers, Search, Install }
@@ -131,11 +131,11 @@ public sealed partial class ActivityLog
         return text.ToString();
     }
 
-    /// <summary>What a crash file starts with: when, which build of TidyWindow, on which Windows. The same facts a bug report asks for first.</summary>
+    /// <summary>What a crash file starts with: when, which build of TSUGU, on which Windows. The same facts a bug report asks for first.</summary>
     public static string Platform()
     {
         var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "unknown";
-        return $"TidyWindow {version}\n{RuntimeInformation.OSDescription} ({RuntimeInformation.OSArchitecture}), {RuntimeInformation.FrameworkDescription}";
+        return $"TSUGU {version}\n{RuntimeInformation.OSDescription} ({RuntimeInformation.OSArchitecture}), {RuntimeInformation.FrameworkDescription}";
     }
 
     private int FindRepeat(ActivityLevel level, ActivityArea area, string message, DateTimeOffset now)

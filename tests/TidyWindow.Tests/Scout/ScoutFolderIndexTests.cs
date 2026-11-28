@@ -1,12 +1,12 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The folder index on a real folder: what it finds, how it follows changes, and that a finished search is a whole one.</summary>
 public sealed class ScoutFolderIndexTests : IDisposable
 {
-    private readonly string root = Path.Combine(Path.GetTempPath(), "tidywindow-index-" + Guid.NewGuid().ToString("N"));
+    private readonly string root = Path.Combine(Path.GetTempPath(), "tsugu-index-" + Guid.NewGuid().ToString("N"));
     public ScoutFolderIndexTests() => Directory.CreateDirectory(root);
     public void Dispose() { try { Directory.Delete(root, true); } catch (IOException) { } catch (UnauthorizedAccessException) { } }
 

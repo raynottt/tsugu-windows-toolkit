@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// What the person allowed for one repair: fetching the original installer from WinGet, and folders to look in for it.

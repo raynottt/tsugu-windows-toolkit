@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>How far along a running command says it is: "Downloading" for transfers, "Running" for any other step that reports a percentage.</summary>
 public sealed record CommandProgress(string Label, int Percent)

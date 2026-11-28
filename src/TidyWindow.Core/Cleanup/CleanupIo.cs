@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 internal enum DeleteResult { Removed, Gone, InUse, Denied, Failed }
 

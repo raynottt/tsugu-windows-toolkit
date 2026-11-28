@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// Turns the raw, bursty byte counts of a download into numbers that move smoothly. The network reports hundreds of times a second and

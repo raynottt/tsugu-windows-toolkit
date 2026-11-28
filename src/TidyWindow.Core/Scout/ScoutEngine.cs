@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Runtime.Versioning;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record ScoutEngineInstallation(string? ExecutablePath, bool UserProcessRunning, bool Registered = false)
 {

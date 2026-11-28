@@ -1,8 +1,8 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>What happens after WinGet fails to uninstall an app: each failure gets the remedy it points to, a working uninstall is left alone.</summary>
 [SupportedOSPlatform("windows")]
@@ -130,7 +130,7 @@ public sealed class UninstallLadderTests : IDisposable
         Assert.Equal(ActionOutcome.Completed, result.Outcome);
         Assert.Single(runner.Uninstalls);
         Assert.False(runner.Uninstalls.Single().Elevate);
-        Assert.DoesNotContain("What TidyWindow tried", result.Detail);
+        Assert.DoesNotContain("What TSUGU tried", result.Detail);
         Assert.Empty(host.ClosedIn);
     }
 
@@ -355,7 +355,7 @@ public sealed class UninstallLadderTests : IDisposable
     public async Task AnElevatedRetryIsRefusedWhenWinGetsProgramLivesWhereAnyoneCouldReplaceIt()
     {
         var runner = new Winget((_, _) => Fail(1603));
-        const string reason = @"winget.exe is installed in a folder that any program on this PC could change (C:\Users\me\x), so TidyWindow will not run it with administrator rights.";
+        const string reason = @"winget.exe is installed in a folder that any program on this PC could change (C:\Users\me\x), so TSUGU will not run it with administrator rights.";
         var result = await Service(runner, Pc(Entry(MachineArp, $"MsiExec.exe /X{Code}")), new Host(), locator: new Locator { Problem = reason }).RunAsync(Ready(), Putty, PackageAction.Uninstall);
         Assert.Equal(ActionOutcome.Failed, result.Outcome);
         // WinGet is never run as administrator; the ladder's last step still runs Windows Installer itself, which lives in the system folder.
@@ -372,11 +372,11 @@ public sealed class UninstallLadderTests : IDisposable
     {
         const string key = @"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Tool_is1";
         const string exe = @"C:\Users\Public\Tool\unins000.exe";
-        const string reason = @"unins000.exe is installed in a folder that any program on this PC could change (C:\Users\Public\Tool), so TidyWindow will not run it with administrator rights.";
+        const string reason = @"unins000.exe is installed in a folder that any program on this PC could change (C:\Users\Public\Tool), so TSUGU will not run it with administrator rights.";
         var runner = new Winget((command, _) => command.FileName == exe ? new(0, "", "") : Fail(2)) { Id = @"ARP\Machine\X64\Tool_is1" };
         var pc = Pc(Entry(key, $"\"{exe}\"", msi: false));
         pc.Files.Add(exe);
-        // Whether TidyWindow has administrator rights itself or would ask for them, the program would run with them either way.
+        // Whether TSUGU has administrator rights itself or would ask for them, the program would run with them either way.
         foreach (var administrator in new[] { true, false })
         {
             var host = new Host { IsAdministrator = administrator, Problem = path => path == exe ? reason : null };

@@ -1,9 +1,9 @@
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class PackageTests(ITestOutputHelper output)
 {

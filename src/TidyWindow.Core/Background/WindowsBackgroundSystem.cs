@@ -5,7 +5,7 @@ using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The real PC: the service list and what is running, Task Scheduler, and Windows policy values.</summary>
 [SupportedOSPlatform("windows")]

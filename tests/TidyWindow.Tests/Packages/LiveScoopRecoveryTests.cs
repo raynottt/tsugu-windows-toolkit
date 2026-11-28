@@ -1,9 +1,9 @@
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class LiveScoopRecoveryTests(ITestOutputHelper output)
 {
@@ -50,7 +50,7 @@ public sealed class LiveScoopRecoveryTests(ITestOutputHelper output)
         var coreResult = await recovery.RecoverAsync(ManagerKind.Scoop);
         output.WriteLine($"Broken core: {coreResult.Success}. {coreResult.Status.Detail}. Logs: {coreResult.LogDirectory}");
         Assert.True(coreResult.Success, coreResult.Status.Detail);
-        Assert.NotEmpty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tidywindow-backup-*"));
+        Assert.NotEmpty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tsugu-backup-*"));
         Assert.Equal(initialConfig, File.ReadAllText(config));
         Assert.Equal("user data must survive", File.ReadAllText(marker));
         Assert.True(File.Exists(customFile));

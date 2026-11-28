@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A bucket that can be added: where it is, and what it is for. <see cref="Official"/> means it is one of Scoop's own.</summary>
 public sealed record BucketOffer(string Name, string Url, string Description, bool Official)

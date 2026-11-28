@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What a search can show right now. <see cref="Waiting"/> lists the sources that have not answered; an empty list means the results are final.</summary>
 public sealed record SearchSnapshot(IReadOnlyList<Package> Packages, IReadOnlyList<SearchResult> Answered, IReadOnlyList<ManagerKind> Waiting)

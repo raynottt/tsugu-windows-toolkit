@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 internal sealed record AdaptiveLayout(double SidebarWidth, double Padding, bool CompactManagers, bool CompactResults)
 {

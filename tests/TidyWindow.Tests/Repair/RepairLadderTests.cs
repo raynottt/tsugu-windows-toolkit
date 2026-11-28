@@ -2,10 +2,10 @@ using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Text.Json;
 using Microsoft.Win32;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>A broken PC in a throwaway registry: the Python 3.13 case, laid out the way Windows Installer and Burn lay it out.</summary>
 [SupportedOSPlatform("windows")]

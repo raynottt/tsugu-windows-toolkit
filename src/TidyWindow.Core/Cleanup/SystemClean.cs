@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What an elevated clean did: the totals, plus plain-language notes about anything unusual. <paramref name="Declined"/> is set when the person said no to the permission prompt, so nothing ran.</summary>
 public sealed record SystemCleanReport(CleanupResult Result, string[] Notes, bool Declined = false);

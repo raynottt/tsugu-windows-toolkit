@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A copy of the app that ended without closing properly.</summary>
 public sealed record EndedSession(int ProcessId, DateTimeOffset Started, string? Path);
@@ -70,7 +70,7 @@ public sealed class SessionGuard
         mine = null;
     }
 
-    private void Report(EndedSession session) => log.Write(ActivityLevel.Warning, ActivityArea.App, "TidyWindow closed unexpectedly last time",
+    private void Report(EndedSession session) => log.Write(ActivityLevel.Warning, ActivityArea.App, "TSUGU closed unexpectedly last time",
         $"The copy started {session.Started.ToLocalTime():yyyy-MM-dd HH:mm:ss} ended without closing properly" +
         (session.Path is null ? "" : $" ({session.Path})") +
         ". To see why, check Event Viewer, Windows Logs, Application, around that time.");

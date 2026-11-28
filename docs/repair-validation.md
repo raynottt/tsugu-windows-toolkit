@@ -21,13 +21,13 @@ Windows Sandbox (`Containers-DisposableClientVM`) or a VM snapshot, signed in as
 
 ## 2. Run the new Repair
 
-1. Start TidyWindow, open **Repair**. Expect findings for the Python 3.13.9 products (`Python 3.13.9 Core Interpreter (64-bit)`, Test Suite, ...) and its bundle.
+1. Start TSUGU, open **Repair**. Expect findings for the Python 3.13.9 products (`Python 3.13.9 Core Interpreter (64-bit)`, Test Suite, ...) and its bundle.
    Programs still installed are *Review* and unticked: tick them.
 2. Press **Fix**, approve the Windows prompt once.
 3. Expect, per item, on the *Last repair* card:
    - *Fixed* with "Removed the whole record (N keys, M shared links)" and the steps `Looked for the program's own installer file ... none matches this exact build`;
    - nothing *Could not fix*. If something is, open "What was tried": it names the key and the reason.
-4. Check with Windows itself (no TidyWindow):
+4. Check with Windows itself (no TSUGU):
    ```powershell
    $i = New-Object -ComObject WindowsInstaller.Installer
    $i.ProductsEx('', '', 7) | Where-Object { $_.ProductName -like '*Python 3.13.9*' }   # expect nothing
@@ -82,7 +82,7 @@ A missing `C:\Windows\Installer` copy, verified: Python 3.12.10's Core Interpret
 
 Found by doing it, and fixed: the product's list entry names no install folder, so Repair judged the program gone and skipped the restore step, removing the Core product's record instead (the first attempt did exactly that). A product now counts as installed when any file or folder Windows Installer recorded for it is still on the PC.
 
-A deliberately broken, patched package, verified: a throwaway per-user MSI ("TidyWindow Lab Widget", built with WiX 5) plus a patch (`.msp`) installed on a real PC, then broken and repaired with the real engine and the real administrator helper (the elevated `TidyWindow.CleanHost.exe`, over its pipe). Each case was checked before and after.
+A deliberately broken, patched package, verified: a throwaway per-user MSI ("TSUGU Lab Widget", built with WiX 5) plus a patch (`.msp`) installed on a real PC, then broken and repaired with the real engine and the real administrator helper (the elevated `TidyWindow.CleanHost.exe`, over its pipe). Each case was checked before and after.
 
 - The patch's saved file was deleted from `C:\Windows\Installer` and its only copy parked in a folder the person chose. The scan reported the dead update; Repair put the file back byte for byte (SHA-256 equal) through the helper without removing a registry key; a plain `msiexec /fomus` then worked; Undo took the file out again; fixing again put it back.
 - The product's saved `.msi` was cut to 0 bytes. The scan reported a damaged saved copy (a plain `/fomus` on it returns 1619); Repair found the original through the product's source list, repaired from it with `/fvomus`, and Windows Installer got a healthy new `LocalPackage`. No registry key was removed.
@@ -93,7 +93,7 @@ A deliberately broken, patched package, verified: a throwaway per-user MSI ("Tid
 Found by doing it, and fixed:
 
 - The first run of the damaged-copy case called the program **gone** and removed its whole record, because its components use registry values as key paths and only file paths counted as proof the program is there. Registry key paths (`01:\...`, with `0x20` for the 64-bit view) count now.
-- Windows keeps saved `.msp` files **read-only**. Replacing a damaged one and undoing a restore both failed on that, and refusing an unsigned read-only candidate left its half-placed `.tidywindow-new` copy behind in `C:\Windows\Installer`. Attributes are cleared before replacing or deleting, a restored file is marked read-only like Windows' own, and a refused copy is always removed.
+- Windows keeps saved `.msp` files **read-only**. Replacing a damaged one and undoing a restore both failed on that, and refusing an unsigned read-only candidate left its half-placed `.tsugu-new` copy behind in `C:\Windows\Installer`. Attributes are cleared before replacing or deleting, a restored file is marked read-only like Windows' own, and a refused copy is always removed.
 - Windows Installer's own `/fomus` repair of a product with a **removable** patch whose file is gone returns 0 and silently drops that patch's registration. The expectation that a non-removable patch (Office, SQL Server) fails with 1612 or 1714 did not hold on this Windows build either; see the third-round note below, where the update is silently dropped instead.
 
 Not exercised on a real PC in this first round: the `/qb` retry after a failed custom action, `.zip` downloads from WinGet, the `HKLM\Software\Policies\WiX\Burn` cache folder, a cumulative-update `.exe` (an update inside a setup program is never unpacked: only `.msp` files are used), and Squirrel's `Update.exe`. The first three were run later; see the second round below and the November 2026 table in `repair-research.md`. The last two are still not exercised on a real PC.
@@ -114,9 +114,9 @@ Second round on the same PC (lab packages again, plus two real programs), each c
 
 ```powershell
 $env:TIDYWINDOW_LIVE_TESTS = '1'
-dotnet test tests/TidyWindow.Tests --filter "FullyQualifiedName~LiveRepair" --logger "console;verbosity=detailed"
+dotnet test tests/TSUGU.Tests --filter "FullyQualifiedName~LiveRepair" --logger "console;verbosity=detailed"
 ```
-`TIDYWINDOW_ELEVATED_TESTS=1` from an elevated window also runs the privileged path on throwaway keys under `HKCU\Software\TidyWindowTests` (fake product codes only). `TIDYWINDOW_LIVE_DOWNLOAD=1` additionally downloads a setup program into a temp folder and unpacks it; nothing is installed.
+`TIDYWINDOW_ELEVATED_TESTS=1` from an elevated window also runs the privileged path on throwaway keys under `HKCU\Software\TSUGUTests` (fake product codes only). `TIDYWINDOW_LIVE_DOWNLOAD=1` additionally downloads a setup program into a temp folder and unpacks it; nothing is installed.
 The live tests only read: the scan, the removal plan for every finding (never carried out), the capture of a real product key with its permissions, and that installer files are read by their own product code.
 
 ## Reporting what happened

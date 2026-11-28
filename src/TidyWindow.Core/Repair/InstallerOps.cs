@@ -4,7 +4,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What an installer file says about itself.</summary>
 public sealed record MsiPackageInfo(string ProductCode, string PackageCode, string Version, string Name);
@@ -40,7 +40,7 @@ public interface IElevatedOps
 /// <summary>Finding and checking the installer file a broken program needs. Reading only; nothing here changes the PC.</summary>
 public interface IInstallerOps : IElevatedOps
 {
-    /// <summary>Installer files that could be this program's, from its own source list and the places Windows, installers and TidyWindow itself keep copies.</summary>
+    /// <summary>Installer files that could be this program's, from its own source list and the places Windows, installers and TSUGU itself keep copies.</summary>
     IReadOnlyList<string> CandidatePackages(MsiProduct product);
     MsiPackageInfo? ReadPackage(string path);
     /// <summary>The package code Windows Installer registered for the product, as a GUID, or null when it has none.</summary>
@@ -53,7 +53,7 @@ public interface IInstallerOps : IElevatedOps
     IReadOnlyList<string> ExpandArchive(string zipPath, string folder);
     /// <summary>The update code ({GUID}) an .msp file carries, or null when it is not a readable update.</summary>
     string? ReadPatchCode(string path);
-    /// <summary>.msp files that could be this update's, from the places bundles, Windows, WinGet and TidyWindow keep copies. Every one is checked against the patch code before it is used.</summary>
+    /// <summary>.msp files that could be this update's, from the places bundles, Windows, WinGet and TSUGU keep copies. Every one is checked against the patch code before it is used.</summary>
     IReadOnlyList<string> CandidatePatches(string patchCode);
     /// <summary>The .msp files in a folder the person pointed at, and in the folders directly under it.</summary>
     IReadOnlyList<string> PatchesIn(string folder);
@@ -150,10 +150,10 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
             found.AddRange(Safe(() => Directory.EnumerateFiles(folder, "*.msi")));
         }
 
-        // Copies already on this PC that the program's own records know nothing about: what TidyWindow's Cleanup set aside (kept for 14 days), and what WinGet and Scoop downloaded.
+        // Copies already on this PC that the program's own records know nothing about: what TSUGU's Cleanup set aside (kept for 14 days), and what WinGet and Scoop downloaded.
         // Only installer packages are taken from these; every one is checked against the program before it is used.
         var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        foreach (var root in new[] { Path.Combine(local, "TidyWindow.Next", "Undo"), Path.Combine(Path.GetTempPath(), "WinGet"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "scoop", "cache") })
+        foreach (var root in new[] { Path.Combine(local, "TSUGU", "Undo"), Path.Combine(Path.GetTempPath(), "WinGet"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "scoop", "cache") })
             found.AddRange(Packages(root));
         return found.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
@@ -342,7 +342,7 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
         // A bundle keeps the updates it applied next to its other packages; Windows keeps every update's own saved file under a name of its own choosing.
         foreach (var root in BurnCacheRoots()) found.AddRange(Updates(root, 4));
         found.AddRange(Safe(() => Directory.EnumerateFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Installer"), "*.msp")));
-        foreach (var root in new[] { Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Undo"), Path.Combine(Path.GetTempPath(), "WinGet"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "scoop", "cache") })
+        foreach (var root in new[] { Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Undo"), Path.Combine(Path.GetTempPath(), "WinGet"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "scoop", "cache") })
             found.AddRange(Updates(root, 4));
         return found.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
@@ -400,7 +400,7 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
         if (!string.Equals(PackageHealth.ReadPatchCode(mspPath), patchCode, StringComparison.OrdinalIgnoreCase)) return new(87, "That update file is not the update Windows Installer registered.");
         // A usable file is never replaced: it is the one Windows Installer already trusts.
         if (File.Exists(target) && !PackageHealth.PatchDamaged(target, patchCode)) return new(183, "A usable file is already there.");
-        var staged = target + ".tidywindow-new";
+        var staged = target + ".tsugu-new";
         try
         {
             File.Copy(mspPath, staged, true);
@@ -491,7 +491,7 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
         var wanted = Path.GetFileName(target);
         if (!string.Equals(original, wanted, StringComparison.OrdinalIgnoreCase) && !string.Equals(Path.GetFileName(exePath), wanted, StringComparison.OrdinalIgnoreCase))
             return new(87, $"That setup program is {(original.Length > 0 ? original : Path.GetFileName(exePath))}, not {wanted}.");
-        var staged = target + ".tidywindow-new";
+        var staged = target + ".tsugu-new";
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
@@ -517,7 +517,7 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
         if (vault is not null && !vault.WasStaged(target)) return false;
         try
         {
-            // An update file Windows or TidyWindow saved is read-only.
+            // An update file Windows or TSUGU saved is read-only.
             if (File.Exists(target)) File.SetAttributes(target, FileAttributes.Normal);
             File.Delete(target);
             var folder = Path.GetDirectoryName(target);
@@ -618,7 +618,7 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
 
     private static RunResult RunMsiExec(string flags, string msiPath, string ui, CancellationToken cancellationToken, params string[] properties)
     {
-        var log = Path.Combine(Path.GetTempPath(), "TidyWindow-repair-" + Guid.NewGuid().ToString("N")[..8] + ".log");
+        var log = Path.Combine(Path.GetTempPath(), "TSUGU-repair-" + Guid.NewGuid().ToString("N")[..8] + ".log");
         var start = new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "msiexec.exe")) { UseShellExecute = false, CreateNoWindow = true };
         foreach (var argument in new[] { flags, msiPath, ui, "/norestart", "/l*v", log }) start.ArgumentList.Add(argument);
         foreach (var prop in properties) start.ArgumentList.Add(prop);
@@ -705,7 +705,7 @@ public sealed partial class WindowsInstallerOps(RepairVault? vault = null, IRead
         var needsRename = wanted is not null && !string.Equals(Path.GetFileName(full), wanted, StringComparison.OrdinalIgnoreCase);
         if (!inCache && !needsRename && !guarded) return RunMsiExec(flags, full, "/qn", cancellationToken);
 
-        var stageDir = Path.Combine(guarded && vault is not null ? vault.Stage : Path.GetTempPath(), "TidyWindow-stage-" + Guid.NewGuid().ToString("N")[..8]);
+        var stageDir = Path.Combine(guarded && vault is not null ? vault.Stage : Path.GetTempPath(), "TSUGU-stage-" + Guid.NewGuid().ToString("N")[..8]);
         try
         {
             Directory.CreateDirectory(stageDir);

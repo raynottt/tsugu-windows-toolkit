@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed record ScoutRow(ScoutEntry Entry)
 {

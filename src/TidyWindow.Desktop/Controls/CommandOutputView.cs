@@ -3,9 +3,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 internal static class OutputPalette
 {

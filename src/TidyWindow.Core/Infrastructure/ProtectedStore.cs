@@ -5,7 +5,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Where the administrator helper keeps the copies it needs to put things back: the command of a startup item it removed, the registry
@@ -17,13 +17,13 @@ namespace TidyWindow.Next.Core;
 /// </summary>
 public sealed class ProtectedStore
 {
-    public const string FolderName = "TidyWindow.Next";
+    public const string FolderName = "TSUGU";
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
     private readonly string root;
     private readonly bool enforce;
 
     /// <param name="area">The feature that owns the records; it becomes a subfolder name.</param>
-    /// <param name="root">Where the store lives. The default is %ProgramData%\TidyWindow.Next.</param>
+    /// <param name="root">Where the store lives. The default is %ProgramData%\TSUGU.</param>
     /// <param name="enforce">Whether folders must be owned by administrators to be used. Tests run without administrator rights and turn this off.</param>
     public ProtectedStore(string area, string? root = null, bool enforce = true)
     {

@@ -1,13 +1,13 @@
 using System.Globalization;
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Tests;
+namespace TSUGU.Tests;
 
 public sealed class LabHardeningTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-labh-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-labh-" + Guid.NewGuid().ToString("N"));
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     [Fact]

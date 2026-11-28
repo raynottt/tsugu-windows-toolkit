@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public static partial class InstallRepair
 {

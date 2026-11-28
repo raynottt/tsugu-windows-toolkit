@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// The administrator helper's own copies of what a repair removed, kept in the protected store under tokens nobody can guess, and the quarantine folder beside them

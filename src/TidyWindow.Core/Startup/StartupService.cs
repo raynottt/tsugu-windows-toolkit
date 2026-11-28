@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Makes one change on this PC, after checking again that the item may be changed, and reads it back to be sure it took.
@@ -114,7 +114,7 @@ public sealed class LocalStartupChanger(IStartupSystem system, IStartupWriter wr
         {
             // Only the helper's own copy is put back with administrator rights, never the one that arrived with the request.
             copy = vault.Load<StartupVault>(request.Id);
-            if (copy is null) return new(false, "There is no protected copy of this item to put back. It may have been removed by an earlier version of TidyWindow; add it to startup again by hand.");
+            if (copy is null) return new(false, "There is no protected copy of this item to put back. It may have been removed by an earlier version of TSUGU; add it to startup again by hand.");
         }
         else copy = request.Vault;
         if (copy is null) return new(false, "There is nothing to put back.");
@@ -185,7 +185,7 @@ public sealed class LocalStartupChanger(IStartupSystem system, IStartupWriter wr
     }
 }
 
-/// <summary>What TidyWindow has turned off, kept on disk so it can be turned back on later.</summary>
+/// <summary>What TSUGU has turned off, kept on disk so it can be turned back on later.</summary>
 public sealed class StartupHistory(string folder)
 {
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
@@ -295,7 +295,7 @@ public sealed class StartupService(IStartupChanger user, IStartupChanger machine
         }
     }
 
-    /// <summary>Turns back on everything TidyWindow turned off or removed. Items that are gone from this PC are forgotten.</summary>
+    /// <summary>Turns back on everything TSUGU turned off or removed. Items that are gone from this PC are forgotten.</summary>
     public async Task<IReadOnlyList<(StartupChange Change, StartupOutcome Outcome)>> RestoreAllAsync(IStartupSystem system)
     {
         var results = new List<(StartupChange, StartupOutcome)>();

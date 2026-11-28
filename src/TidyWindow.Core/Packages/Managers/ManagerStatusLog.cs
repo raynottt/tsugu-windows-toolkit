@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Logs a package manager only when its condition changes, so routine refreshes stay silent.</summary>
 public static class ManagerStatusLog

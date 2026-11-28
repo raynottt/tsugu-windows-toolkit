@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record InstalledApp(ManagerKind? Manager, string? Id, string Name, string Version, string Source = "", IReadOnlyList<InstalledCopy>? Copies = null);
 public sealed record CoverageReport(int Total, int Listed, IReadOnlyList<string> Missing)

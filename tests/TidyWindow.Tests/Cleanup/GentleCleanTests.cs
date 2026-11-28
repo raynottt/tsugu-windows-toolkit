@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The clean must stay usable on slow disks and small machines, and Windows' own tools must be tracked to their real end.</summary>
 public sealed class GentleCleanTests : IDisposable

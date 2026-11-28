@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>A pretend Windows that records what it was asked to do, so no program on this PC is closed.</summary>
 internal sealed class FakeUnstickSystem : IUnstickSystem

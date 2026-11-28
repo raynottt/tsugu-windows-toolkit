@@ -2,9 +2,9 @@ using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using Microsoft.Win32;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// A throwaway registry tree under HKCU that stands in for HKLM, HKCU and HKU, so the real repair code runs with real permissions
@@ -16,7 +16,7 @@ public sealed class RepairSandbox : IDisposable
     public const string Sid = "S-1-5-21-1000-2000-3000-1001";
     // Test classes run in parallel and share one parent key. Creating a sandbox under it and removing the parent once it is empty must not interleave.
     private static readonly object ParentGate = new();
-    private readonly string name = @"SOFTWARE\TidyWindowTests\repair-" + Guid.NewGuid().ToString("N")[..10];
+    private readonly string name = @"SOFTWARE\TSUGUTests\repair-" + Guid.NewGuid().ToString("N")[..10];
     public RegistryKey Root { get; }
     public RegistryRoots Roots => RegistryRoots.Under(Root);
 
@@ -126,7 +126,7 @@ public sealed class RepairSandbox : IDisposable
         catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException or ArgumentException) { }
         lock (ParentGate)
         {
-            try { using var parent = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\TidyWindowTests", true); if (parent is { SubKeyCount: 0 }) { parent.Close(); Registry.CurrentUser.DeleteSubKey(@"SOFTWARE\TidyWindowTests", false); } }
+            try { using var parent = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\TSUGUTests", true); if (parent is { SubKeyCount: 0 }) { parent.Close(); Registry.CurrentUser.DeleteSubKey(@"SOFTWARE\TSUGUTests", false); } }
             // A sandbox in another process may add a child between the check and the delete; the parent is then simply not empty.
             catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException or ArgumentException or InvalidOperationException) { }
         }

@@ -1,9 +1,9 @@
 using System.Runtime.Versioning;
 using Microsoft.Win32;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The two ways a program stays broken after its record is fine: its installer file is gone, or it has no uninstaller to run.</summary>
 [SupportedOSPlatform("windows")]

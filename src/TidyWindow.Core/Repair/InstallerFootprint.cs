@@ -1,6 +1,6 @@
 using System.Runtime.Versioning;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Asks for everything Windows Installer keeps about one product ("product") or one Burn bundle ("bundle", with its Uninstall key in <see cref="Keys"/>).</summary>
 public sealed record FootprintRequest(string Kind, string Code = "", string Context = "Machine", string Sid = "", IReadOnlyList<string>? Keys = null, bool Fresh = false);

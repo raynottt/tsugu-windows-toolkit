@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public enum ChangeKind { None, Better, Worse }
 

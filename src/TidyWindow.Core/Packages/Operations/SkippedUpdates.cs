@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Remembers updates a package manager lists but cannot apply (for example Microsoft Edge, which WinGet sees as

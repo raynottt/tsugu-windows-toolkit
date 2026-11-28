@@ -1,44 +1,44 @@
 using System.Net;
 using System.Text.Json;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class AppUpdateTests : IDisposable
 {
     private const string Sample = """
     [
-      {"tag_name":"v4.7.0","name":"Legacy","draft":false,"prerelease":false,"published_at":"2024-01-01T00:00:00Z","html_url":"https://github.com/Cosmos-0118/TidyWindow/releases/tag/v4.7.0","body":"legacy","assets":[]},
-      {"tag_name":"v5.0","name":"Short","draft":false,"prerelease":false,"published_at":"2026-08-01T00:00:00Z","html_url":"https://github.com/Cosmos-0118/TidyWindow/releases/tag/v5.0","body":"short","assets":[]},
-      {"tag_name":"v5.0.0","name":"Hidden","draft":true,"prerelease":false,"published_at":"2026-09-01T00:00:00Z","html_url":"https://github.com/Cosmos-0118/TidyWindow/releases/tag/v5.0.0","body":"draft","assets":[]},
-      {"tag_name":"v5.2.0-beta","name":"Beta","draft":false,"prerelease":true,"published_at":"2026-11-01T00:00:00Z","html_url":"https://github.com/Cosmos-0118/TidyWindow/releases/tag/v5.2.0-beta","body":"beta","assets":[]},
-      {"tag_name":"not-a-version","name":"Skipped","draft":false,"prerelease":false,"published_at":"2026-11-01T00:00:00Z","html_url":"https://github.com/Cosmos-0118/TidyWindow/releases/tag/skipped","body":"","assets":[]},
-      {"tag_name":"v5.1.0","name":"TidyWindow 5.1.0","draft":false,"prerelease":false,"published_at":"2026-10-01T00:00:00Z","html_url":"https://github.com/Cosmos-0118/TidyWindow/releases/tag/v5.1.0","body":"## Changes\n\n- **Faster** search\n- Read the [notes](https://example.com)\n","assets":[
-        {"name":"TidyWindow-Setup-9.9.9.exe","browser_download_url":"https://github.com/Cosmos-0118/TidyWindow/releases/download/v5.1.0/TidyWindow-Setup-9.9.9.exe","size":4},
-        {"name":"TidyWindow-Setup-5.1.0.exe","browser_download_url":"https://github.com/Cosmos-0118/TidyWindow/releases/download/v5.1.0/TidyWindow-Setup-5.1.0.exe","size":6},
-        {"name":"TidyWindow-5.1.0-win-x64.zip","browser_download_url":"https://github.com/Cosmos-0118/TidyWindow/releases/download/v5.1.0/TidyWindow-5.1.0-win-x64.zip","size":4},
-        {"name":"notes.txt","browser_download_url":"https://github.com/Cosmos-0118/TidyWindow/releases/download/v5.1.0/notes.txt","size":1}
+      {"tag_name":"v4.7.0","name":"Legacy","draft":false,"prerelease":false,"published_at":"2024-01-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v4.7.0","body":"legacy","assets":[]},
+      {"tag_name":"v5.0","name":"Short","draft":false,"prerelease":false,"published_at":"2026-08-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.0","body":"short","assets":[]},
+      {"tag_name":"v5.0.0","name":"Hidden","draft":true,"prerelease":false,"published_at":"2026-09-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.0.0","body":"draft","assets":[]},
+      {"tag_name":"v5.2.0-beta","name":"Beta","draft":false,"prerelease":true,"published_at":"2026-11-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.2.0-beta","body":"beta","assets":[]},
+      {"tag_name":"not-a-version","name":"Skipped","draft":false,"prerelease":false,"published_at":"2026-11-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/skipped","body":"","assets":[]},
+      {"tag_name":"v5.1.0","name":"TSUGU 5.1.0","draft":false,"prerelease":false,"published_at":"2026-10-01T00:00:00Z","html_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.1.0","body":"## Changes\n\n- **Faster** search\n- Read the [notes](https://example.com)\n","assets":[
+        {"name":"TSUGU-Setup-9.9.9.exe","browser_download_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/download/v5.1.0/TSUGU-Setup-9.9.9.exe","size":4},
+        {"name":"TSUGU-Setup-5.1.0.exe","browser_download_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/download/v5.1.0/TSUGU-Setup-5.1.0.exe","size":6},
+        {"name":"TSUGU-Portable-win-x64-5.1.0.zip","browser_download_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/download/v5.1.0/TSUGU-Portable-win-x64-5.1.0.zip","size":4},
+        {"name":"notes.txt","browser_download_url":"https://github.com/raynottt/tsugu-windows-toolkit/releases/download/v5.1.0/notes.txt","size":1}
       ]}
     ]
     """;
 
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-update-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-update-" + Guid.NewGuid().ToString("N"));
     public AppUpdateTests() => Directory.CreateDirectory(folder);
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     [Fact]
-    public void ParseReleasesKeepsStableTidyWindow5ReleasesAndTheirAssets()
+    public void ParseReleasesKeepsStableTSUGU5ReleasesAndTheirAssets()
     {
         var release = Assert.Single(AppUpdateService.ParseReleases(Sample));
         Assert.Equal("v5.1.0", release.TagName);
         Assert.Equal(new Version(5, 1, 0), release.Version);
-        Assert.Equal("TidyWindow 5.1.0", release.Title);
-        Assert.Equal("https://github.com/Cosmos-0118/TidyWindow/releases/tag/v5.1.0", release.HtmlUrl);
+        Assert.Equal("TSUGU 5.1.0", release.Title);
+        Assert.Equal("https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v5.1.0", release.HtmlUrl);
         Assert.Equal("Changes\n\n• Faster search\n• Read the notes", release.CleanNotes);
-        Assert.Equal("TidyWindow-Setup-5.1.0.exe", release.InstallerAsset!.Name);
+        Assert.Equal("TSUGU-Setup-5.1.0.exe", release.InstallerAsset!.Name);
         Assert.Equal(6, release.InstallerAsset.SizeBytes);
-        Assert.Equal("TidyWindow-5.1.0-win-x64.zip", release.PortableAsset!.Name);
+        Assert.Equal("TSUGU-Portable-win-x64-5.1.0.zip", release.PortableAsset!.Name);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public sealed class AppUpdateTests : IDisposable
         var service = new AppUpdateService(http, new Version(5, 0, 0), () => true, folder);
         var result = await service.CheckAsync();
         Assert.Equal(AppUpdateService.ReleasesUrl, handler.Address!.AbsoluteUri);
-        Assert.Equal("TidyWindow", handler.UserAgent);
+        Assert.Equal("TSUGU", handler.UserAgent);
         Assert.Contains("application/vnd.github+json", handler.Accept);
         Assert.True(result.UpdateAvailable);
         Assert.Equal("v5.1.0", result.LatestRelease!.TagName);
@@ -127,7 +127,7 @@ public sealed class AppUpdateTests : IDisposable
         var bytes = new byte[] { (byte)'P', (byte)'K', 3, 4 };
         using var http = new HttpClient(new BytesHandler(bytes)) { Timeout = Timeout.InfiniteTimeSpan };
         var service = new AppUpdateService(http, new Version(5, 0, 0), () => false, folder);
-        var asset = new AppReleaseAsset("TidyWindow-5.1.0-win-x64.zip", "https://objects.githubusercontent.com/TidyWindow-5.1.0-win-x64.zip", bytes.Length);
+        var asset = new AppReleaseAsset("TSUGU-Portable-win-x64-5.1.0.zip", "https://objects.githubusercontent.com/TSUGU-Portable-win-x64-5.1.0.zip", bytes.Length);
         var path = await service.DownloadPortableAsync(asset, null);
         Assert.Equal(bytes, File.ReadAllBytes(path));
     }
@@ -170,7 +170,7 @@ public sealed class AppUpdateTests : IDisposable
         Assert.Null(AppUpdateService.Digest(""));
         Assert.Null(AppUpdateService.Digest("md5:" + new string('a', 32)));
         Assert.Null(AppUpdateService.Digest("sha256:" + new string('g', 64)));
-        var json = Sample.Replace("\"name\":\"TidyWindow-Setup-5.1.0.exe\",", "\"name\":\"TidyWindow-Setup-5.1.0.exe\",\"digest\":\"sha256:" + sha + "\",");
+        var json = Sample.Replace("\"name\":\"TSUGU-Setup-5.1.0.exe\",", "\"name\":\"TSUGU-Setup-5.1.0.exe\",\"digest\":\"sha256:" + sha + "\",");
         var release = Assert.Single(AppUpdateService.ParseReleases(json));
         Assert.Equal(sha, release.InstallerAsset!.Sha256);
         Assert.Null(release.PortableAsset!.Sha256);
@@ -195,11 +195,11 @@ public sealed class AppUpdateTests : IDisposable
     public async Task ARedirectIsFollowedOnlyWhenItStaysOnGitHub()
     {
         var bytes = new byte[] { (byte)'M', (byte)'Z', 1, 2, 3, 4 };
-        using var stays = new HttpClient(new RedirectHandler("https://objects.githubusercontent.com/x/TidyWindow-Setup-5.1.0.exe", bytes)) { Timeout = Timeout.InfiniteTimeSpan };
+        using var stays = new HttpClient(new RedirectHandler("https://objects.githubusercontent.com/x/TSUGU-Setup-5.1.0.exe", bytes)) { Timeout = Timeout.InfiniteTimeSpan };
         var path = await new AppUpdateService(stays, new Version(5, 0, 0), () => true, folder).DownloadInstallerAsync(InstallerAsset(bytes.Length), null);
         Assert.Equal(bytes, File.ReadAllBytes(path));
 
-        using var leaves = new HttpClient(new RedirectHandler("https://example.com/TidyWindow-Setup-5.1.0.exe", bytes)) { Timeout = Timeout.InfiniteTimeSpan };
+        using var leaves = new HttpClient(new RedirectHandler("https://example.com/TSUGU-Setup-5.1.0.exe", bytes)) { Timeout = Timeout.InfiniteTimeSpan };
         await Assert.ThrowsAsync<InvalidOperationException>(() => new AppUpdateService(leaves, new Version(5, 0, 0), () => true, folder).DownloadInstallerAsync(InstallerAsset(bytes.Length), null));
     }
 
@@ -226,23 +226,23 @@ public sealed class AppUpdateTests : IDisposable
     {
         using var http = new HttpClient(new ThrowingHandler()) { Timeout = Timeout.InfiniteTimeSpan };
         var service = new AppUpdateService(http, new Version(5, 0, 0), () => true, folder);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("TidyWindow-Setup-5.0.0.exe", "http://github.com/Cosmos-0118/file.exe", 1), null));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("TidyWindow-Setup-5.0.0.exe", "https://example.com/file.exe", 1), null));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("../TidyWindow-Setup-5.0.0.exe", "https://github.com/Cosmos-0118/file.exe", 1), null));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("TSUGU-Setup-5.0.0.exe", "http://github.com/Cosmos-0118/file.exe", 1), null));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("TSUGU-Setup-5.0.0.exe", "https://example.com/file.exe", 1), null));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("../TSUGU-Setup-5.0.0.exe", "https://github.com/Cosmos-0118/file.exe", 1), null));
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadInstallerAsync(new("notes.txt", "https://github.com/Cosmos-0118/notes.txt", 1), null));
     }
 
     private OfflineClient Offline(Version current, bool installedBuild = true) => new(current, installedBuild, folder);
 
     private static AppRelease Release(Version version) => new(
-        "v" + version, version, "TidyWindow " + version, "", "",
+        "v" + version, version, "TSUGU " + version, "", "",
         new DateTimeOffset(2026, 10, 1, 0, 0, 0, TimeSpan.Zero),
-        "https://github.com/Cosmos-0118/TidyWindow/releases/tag/v" + version,
+        "https://github.com/raynottt/tsugu-windows-toolkit/releases/tag/v" + version,
         InstallerAsset(6), null);
 
     private static AppReleaseAsset InstallerAsset(long size) => new(
-        "TidyWindow-Setup-5.1.0.exe",
-        "https://github.com/Cosmos-0118/TidyWindow/releases/download/v5.1.0/TidyWindow-Setup-5.1.0.exe",
+        "TSUGU-Setup-5.1.0.exe",
+        "https://github.com/raynottt/tsugu-windows-toolkit/releases/download/v5.1.0/TSUGU-Setup-5.1.0.exe",
         size);
 
     private sealed class OfflineClient : IDisposable

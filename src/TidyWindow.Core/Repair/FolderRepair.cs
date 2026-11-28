@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// A folder as it stood before a repair set it aside: where it was, and where it is kept so Undo can move it back.
@@ -111,7 +111,7 @@ public static partial class RepairFolders
 /// <param name="vaultRoot">The one folder set aside folders may be kept in. The app's editor uses its own quarantine under the profile; the helper's, a folder only administrators can write to.</param>
 public sealed class FileFolderEditor(Func<string, bool> allowed, string? vaultRoot = null) : IFolderEditor
 {
-    private const string Vault = @"\TidyWindow.Next\RepairBackups\SetAside\";
+    private const string Vault = @"\TSUGU\RepairBackups\SetAside\";
 
     public static FileFolderEditor User() => new(path => RepairFolders.Classify(path) != FolderKind.None && !RepairFolders.IsMachine(path));
     /// <param name="quarantine">Where the helper keeps what it sets aside: a place the ordinary account cannot write to, so what goes back to Program Files is what was taken out of it.</param>
@@ -125,8 +125,8 @@ public sealed class FileFolderEditor(Func<string, bool> allowed, string? vaultRo
     private string Checked(string path)
     {
         string full;
-        try { full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new IOException("That is not a path TidyWindow can change."); }
-        if (!allowed(full)) throw new IOException("TidyWindow does not set that folder aside.");
+        try { full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new IOException("That is not a path TSUGU can change."); }
+        if (!allowed(full)) throw new IOException("TSUGU does not set that folder aside.");
         return full;
     }
 
@@ -136,7 +136,7 @@ public sealed class FileFolderEditor(Func<string, bool> allowed, string? vaultRo
         var inside = vaultRoot is not null
             ? full.StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(vaultRoot)) + "\\", StringComparison.OrdinalIgnoreCase)
             : full.Contains(Vault, StringComparison.OrdinalIgnoreCase);
-        if (!inside) throw new IOException("That is not where TidyWindow keeps what it sets aside.");
+        if (!inside) throw new IOException("That is not where TSUGU keeps what it sets aside.");
         return Path.TrimEndingDirectorySeparator(full);
     }
 

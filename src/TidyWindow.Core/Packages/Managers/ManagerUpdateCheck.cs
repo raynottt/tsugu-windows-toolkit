@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Asks each package manager's official release address what the newest stable release is, by reading where that address redirects to. No page is downloaded,
@@ -19,7 +19,7 @@ public sealed partial class ManagerUpdateCheck : IDisposable
     public ManagerUpdateCheck(HttpMessageHandler? handler = null)
     {
         client = new(handler ?? new SocketsHttpHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(6) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("TidyWindow");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("TSUGU");
     }
 
     public static Uri Probe(ManagerKind kind) => new(kind switch

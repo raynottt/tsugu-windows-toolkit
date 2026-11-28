@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 internal sealed class Collector : IProgress<CommandOutput>
 {
@@ -499,7 +499,7 @@ public sealed class FixRunnerTests
 
 public sealed class FixServiceTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-fix-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-fix-" + Guid.NewGuid().ToString("N"));
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     private static FixItem Item(string id, FixScope scope) =>

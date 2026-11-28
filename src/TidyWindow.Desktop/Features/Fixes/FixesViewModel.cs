@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public enum FixesTab { Windows, Network, Devices, Apps }
 
@@ -269,7 +269,7 @@ public sealed class FixesViewModel : ObservableState, IDisposable
         var shutdown = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "shutdown.exe");
         try
         {
-            Start(shutdown, "/r", "/t", "30", "/c", "TidyWindow: restarting to finish a fix.");
+            Start(shutdown, "/r", "/t", "30", "/c", "TSUGU: restarting to finish a fix.");
             toasts.Show("fix-restart", ToastKind.Warning, "Windows will restart in 30 seconds", "Save your work now.", "Cancel restart", () => { CancelRestart(shutdown); return Task.CompletedTask; }, 30);
         }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)

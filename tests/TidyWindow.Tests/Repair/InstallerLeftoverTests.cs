@@ -1,8 +1,8 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>Stands in for the real folder editor: folders are entries in a set, and what is set aside is remembered so Undo and the quarantine can be checked.</summary>
 public sealed class MemoryFolders(HashSet<string> present) : IFolderEditor
@@ -520,7 +520,7 @@ public sealed class InstallerLeftoverTests : IDisposable
 
     // ---- The real folder editor ----
 
-    private string Vault(string root) => Path.Combine(root, "TidyWindow.Next", "RepairBackups", "SetAside");
+    private string Vault(string root) => Path.Combine(root, "TSUGU", "RepairBackups", "SetAside");
 
     [Fact]
     public void TheFolderEditorMovesAFolderIntoTheVaultAndBackWithEverythingInIt()

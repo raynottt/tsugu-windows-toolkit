@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum ToolState { NotInPath, Working, NotInstalled }
 

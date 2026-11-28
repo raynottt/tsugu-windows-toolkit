@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 internal static class CrashFixtures
 {
@@ -95,11 +95,11 @@ public class CrashParserTests
     [Fact]
     public void A_failure_inside_the_dotnet_runtime_is_a_crash_with_its_exit_code()
     {
-        var e = CrashFixtures.Parsed(CrashFixtures.RuntimeFailure("TidyWindow.Next.exe", CrashFixtures.Now));
+        var e = CrashFixtures.Parsed(CrashFixtures.RuntimeFailure("TSUGU.exe", CrashFixtures.Now));
         Assert.Equal(CrashKind.AppCrash, e.Kind);
         Assert.Equal("0x80131506", e.Code);
         Assert.Equal("Fatal .NET runtime error", e.CodeName);
-        Assert.Equal("TidyWindow.Next crashed: Fatal error inside the .NET runtime", e.Headline);
+        Assert.Equal("TSUGU crashed: Fatal error inside the .NET runtime", e.Headline);
         Assert.Contains(".NET runtime itself failed", e.Explanation);
     }
 
@@ -130,7 +130,7 @@ public class CrashParserTests
     [Fact]
     public void The_winui_crash_code_is_explained()
     {
-        var e = CrashFixtures.Parsed(CrashFixtures.Crash("TidyWindow.Next.exe", CrashFixtures.Now, "Microsoft.UI.Xaml.dll", "c000027b"));
+        var e = CrashFixtures.Parsed(CrashFixtures.Crash("TSUGU.exe", CrashFixtures.Now, "Microsoft.UI.Xaml.dll", "c000027b"));
         Assert.Equal("Unhandled error in a Windows app", e.CodeName);
         Assert.NotEmpty(e.Explanation);
     }
@@ -647,7 +647,7 @@ public class CrashScannerTests
         var history = new CrashHistory(null, () => T);
         var result = new CrashScanner(source, history, () => T).Scan(CancellationToken.None);
         Assert.Equal(1, result.Added);
-        Assert.Equal("Windows would not let TidyWindow read the System log.", Assert.Single(result.Problems));
+        Assert.Equal("Windows would not let TSUGU read the System log.", Assert.Single(result.Problems));
         Assert.Null(history.ScannedUpTo);
     }
 

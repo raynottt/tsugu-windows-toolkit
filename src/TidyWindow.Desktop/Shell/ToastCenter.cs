@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// The one place every page reports to. Messages appear as toasts over the page, so nothing on the page moves, and they go away by themselves

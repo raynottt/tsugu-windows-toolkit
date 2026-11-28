@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum FixGroup { Windows, Network, Devices, Apps }
 /// <summary>Whose settings and files a fix touches. User fixes run in the app; machine fixes need administrator rights.</summary>

@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>A program runs with administrator rights only from a folder that accounts without them cannot change: nothing planted by a program running as the person may be approved into an administrator's hands.</summary>
 public sealed class ElevatedProgramTests
@@ -24,7 +24,7 @@ public sealed class ElevatedProgramTests
     public void AFolderOrdinaryAccountsCanChangeIsRefusedAndNamed()
     {
         var (_, problem) = Resolve(@"D:\Tools\tool.exe", access: _ => ElevatedProgram.FolderAccess.Open);
-        Assert.Contains("tool.exe is installed in a folder that any program on this PC could change (D:\\Tools), so TidyWindow will not run it with administrator rights.", problem);
+        Assert.Contains("tool.exe is installed in a folder that any program on this PC could change (D:\\Tools), so TSUGU will not run it with administrator rights.", problem);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public sealed class ElevatedProgramTests
         var checkedCommand = ElevatedProgram.Checked(elevated, new Locator { Resolved = @"C:\real\x.exe" });
         Assert.Equal(@"C:\real\x.exe", checkedCommand.FileName);
         Assert.True(checkedCommand.Elevate);
-        const string reason = @"x.exe is installed in a folder that any program on this PC could change (C:\Users\me), so TidyWindow will not run it with administrator rights.";
+        const string reason = @"x.exe is installed in a folder that any program on this PC could change (C:\Users\me), so TSUGU will not run it with administrator rights.";
         Assert.Equal(reason, Assert.Throws<InvalidOperationException>(() => ElevatedProgram.Checked(elevated, new Locator { Problem = reason })).Message);
         // A script the program would run is judged the same way.
         Assert.Contains("scoop.ps1", Assert.Throws<InvalidOperationException>(() => ElevatedProgram.Checked(elevated, new Locator { ScriptProblem = "scoop.ps1 is installed in a folder that any program on this PC could change." }, @"C:\Users\me\scoop\apps\scoop\current\bin\scoop.ps1")).Message);

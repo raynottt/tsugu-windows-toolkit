@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Windows.UI.ViewManagement;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 internal sealed partial class AppearanceSettings
 {

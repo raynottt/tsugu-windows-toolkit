@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public abstract class ObservableState : INotifyPropertyChanged
 {

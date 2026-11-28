@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum BackgroundGroup { Telemetry, Ai, Optional }
 public enum BackgroundRisk { Safe, Careful }
@@ -113,7 +113,7 @@ public interface IBackgroundChanger
     BackgroundOutcome Change(BackgroundRequest request);
 }
 
-/// <summary>What TidyWindow turned off, so it can all be turned back on later, even if the app was closed in between.</summary>
+/// <summary>What TSUGU turned off, so it can all be turned back on later, even if the app was closed in between.</summary>
 public sealed record BackgroundChange(string Id, string Name, DateTimeOffset When, IReadOnlyList<BackgroundSaved> Saved);
 
 public static class BackgroundCatalog

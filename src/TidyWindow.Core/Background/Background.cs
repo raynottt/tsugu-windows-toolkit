@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <param name="ProcessId">A running service's process id, else zero.</param>
 /// <param name="WakesPc">A task that is set to wake this PC from sleep.</param>

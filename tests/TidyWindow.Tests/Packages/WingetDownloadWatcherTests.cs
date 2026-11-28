@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class WingetDownloadWatcherTests
 {

@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>One line the font helper sends back: "ready" once it has permission, then "done" or "failed".</summary>
 public sealed record FontMessage(string Kind, string? Message = null, string? Detail = null, int? Percent = null);
@@ -130,7 +130,7 @@ public sealed class WindowsFontStore : IFontStore
     public void Write(string file, byte[] content)
     {
         var path = Path.Combine(Folder, file);
-        var temp = path + ".tidywindow-new";
+        var temp = path + ".tsugu-new";
         try
         {
             File.WriteAllBytes(temp, content);
@@ -230,7 +230,7 @@ public static class FontHost
     private static async Task<byte[]> DownloadAsync(Action<long, long?> report, CancellationToken token)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, TerminalKit.FontUrl);
-        request.Headers.UserAgent.ParseAdd("TidyWindow");
+        request.Headers.UserAgent.ParseAdd("TSUGU");
         using var response = await Http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var total = response.Content.Headers.ContentLength;

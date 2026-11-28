@@ -9,7 +9,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// One toast. It slides in, slides out when it is dismissed or runs out, waits while the pointer or keyboard is on it, and shows a long message

@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// The administrator helper keeps how each target looked in the protected store, and turning an item back on never trusts the copy that
@@ -48,7 +48,7 @@ public sealed class BackgroundVaultTests : IDisposable
         var changer = new LocalBackgroundChanger(pc, pc, [Item(Job(@"\Microsoft\a\b"))], Store());
         Assert.True(changer.Change(Off).Ok);
 
-        // "It was already off before TidyWindow touched it" would leave the task off for good.
+        // "It was already off before TSUGU touched it" would leave the task off for good.
         Assert.True(changer.Change(On(new BackgroundSaved(BackgroundTargetKind.Task, @"\Microsoft\a\b", false))).Ok);
         Assert.True(pc.TaskList[@"\Microsoft\a\b"].Enabled);
     }

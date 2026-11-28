@@ -1,8 +1,8 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>An in-memory PC for the shortcut checks: a Start menu, a Desktop and a machine-wide Start menu, laid out as plain paths.</summary>
 public sealed class LinkPc : IInstallSystem

@@ -3,10 +3,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using System.Text.Json;
-using TidyWindow.Next.Core;
-using TidyWindow.Next.Desktop;
+using TSUGU.Core;
+using TSUGU.Desktop;
 
-namespace TidyWindow.Next.UiSmoke;
+namespace TSUGU.UiSmoke;
 
 public sealed partial class SmokeApp : Application
 {
@@ -19,7 +19,7 @@ public sealed partial class SmokeApp : Application
     }
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        window = new Window { Title = "TidyWindow output regression check" };
+        window = new Window { Title = "TSUGU output regression check" };
         var root = new StackPanel { Padding = new Thickness(20) };
         window.Content = root;
         root.Loaded += async (_, _) =>
@@ -87,8 +87,8 @@ public sealed partial class SmokeApp : Application
         for (var attempt = 0; !state.Ready && state.Indexing && attempt < 30; attempt++)
         { await Task.Delay(1000); state = await service.CheckBackendAsync(); }
         Require(state.Installed && state.Ready, "live Everything startup: " + state.Error);
-        var result = await service.SearchAsync(new("TidyWindow.slnx", null, ScoutItemKind.Files), true, null, CancellationToken.None);
-        Require(result.Error is null && result.Entries.Any(x => x.Name.Equals("TidyWindow.slnx", StringComparison.OrdinalIgnoreCase)), "live This PC filename lookup: " + result.Error);
+        var result = await service.SearchAsync(new("TSUGU.slnx", null, ScoutItemKind.Files), true, null, CancellationToken.None);
+        Require(result.Error is null && result.Entries.Any(x => x.Name.Equals("TSUGU.slnx", StringComparison.OrdinalIgnoreCase)), "live This PC filename lookup: " + result.Error);
         return $"Live installed Everything startup and This PC search passed ({result.Entries.Count} matching names).";
     }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }

@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The real PC, as far as icons go: App Paths, shortcuts, folders and the installed-programs list.</summary>
 [SupportedOSPlatform("windows")]

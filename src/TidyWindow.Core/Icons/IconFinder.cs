@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum IconSource { Package, Shortcut, Program, DisplayIcon, AppPaths, Folder, FileType }
 

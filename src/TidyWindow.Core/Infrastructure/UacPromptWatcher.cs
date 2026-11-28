@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
-/// Tells when Windows is waiting for someone to answer an administrator (UAC) prompt while TidyWindow has work running. A prompt that opens over a busy screen
+/// Tells when Windows is waiting for someone to answer an administrator (UAC) prompt while TSUGU has work running. A prompt that opens over a busy screen
 /// can sit unseen behind other windows or in the taskbar, and the work waits for it. The prompt belongs to <c>consent.exe</c>, whose presence is all that is read:
-/// it covers TidyWindow's own requests and the installers a package manager starts, which ask for themselves.
+/// it covers TSUGU's own requests and the installers a package manager starts, which ask for themselves.
 /// </summary>
 public sealed class UacPromptWatcher : IDisposable
 {
@@ -18,7 +18,7 @@ public sealed class UacPromptWatcher : IDisposable
     private bool shown;
 
     /// <param name="promptOpen">Whether a prompt is open right now.</param>
-    /// <param name="active">Whether TidyWindow is doing work that could have asked for it. A prompt that opens while it is idle belongs to something else and is left alone.</param>
+    /// <param name="active">Whether TSUGU is doing work that could have asked for it. A prompt that opens while it is idle belongs to something else and is left alone.</param>
     /// <param name="grace">How long a prompt must stay open before it is reported: one that is answered at once needs no notice.</param>
     public UacPromptWatcher(Func<bool> promptOpen, Func<bool> active, TimeSpan? poll = null, TimeSpan? grace = null)
     {

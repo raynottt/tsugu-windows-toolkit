@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>The search, filters and sort above a long list. Its data context is the list's <see cref="ArchiveState"/>.</summary>
 public sealed partial class ArchiveToolbar : UserControl

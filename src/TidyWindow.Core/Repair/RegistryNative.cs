@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.Win32;
 using Microsoft.Win32.SafeHandles;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// What the managed registry classes cannot do: read and write a value as its raw type and bytes (so REG_NONE, REG_EXPAND_SZ and odd Windows Installer

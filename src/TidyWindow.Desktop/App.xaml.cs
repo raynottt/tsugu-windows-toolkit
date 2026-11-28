@@ -2,14 +2,14 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public partial class App : Application
 {
     private Window? window;
-    private static readonly string LogFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Logs");
+    private static readonly string LogFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Logs");
     private readonly ActivityLog log = new(LogFolder);
     public App()
     {
@@ -19,8 +19,8 @@ public partial class App : Application
         // Record the failure before the process ends; these handlers do not suppress the crash. The app's version and the Windows build go in
         // with it, because a report rarely says which they were.
         // Crash file: once ActivityLog can write one, hand it the full text here and keep this entry as the pointer to it.
-        UnhandledException += (_, e) => log.WriteCrash("TidyWindow hit an unexpected error", Describe(e.Exception?.ToString() ?? e.Message));
-        AppDomain.CurrentDomain.UnhandledException += (_, e) => log.WriteCrash("TidyWindow stopped unexpectedly", Describe(e.ExceptionObject.ToString()));
+        UnhandledException += (_, e) => log.WriteCrash("TSUGU hit an unexpected error", Describe(e.Exception?.ToString() ?? e.Message));
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => log.WriteCrash("TSUGU stopped unexpectedly", Describe(e.ExceptionObject.ToString()));
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
             // Cancellation of abandoned work is expected and not worth recording.
@@ -30,7 +30,7 @@ public partial class App : Application
     }
 
     /// <summary>A failure's detail behind the app's version and the Windows build.</summary>
-    private static string Describe(string? detail) => $"TidyWindow {AppUpdateService.ReadCurrentVersion()} on {RuntimeInformation.OSDescription}\n{detail}";
+    private static string Describe(string? detail) => $"TSUGU {AppUpdateService.ReadCurrentVersion()} on {RuntimeInformation.OSDescription}\n{detail}";
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -48,7 +48,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             // An exception leaving here ends the process with no usable record; and a launch that could not make its window has nothing to keep open.
-            log.WriteCrash("TidyWindow could not open its window", Describe(ex.ToString()));
+            log.WriteCrash("TSUGU could not open its window", Describe(ex.ToString()));
             if (window is null) Exit();
         }
         finally { Program.Splash?.Dismiss(); }
@@ -74,7 +74,7 @@ public partial class App : Application
     internal static void HandedOverLate()
     {
         if (interfaceQueue is not { } queue) { Environment.Exit(0); return; }
-        queue.TryEnqueue(() => (Current as App)?.log.Write(ActivityLevel.Warning, ActivityArea.App, "Two TidyWindow windows are open",
+        queue.TryEnqueue(() => (Current as App)?.log.Write(ActivityLevel.Warning, ActivityArea.App, "Two TSUGU windows are open",
             "The window that was already open took too long to answer, so this one opened as well. Close the one you are not using."));
     }
 

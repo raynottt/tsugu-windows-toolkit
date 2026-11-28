@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
-using TidyWindow.Next.Core;
-using TidyWindow.Next.Desktop;
+using TSUGU.Core;
+using TSUGU.Desktop;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class ToastCenterTests
 {

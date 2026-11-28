@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// One number from a check: the middle result, how much the rounds moved (a measure of noise), and every round, so a later comparison can see whether

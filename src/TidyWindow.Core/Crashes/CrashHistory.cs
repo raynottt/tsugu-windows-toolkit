@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// What earlier scans found, kept on disk so the page opens at once and a scan only has to read what is new. Windows rotates its own logs and forgets old

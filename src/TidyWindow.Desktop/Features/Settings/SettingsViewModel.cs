@@ -1,17 +1,16 @@
 using System.Net.Http;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 internal static class SettingsLinks
 {
-    public const string RepositoryUrl = "https://github.com/Cosmos-0118/TidyWindow";
-    public const string IssuesUrl = "https://github.com/Cosmos-0118/TidyWindow/issues";
-    public const string ReleasesUrl = "https://github.com/Cosmos-0118/TidyWindow/releases";
-    public const string LicenseUrl = "https://github.com/Cosmos-0118/TidyWindow/blob/main/LICENSE";
-    public const string BuyMeACoffeeUrl = "https://buymeacoffee.com/cosmos0118";
+    public const string RepositoryUrl = "https://github.com/raynottt/tsugu-windows-toolkit";
+    public const string IssuesUrl = "https://github.com/raynottt/tsugu-windows-toolkit/issues";
+    public const string ReleasesUrl = "https://github.com/raynottt/tsugu-windows-toolkit/releases";
+    public const string LicenseUrl = "https://github.com/raynottt/tsugu-windows-toolkit/blob/main/THIRD_PARTY_NOTICES.md";
 }
 
 public sealed class ReleaseNoteRow : ObservableState
@@ -98,7 +97,7 @@ public sealed class SettingsViewModel : ObservableState, IDisposable
         Phase.Downloading => downloadingZip ? "Downloading the portable ZIP…" : "Downloading the installer…",
         _ when error.Length > 0 => error,
         _ when note.Length > 0 => note,
-        _ when result?.LatestRelease is null && result is not null => "No TidyWindow 5 release was found on GitHub.",
+        _ when result?.LatestRelease is null && result is not null => "No TSUGU release was found on GitHub.",
         _ when result is { UpdateAvailable: true } => installed
             ? "A newer release is ready. Setup replaces this copy and keeps your settings."
             : "A newer release is ready. Download the ZIP, or run Setup if you want a Start menu entry.",
@@ -318,11 +317,11 @@ public sealed class SettingsViewModel : ObservableState, IDisposable
         if (disposed) return;
         phase = Phase.Idle;
         note = launch
-            ? "The installer is starting. TidyWindow closes if Setup needs to replace this copy. Your settings stay on this PC."
+            ? "The installer is starting. TSUGU closes if Setup needs to replace this copy. Your settings stay on this PC."
             : $"Portable ZIP downloaded to {path}";
         log.Write(ActivityLevel.Success, ActivityArea.App, launch ? "Update installer started" : "Portable update downloaded", path);
         toasts.Show("settings-update", launch ? ToastKind.Info : ToastKind.Success, launch ? "Starting the installer…" : "Portable ZIP downloaded",
-            launch ? "TidyWindow closes if Setup needs to replace it." : "The folder opens so you can extract it.", seconds: 12);
+            launch ? "TSUGU closes if Setup needs to replace it." : "The folder opens so you can extract it.", seconds: 12);
         Notify();
     }
 

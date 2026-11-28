@@ -1,9 +1,9 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Windows.System;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class PathDoctorView : UserControl
 {

@@ -2,9 +2,9 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public enum CrashTab { Apps, Windows, Timeline }
 public enum CrashRange { Day, Week, Month, Quarter }
@@ -234,7 +234,7 @@ public sealed class CrashesViewModel(string folder, ICrashEventSource source, Ac
     public string Status => status;
     public string Problem => problem;
     public Visibility ProblemVisibility => problem.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-    public string StorageWarning => history?.StorageError is { } error ? "History can’t be saved to disk, so it will only last until TidyWindow closes. " + error : "";
+    public string StorageWarning => history?.StorageError is { } error ? "History can’t be saved to disk, so it will only last until TSUGU closes. " + error : "";
     public Visibility StorageWarningVisibility => StorageWarning.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
     public string AppsTab => loaded ? appCount.ToString("N0") : "–";
@@ -483,7 +483,7 @@ public sealed class CrashesViewModel(string folder, ICrashEventSource source, Ac
     public string Report()
     {
         var text = new System.Text.StringBuilder();
-        text.AppendLine($"TidyWindow crash report, {now():yyyy-MM-dd HH:mm}");
+        text.AppendLine($"TSUGU crash report, {now():yyyy-MM-dd HH:mm}");
         text.AppendLine($"{shown.Count(x => x.Kind == CrashKind.AppCrash)} crashes, {shown.Count(x => x.Kind == CrashKind.AppHang)} not responding, {windowsCount} Windows problems, {appCount} apps");
         if (ParsedQuery.Chips.Count > 0) text.AppendLine("Search: " + query);
         text.AppendLine();
@@ -500,7 +500,7 @@ public sealed class CrashesViewModel(string folder, ICrashEventSource source, Ac
 
     public void OpenReport(CrashEvent e)
     {
-        if (e.ReportFolder.Length == 0 || !Directory.Exists(e.ReportFolder)) { toasts.Show("crash-open", ToastKind.Info, "Windows no longer keeps this report", "It removes old reports on its own. The details TidyWindow saved are still here."); return; }
+        if (e.ReportFolder.Length == 0 || !Directory.Exists(e.ReportFolder)) { toasts.Show("crash-open", ToastKind.Info, "Windows no longer keeps this report", "It removes old reports on its own. The details TSUGU saved are still here."); return; }
         try { Process.Start(new ProcessStartInfo("explorer.exe", $"\"{e.ReportFolder}\"") { UseShellExecute = true }); }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { toasts.Show("crash-open", ToastKind.Warning, "Could not open Explorer", ToastCenter.Flat(ex.Message)); }
     }

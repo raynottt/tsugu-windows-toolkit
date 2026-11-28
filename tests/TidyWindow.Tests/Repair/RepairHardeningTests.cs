@@ -1,8 +1,8 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>What the Repair audit found missing: records with no saved copy named, hidden packages, wrapped uninstallers, per-machine bundles, update registrations and the checks on a setup program.</summary>
 [SupportedOSPlatform("windows")]

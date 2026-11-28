@@ -4,7 +4,7 @@ using System.Runtime.Versioning;
 using System.Security.Principal;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The real PC: registry values in the current user's and the machine's registry.</summary>
 [SupportedOSPlatform("windows")]
@@ -115,13 +115,13 @@ public sealed class WindowsTuneWriter : ITuneWriter
 /// <summary>
 /// Restarts File Explorer for the current user, so shell settings take effect without signing out. Every File Explorer window of this
 /// session closes along with the taskbar, and a copy or move running in one of those windows is cut short, so the pages that offer this say
-/// so and ask first. Nothing here runs while TidyWindow itself has administrator rights: an Explorer started from an elevated process keeps
+/// so and ask first. Nothing here runs while TSUGU itself has administrator rights: an Explorer started from an elevated process keeps
 /// those rights, and so does everything opened from it, for the rest of the session.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public static class ExplorerShell
 {
-    private const string ElevatedReason = "TidyWindow is running as administrator, so it left File Explorer alone: an Explorer started from here would run with administrator rights, and so would everything you open from it. Restart Explorer from Task Manager, or sign out and in.";
+    private const string ElevatedReason = "TSUGU is running as administrator, so it left File Explorer alone: an Explorer started from here would run with administrator rights, and so would everything you open from it. Restart Explorer from Task Manager, or sign out and in.";
 
     /// <summary>Where File Explorer lives. It is started by this full path, so nothing on the PATH or in the working folder can stand in for it.</summary>
     public static string ExplorerPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
@@ -132,7 +132,7 @@ public static class ExplorerShell
     /// </summary>
     public static bool IsElevated() => AppElevation.IsElevated();
 
-    /// <exception cref="InvalidOperationException">TidyWindow is running as administrator, so File Explorer was left alone.</exception>
+    /// <exception cref="InvalidOperationException">TSUGU is running as administrator, so File Explorer was left alone.</exception>
     public static async Task RestartAsync()
     {
         if (IsElevated()) throw new InvalidOperationException(ElevatedReason);
@@ -141,7 +141,7 @@ public static class ExplorerShell
     }
 
     /// <summary>Closes the current user's File Explorer (and with it the taskbar). Windows may start it again by itself. The waiting happens off the caller's thread.</summary>
-    /// <exception cref="InvalidOperationException">TidyWindow is running as administrator, so File Explorer was left alone: once closed, it could only be started again with those rights.</exception>
+    /// <exception cref="InvalidOperationException">TSUGU is running as administrator, so File Explorer was left alone: once closed, it could only be started again with those rights.</exception>
     public static Task StopAsync()
     {
         if (IsElevated()) throw new InvalidOperationException(ElevatedReason);
@@ -162,7 +162,7 @@ public static class ExplorerShell
     }
 
     /// <summary>Makes sure File Explorer is running again: waits briefly for Windows to start it, then starts it by its full path.</summary>
-    /// <exception cref="InvalidOperationException">TidyWindow is running as administrator and Windows did not start Explorer by itself, so it stays closed rather than come back with administrator rights.</exception>
+    /// <exception cref="InvalidOperationException">TSUGU is running as administrator and Windows did not start Explorer by itself, so it stays closed rather than come back with administrator rights.</exception>
     public static async Task StartAsync()
     {
         using var me = Process.GetCurrentProcess();

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Makes one change on this PC, after checking again that the item may be changed, and reads it back to be sure it took.
@@ -150,7 +150,7 @@ public sealed class LocalBackgroundChanger(IBackgroundSystem system, IBackground
         {
             var target = state.Target;
             var was = saved?.FirstOrDefault(x => x.Kind == target.Kind && string.Equals(x.Name, target.Name, StringComparison.OrdinalIgnoreCase));
-            // Something that was already off before TidyWindow touched it stays off.
+            // Something that was already off before TSUGU touched it stays off.
             if (was is { WasOn: false }) continue;
             switch (target.Kind)
             {
@@ -181,7 +181,7 @@ public sealed class LocalBackgroundChanger(IBackgroundSystem system, IBackground
     }
 }
 
-/// <summary>What TidyWindow has turned off, kept on disk so it can be turned back on later.</summary>
+/// <summary>What TSUGU has turned off, kept on disk so it can be turned back on later.</summary>
 public sealed class BackgroundHistory(string folder)
 {
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
@@ -289,7 +289,7 @@ public sealed class BackgroundManager(IBackgroundChanger user, IBackgroundChange
         return new(results, false);
     }
 
-    /// <summary>Turns back on everything TidyWindow turned off. Items that are gone from this PC, or that something else already turned back on, are forgotten.</summary>
+    /// <summary>Turns back on everything TSUGU turned off. Items that are gone from this PC, or that something else already turned back on, are forgotten.</summary>
     public async Task<IReadOnlyList<(BackgroundChange Change, BackgroundOutcome Outcome)>> RestoreAllAsync(IBackgroundSystem system, IReadOnlyList<BackgroundItem> catalog)
     {
         var results = new List<(BackgroundChange, BackgroundOutcome)>();

@@ -36,7 +36,7 @@ Every query names the component and the event number. Matching on the number alo
 - Windows does the filtering. The query is an XPath naming the components, the event numbers and the start time, so only matching events are copied out of the log. The reader is the system's `wevtapi` through three P/Invoke calls, so the app takes no new dependency.
 - A scan is incremental. The first reads 90 days; every later one reads only what is newer than the previous scan (minus a five-minute overlap, and a record already held is ignored). Measured on a real PC: the first scan read 1,218 events in about 210 ms, and a later scan took about 100 ms and 54 MB at its peak.
 - It runs on a thread of its own at the lowest CPU priority, in Windows' background mode, so disk and memory yield to whatever the person is doing.
-- History is a small JSON-lines file (`%LOCALAPPDATA%\TidyWindow.Next\Crashes`), bounded to 6,000 records and 120 days. It opens in the background, and the page shows it at once while a scan catches up.
+- History is a small JSON-lines file (`%LOCALAPPDATA%\TSUGU\Crashes`), bounded to 6,000 records and 120 days. It opens in the background, and the page shows it at once while a scan catches up.
 - Searching works on strings built once per refresh: about 2.5 ms for a search over 1,200 events. Typing waits 140 ms before it filters.
 - The lists build a row only for what is open, a list shows at most 500 rows, and an app's events are created when it is expanded.
 
@@ -64,11 +64,11 @@ Plain words also find kinds: `freeze` finds hangs and `bsod` finds blue screens.
 
 ## Privacy
 
-Nothing leaves the PC. Copy, and Copy summary, replace the Windows account name in paths with `%USERPROFILE%`, as the activity log does; this does not remove every identifying detail, so review a report before sending it. "Search the web" opens the default browser with the program, file and error words. Clearing history removes only what TidyWindow saved, never Windows' own log.
+Nothing leaves the PC. Copy, and Copy summary, replace the Windows account name in paths with `%USERPROFILE%`, as the activity log does; this does not remove every identifying detail, so review a report before sending it. "Search the web" opens the default browser with the program, file and error words. Clearing history removes only what TSUGU saved, never Windows' own log.
 
 ## Limits
 
-- Windows keeps its own log for a limited time and size, so history before the first scan is only what Windows still had. After that, TidyWindow's copy outlives Windows'.
+- Windows keeps its own log for a limited time and size, so history before the first scan is only what Windows still had. After that, TSUGU's copy outlives Windows'.
 - A crash that kills the logging service, or a power cut, leaves no crash record. Those appear only as an unexpected shutdown.
 - Programs are grouped by file name. Two different programs both named `setup.exe` are one row.
 - Event layouts for blue screens, services, the display driver, hardware, disk and memory events were written from documentation and tested with sample data; only application crashes, hangs, .NET crashes, reports, Kernel-Power 41, EventLog 6008 and service stops were checked against events on a real PC.

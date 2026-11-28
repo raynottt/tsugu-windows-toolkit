@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <param name="feed">Searches Chocolatey without starting its command line. When absent, or when it fails, the command line is used.</param>
 /// <param name="scoop">Searches Scoop's buckets on disk without starting Scoop. When absent, or when the buckets cannot be read, Scoop itself is asked.</param>

@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum TuneGroup { Speed, Cleaner, Comfort }
 /// <summary>Whose registry an item changes. An item is wholly one or the other, because the administrator helper may belong to a different account.</summary>
@@ -99,7 +99,7 @@ public interface ITuneChanger
     TuneOutcome Change(TuneRequest request);
 }
 
-/// <summary>What TidyWindow changed, so it can all be put back later, even if the app was closed in between.</summary>
+/// <summary>What TSUGU changed, so it can all be put back later, even if the app was closed in between.</summary>
 public sealed record TuneChange(string Id, string Name, DateTimeOffset When, IReadOnlyList<TuneSaved> Saved);
 
 public static class TuneCatalog

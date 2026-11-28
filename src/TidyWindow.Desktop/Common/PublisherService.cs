@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// Names the company behind an installed app with the same <see cref="PublisherFinder"/> the Startup page uses. The search runs on the thread pool

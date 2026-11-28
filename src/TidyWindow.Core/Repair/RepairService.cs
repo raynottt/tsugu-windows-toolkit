@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum RepairStatus { Fixed, FixedAfterRestart, NotFixed }
 
@@ -146,7 +146,7 @@ public sealed partial class RepairService(IInstallSystem system, IKeyEditor user
                 {
                     RestorePatchesOf(product, run, steps);
                     return Recover(finding, product, run, steps)
-                        ?? Failed(finding, "Windows Installer's saved copy is " + (gone ? "gone" : "damaged") + ", and TidyWindow could not find the program's own installer to put it back. Use “Locate installer folder…” to point at it, or allow downloading it from WinGet, then try again.", steps);
+                        ?? Failed(finding, "Windows Installer's saved copy is " + (gone ? "gone" : "damaged") + ", and TSUGU could not find the program's own installer to put it back. Use “Locate installer folder…” to point at it, or allow downloading it from WinGet, then try again.", steps);
                 }, CancellationToken.None).ConfigureAwait(false);
             }
             await Task.Run(() => RestorePatchesOf(product, run, steps), CancellationToken.None).ConfigureAwait(false);
@@ -234,7 +234,7 @@ public sealed partial class RepairService(IInstallSystem system, IKeyEditor user
             {
                 run.Doing("Ending the stuck Windows Installer process…");
                 steps.Add("Ended the stuck Windows Installer process.");
-                return system.EndProcess(id) ? Done(finding, "It is no longer running.", steps) : Failed(finding, "Windows would not let TidyWindow end it.", steps);
+                return system.EndProcess(id) ? Done(finding, "It is no longer running.", steps) : Failed(finding, "Windows would not let TSUGU end it.", steps);
             }
             if (finding.ServiceStuck) return StopService(finding, run, steps);
             if (finding.Shortcuts is { Count: > 0 } stale) return RemoveStale(finding, stale, run, steps);
@@ -337,7 +337,7 @@ public sealed partial class RepairService(IInstallSystem system, IKeyEditor user
         run.Doing("Asking WinGet for this program's original installer…");
         if (fetcher.Match(entry.Name, entry.Version, run.Token) is not { } match) { steps.Add($"WinGet does not list {entry.Name} {entry.Version} as a package, so there is no original installer to get."); return null; }
         steps.Add($"WinGet knows it as {match.Id} {match.Version}.");
-        var work = Path.Combine(Path.GetTempPath(), "TidyWindow-repair-" + Guid.NewGuid().ToString("N")[..8]);
+        var work = Path.Combine(Path.GetTempPath(), "TSUGU-repair-" + Guid.NewGuid().ToString("N")[..8]);
         try
         {
             if (finding.Kind == RepairKind.BundleRecord && ops is not null)
@@ -475,7 +475,7 @@ public sealed partial class RepairService(IInstallSystem system, IKeyEditor user
     private RepairResult? Recover(RepairFinding finding, MsiProduct product, Run run, Steps steps)
     {
         var registered = ops!.RegisteredPackageCode(product);
-        var work = Path.Combine(Path.GetTempPath(), "TidyWindow-repair-" + Guid.NewGuid().ToString("N")[..8]);
+        var work = Path.Combine(Path.GetTempPath(), "TSUGU-repair-" + Guid.NewGuid().ToString("N")[..8]);
         try
         {
             // A repair from the original stops with 1612 or 1714 while an update the program wears has no saved file: put those back first.
@@ -656,7 +656,7 @@ public sealed partial class RepairService(IInstallSystem system, IKeyEditor user
         if (plan.Unreadable.Count > 0)
         {
             steps.Add("Looked for every place Windows Installer keeps this record.");
-            return Failed(finding, $"Windows would not let TidyWindow read {plan.Unreadable[0]}, so it removed nothing rather than leave a half-removed record.", steps);
+            return Failed(finding, $"Windows would not let TSUGU read {plan.Unreadable[0]}, so it removed nothing rather than leave a half-removed record.", steps);
         }
         steps.AddRange(plan.Notes);
         var code = request.Code;
@@ -1137,7 +1137,7 @@ public sealed partial class RepairService(IInstallSystem system, IKeyEditor user
                 run.Doing($"Removing the setup program the repair put back ({Path.GetFileName(file)})…");
                 var remover = NeedsAdminFile(file) && elevated is not null ? elevated : ops;
                 if (remover is null || remover.RemoveCopy(file)) removed++;
-                else problems.Add($"{Path.GetFileName(file)}: Windows would not let TidyWindow remove the setup program it put back. The registry keys were put back.");
+                else problems.Add($"{Path.GetFileName(file)}: Windows would not let TSUGU remove the setup program it put back. The registry keys were put back.");
             }
             return new(applied.Count, problems, removed, restored.Count(x => x.Data is not null), movedBack.Count);
         }

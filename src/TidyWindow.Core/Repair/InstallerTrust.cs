@@ -5,7 +5,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What Windows says about a file's Authenticode signature when the signing certificate is also checked for revocation.</summary>
 public enum InstallerSignature { Valid, Unsigned, Invalid, Revoked, Unchecked, Unknown }

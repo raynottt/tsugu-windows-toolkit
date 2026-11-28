@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Diagnostics;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>One program file a command name could mean, in the order Windows would find it.</summary>
 public sealed record CommandCandidate(string File, PathScope Scope, int Index, bool Alias)
@@ -115,13 +115,18 @@ public static class CommandProbe
     public static async Task<ProbeResult> RunAsync(string command, string file, CancellationToken cancellationToken = default, bool alias = false)
     {
         if (!alias && ProgramFile.Kind(file) is not (ProgramKind.Console or ProgramKind.Script)) return new("", false, Skipped: true);
-        var start = new ProcessStartInfo(file)
-
+        var versionArgument = command is "java" or "javac" ? "-version" : "--version";
+        var batchFile = Path.GetExtension(file).Equals(".cmd", StringComparison.OrdinalIgnoreCase)
+            || Path.GetExtension(file).Equals(".bat", StringComparison.OrdinalIgnoreCase);
+        var executable = batchFile ? (Environment.GetEnvironmentVariable("ComSpec") ?? "cmd.exe") : file;
+        var start = new ProcessStartInfo(executable)
         {
             UseShellExecute = false, CreateNoWindow = true,
-            RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true
+            RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true,
+            WorkingDirectory = Path.GetDirectoryName(file) ?? Environment.CurrentDirectory
         };
-        start.ArgumentList.Add(command is "java" or "javac" ? "-version" : "--version");
+        if (batchFile) start.Arguments = "/d /s /c " + (char)34 + (char)34 + file + (char)34 + " " + versionArgument + (char)34;
+        else start.ArgumentList.Add(versionArgument);
         try
         {
             using var process = StartQuietly(start) ?? throw new InvalidOperationException("The program could not be started.");

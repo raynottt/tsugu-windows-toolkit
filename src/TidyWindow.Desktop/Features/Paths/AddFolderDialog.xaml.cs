@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class AddFolderDialog : ContentDialog
 {

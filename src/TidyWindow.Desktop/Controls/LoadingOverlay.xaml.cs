@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Blurs the area it covers and shows a short message with an animation, without moving anything underneath.
 /// Loads shorter than <see cref="ShowDelay"/> never show it, and once shown it stays for <see cref="MinimumVisible"/>, so it never flashes.</summary>

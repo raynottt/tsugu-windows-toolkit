@@ -1,12 +1,12 @@
 using System.Text.Json;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class StartupGuardTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-session-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-session-" + Guid.NewGuid().ToString("N"));
     private readonly DateTimeOffset started = new(2026, 10, 29, 12, 0, 0, TimeSpan.Zero);
     private readonly ActivityLog log = new();
     private readonly Dictionary<int, DateTimeOffset> running = [];
@@ -16,7 +16,7 @@ public sealed class StartupGuardTests : IDisposable
     private SessionGuard Guard(string? where = null) => new(where ?? folder, log, id => running.TryGetValue(id, out var at) ? at : null, () => started);
     private string Marker(int id) => Path.Combine(folder, id + ".json");
     private void Leave(int id, DateTimeOffset when, string content = "") =>
-        File.WriteAllText(Marker(id), content.Length > 0 ? content : JsonSerializer.Serialize(new EndedSession(id, when, @"C:\TidyWindow\TidyWindow.Next.exe")));
+        File.WriteAllText(Marker(id), content.Length > 0 ? content : JsonSerializer.Serialize(new EndedSession(id, when, @"C:\TSUGU\TSUGU.exe")));
 
     [Fact]
     public void ACopyKeepsAMarkerWhileRunningAndRemovesItWhenItCloses()
@@ -37,7 +37,7 @@ public sealed class StartupGuardTests : IDisposable
         Assert.Equal(4242, ended.ProcessId);
         var entry = Assert.Single(log.Snapshot());
         Assert.Equal(ActivityLevel.Warning, entry.Level);
-        Assert.Equal("TidyWindow closed unexpectedly last time", entry.Message);
+        Assert.Equal("TSUGU closed unexpectedly last time", entry.Message);
         Assert.Contains("Event Viewer", entry.Detail);
         Assert.False(File.Exists(Marker(4242)));
 
@@ -96,7 +96,7 @@ public sealed class StartupGuardTests : IDisposable
         var root = new DirectoryInfo(AppContext.BaseDirectory);
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "TSUGU.slnx"))) root = root.Parent;
         Assert.NotNull(root);
-        var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TidyWindow.Desktop", "Program.cs"));
+        var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TSUGU.Desktop", "Program.cs"));
         Assert.Matches(@"\[STAThread\]\s+(?:(?:private|public|internal)\s+)?static\s+void\s+Main\b", source);
     }
 
@@ -107,7 +107,7 @@ public sealed class StartupGuardTests : IDisposable
         var root = new DirectoryInfo(AppContext.BaseDirectory);
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "TSUGU.slnx"))) root = root.Parent;
         Assert.NotNull(root);
-        var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TidyWindow.Desktop", "Program.cs"));
+        var source = File.ReadAllText(Path.Combine(root.FullName, "src", "TSUGU.Desktop", "Program.cs"));
         var main = source[source.IndexOf("static void Main()", StringComparison.Ordinal)..];
         var refusal = main.IndexOf("AppElevation.IsElevated()", StringComparison.Ordinal);
         Assert.True(refusal >= 0, "Main does not check for an administrator token.");

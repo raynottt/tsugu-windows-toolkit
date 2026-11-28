@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The rules that stop a startup item from talking its way into being left alone, and the checks on what a put-back writes.</summary>
 public sealed class StartupGuardRuleTests : IDisposable

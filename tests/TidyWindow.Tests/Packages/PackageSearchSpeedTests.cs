@@ -1,9 +1,9 @@
 using System.Net;
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class PackageSearchSessionTests
 {
@@ -137,7 +137,7 @@ public sealed class PackageSearchSessionTests
 
 public sealed class ScoopCatalogTests : IDisposable
 {
-    private readonly string root = Path.Combine(Path.GetTempPath(), "tidywindow-scoop-" + Guid.NewGuid().ToString("N"));
+    private readonly string root = Path.Combine(Path.GetTempPath(), "tsugu-scoop-" + Guid.NewGuid().ToString("N"));
     private readonly ScoopCatalog catalog = new();
 
     public ScoopCatalogTests() => Directory.CreateDirectory(root);
@@ -394,7 +394,7 @@ public sealed class ChocolateyFeedTests
 
 public sealed class FastSearchFallbackTests : IDisposable
 {
-    private readonly string root = Path.Combine(Path.GetTempPath(), "tidywindow-fallback-" + Guid.NewGuid().ToString("N"));
+    private readonly string root = Path.Combine(Path.GetTempPath(), "tsugu-fallback-" + Guid.NewGuid().ToString("N"));
     public void Dispose() { try { Directory.Delete(root, true); } catch (IOException) { } }
 
     internal sealed class Locator : IExecutableLocator

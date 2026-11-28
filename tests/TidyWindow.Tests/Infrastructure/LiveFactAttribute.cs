@@ -4,7 +4,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// The environment variables that switch on tests which look at the real PC. Each must be set to "1". A plain [LiveFact] asks for
@@ -75,8 +75,8 @@ public sealed class LiveTheoryAttribute : TheoryAttribute, ITraitAttribute
 /// <summary>Gives every [LiveFact] and [LiveTheory] the trait Category=Live, so the filter above works without a second attribute.</summary>
 public sealed class LiveTraitDiscoverer : ITraitDiscoverer
 {
-    public const string TypeName = "TidyWindow.Next.Tests.LiveTraitDiscoverer";
-    public const string AssemblyName = "TidyWindow.Tests";
+    public const string TypeName = "TSUGU.Tests.LiveTraitDiscoverer";
+    public const string AssemblyName = "TSUGU.Tests";
 
     public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
     {

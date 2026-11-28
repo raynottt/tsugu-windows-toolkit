@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Reads new crash records from Windows into the <see cref="CrashHistory"/>. The first scan looks back 90 days; every later one reads only what happened since
@@ -37,7 +37,7 @@ public sealed class CrashScanner(ICrashEventSource source, CrashHistory history,
             catch (EventSourceException ex)
             {
                 complete = false;
-                problems.Add(ex.Code == 5 ? $"Windows would not let TidyWindow read the {log} log." : ex.Message);
+                problems.Add(ex.Code == 5 ? $"Windows would not let TSUGU read the {log} log." : ex.Message);
             }
         }
         var added = history.Add(found);

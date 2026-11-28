@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <param name="worker">Answers whole-computer queries through the Everything index. Defaults to starting the helper per request.</param>
 /// <param name="fuzzyWorker">A separate helper for the slower search for near matches, so it can be stopped without affecting quick searches.</param>

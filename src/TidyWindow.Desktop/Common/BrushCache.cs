@@ -1,7 +1,7 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Shared solid brushes. Creating a new brush for every binding read adds allocation and layout work on every theme or page change.</summary>
 internal static class BrushCache

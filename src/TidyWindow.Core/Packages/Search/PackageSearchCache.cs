@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A bounded, one-minute cache with shared work and reference-counted cancellation.</summary>
 public sealed class PackageSearchCache(TimeProvider? clock = null)

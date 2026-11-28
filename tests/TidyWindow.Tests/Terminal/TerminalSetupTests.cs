@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The terminal setup rewrites files the person may have spent years on, so what matters is that Restore puts every one back exactly.</summary>
 public sealed class TerminalSetupTests : IDisposable

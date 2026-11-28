@@ -4,7 +4,7 @@ Research and implementation decision, 29 October 2026. The first version searche
 
 ## Decision
 
-Use Everything's local index through its official SDK for whole-computer search. Put SDK calls in a separate, cancellable worker process so an unavailable or stalled native backend cannot freeze or terminate the WinUI app. Provide a native .NET folder search when Everything is absent. Installing the index engine is an explicit action using TidyWindow's package queue; it is not a prerequisite for searching a folder.
+Use Everything's local index through its official SDK for whole-computer search. Put SDK calls in a separate, cancellable worker process so an unavailable or stalled native backend cannot freeze or terminate the WinUI app. Provide a native .NET folder search when Everything is absent. Installing the index engine is an explicit action using TSUGU's package queue; it is not a prerequisite for searching a folder.
 
 Filename discovery and relevance are separate: an index finds candidates; local scoring places exact names, prefixes, word matches, substrings, abbreviations and bounded typo matches in order. No cloud requests, embeddings, file uploads, or content extraction are needed for this workload.
 
@@ -62,7 +62,7 @@ Relevance is deterministic metadata ranking, not semantic/content search. Everyt
 
 The Everything service runs as `Everything.exe` in Windows session zero. It does not replace the user's IPC/index process. Scout now ignores session-zero and other-session processes when deciding whether to start the installed executable with `-startup`. It distinguishes missing, installed/unavailable, indexing and ready states, waits briefly for initial IPC startup, refreshes after queued operations, and polls pending readiness while Scout is visible. Installed-but-unavailable offers retry; indexing and queued installation disable setup; ready hides setup. No install-success preference is used as a substitute for real engine readiness.
 
-Native UI binding checks covered missing, queued, indexing, ready and unavailable transitions. A live test started this system's installed Everything user process and passed a whole-PC lookup for `TidyWindow.slnx`. The user's `wuther` query also returned results. A cold query was slower (4.54 seconds); a repeated query's native exact + broad stages completed in 73 ms, so cold/warm behavior remains relevant.
+Native UI binding checks covered missing, queued, indexing, ready and unavailable transitions. A live test started this system's installed Everything user process and passed a whole-PC lookup for `TSUGU.slnx`. The user's `wuther` query also returned results. A cold query was slower (4.54 seconds); a repeated query's native exact + broad stages completed in 73 ms, so cold/warm behavior remains relevant.
 
 The live check exposed an unbounded abbreviation-regex cost across full paths. Fuzzy retrieval now targets names, uses atomic gaps rather than backtracking gaps, and is skipped once an exact name/stem exists. Exact and literal path matching remain available. Unused file-attribute metadata is no longer requested. Framework-dependent and self-contained worker build/publish directories are separate so their runtime files cannot contaminate each other's source output.
 

@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class PackageRankerTests(ITestOutputHelper output)
 {

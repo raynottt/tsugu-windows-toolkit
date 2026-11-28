@@ -1,9 +1,9 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The font is installed machine-wide by an administrator helper, so what matters is that it only ever installs the reviewed package, and nothing else.</summary>
 public sealed class TerminalFontTests

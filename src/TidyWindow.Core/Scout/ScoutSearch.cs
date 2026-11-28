@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum ScoutItemKind { All, Files, Folders }
 /// <param name="IsReparse">A symbolic link, junction or mount point, which folder discovery never follows. A cloud placeholder (OneDrive) is a reparse point too, but not a link, so it is walked like any folder.</param>

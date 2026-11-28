@@ -1,18 +1,16 @@
-// The elevated half of TidyWindow. All behavior lives in TidyWindow.Next.Core so it can be tested without a permission prompt.
-return args.Length > 0 && args[0] == TidyWindow.Next.Core.RepairHost.Command
-    ? await TidyWindow.Next.Core.RepairHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.StartupHost.Command
-    ? await TidyWindow.Next.Core.StartupHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.BackgroundHost.Command
-    ? await TidyWindow.Next.Core.BackgroundHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.FixHost.Command
-    ? await TidyWindow.Next.Core.FixHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.TuneHost.Command
-    ? await TidyWindow.Next.Core.TuneHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.DebloatHost.Command
-    ? await TidyWindow.Next.Core.DebloatHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.MachinePathHost.Command
-    ? await TidyWindow.Next.Core.MachinePathHost.RunAsync(args)
-    : args.Length > 0 && args[0] == TidyWindow.Next.Core.FontHost.Command
-    ? await TidyWindow.Next.Core.FontHost.RunAsync(args)
-    : await TidyWindow.Next.Core.SystemCleanHost.RunAsync(args);
+// The elevated half of TSUGU. All behavior lives in TSUGU.Core so it can be tested without a permission prompt.
+return args.Length > 0 && args[0] == TSUGU.Core.RepairHost.Command
+    ? await TSUGU.Core.RepairHost.RunAsync(args)
+    : args.Length > 0 && args[0] == TSUGU.Core.StartupHost.Command
+    ? await TSUGU.Core.StartupHost.RunAsync(args)
+    : args.Length > 0 && args[0] == TSUGU.Core.BackgroundHost.Command
+    ? await TSUGU.Core.BackgroundHost.RunAsync(args)
+    : args.Length > 0 && args[0] == TSUGU.Core.FixHost.Command
+    ? await TSUGU.Core.FixHost.RunAsync(args)
+    : args.Length > 0 && args[0] == TSUGU.Core.TuneHost.Command
+    ? await TSUGU.Core.TuneHost.RunAsync(args)
+    : args.Length > 0 && args[0] == TSUGU.Core.MachinePathHost.Command
+    ? await TSUGU.Core.MachinePathHost.RunAsync(args)
+    : args.Length > 0 && args[0] == TSUGU.Core.FontHost.Command
+    ? await TSUGU.Core.FontHost.RunAsync(args)
+    : await TSUGU.Core.SystemCleanHost.RunAsync(args);

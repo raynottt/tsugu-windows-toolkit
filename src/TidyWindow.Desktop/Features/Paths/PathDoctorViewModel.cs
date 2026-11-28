@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed class PathRow(PathEntry entry, int count, bool editable) : ObservableState
 {

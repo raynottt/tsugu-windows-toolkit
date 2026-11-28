@@ -1,8 +1,8 @@
 using System.Buffers.Binary;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>A failed PATH write leaves no bogus Undo, a typed folder is stored as typed, and asking a program its version never opens a window.</summary>
 public sealed class PathHardeningTests : IDisposable

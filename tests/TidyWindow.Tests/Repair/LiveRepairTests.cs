@@ -1,9 +1,9 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// Opt-in checks against this PC's real Windows Installer data, switched on with TIDYWINDOW_LIVE_TESTS=1. They only read: nothing here

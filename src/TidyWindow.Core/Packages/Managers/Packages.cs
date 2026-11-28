@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Win32;
 using Microsoft.Win32.SafeHandles;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum ManagerKind { Winget, Chocolatey, Scoop }
 public enum ManagerHealth { Ready, Missing, Unavailable, ConnectionIssue, Restricted }
@@ -53,9 +53,9 @@ public interface IExecutableLocator
 }
 
 /// <summary>
-/// Where a program has to be before TidyWindow runs it with administrator rights. The Windows permission prompt approves whatever file is at the path by then, so a program
+/// Where a program has to be before TSUGU runs it with administrator rights. The Windows permission prompt approves whatever file is at the path by then, so a program
 /// in a folder that accounts without administrator rights can change (the person's own profile, the temporary folder, anything whose permissions let ordinary accounts write)
-/// is refused: a program planted there by anything running as the person would otherwise run as an administrator on TidyWindow's say-so. WinGet's command is an App Execution
+/// is refused: a program planted there by anything running as the person would otherwise run as an administrator on TSUGU's say-so. WinGet's command is an App Execution
 /// Alias in the profile that stands for the packaged program under Program Files\WindowsApps; that program is what is checked and run.
 /// </summary>
 public static partial class ElevatedProgram
@@ -90,26 +90,26 @@ public static partial class ElevatedProgram
     {
         var name = Path.GetFileName(fileName) is { Length: > 0 } file ? file : fileName;
         var found = Locate(fileName, fileExists);
-        if (found is null) return (fileName, $"{name} could not be found, so TidyWindow will not run it with administrator rights.");
+        if (found is null) return (fileName, $"{name} could not be found, so TSUGU will not run it with administrator rights.");
         if (aliasTarget(found) is { } target)
         {
-            if (!Path.IsPathFullyQualified(target) || !fileExists(target)) return (found, $"{name} stands for a packaged program that is not there ({target}), so TidyWindow will not run it with administrator rights.");
+            if (!Path.IsPathFullyQualified(target) || !fileExists(target)) return (found, $"{name} stands for a packaged program that is not there ({target}), so TSUGU will not run it with administrator rights.");
             found = Path.GetFullPath(target);
         }
         // An alias was followed above to the program it stands for; any other link is refused, and so is the program the alias leads to if that is one.
-        if (isLink?.Invoke(found) == true) return (found, $"{found} is a link, and a link can be pointed at any program, so TidyWindow will not run it with administrator rights.");
+        if (isLink?.Invoke(found) == true) return (found, $"{found} is a link, and a link can be pointed at any program, so TSUGU will not run it with administrator rights.");
         var folder = Path.GetDirectoryName(found) ?? found;
         if (UserPlaces().Any(place => IsWithin(folder, place))) return (found, Open(name, folder));
         return access(folder) switch
         {
             FolderAccess.Protected => (found, null),
             FolderAccess.Open => (found, Open(name, folder)),
-            _ => (found, $"TidyWindow could not check who can change the folder {name} is in ({folder}), so it will not run it with administrator rights.")
+            _ => (found, $"TSUGU could not check who can change the folder {name} is in ({folder}), so it will not run it with administrator rights.")
         };
     }
 
     private static string Open(string name, string folder) =>
-        $"{name} is installed in a folder that any program on this PC could change ({folder}), so TidyWindow will not run it with administrator rights.";
+        $"{name} is installed in a folder that any program on this PC could change ({folder}), so TSUGU will not run it with administrator rights.";
 
     /// <summary>A bare name is found the way Windows finds it for a new process (the system folders, then PATH, which can hold the person's own folders); where it is found decides whether it may run.</summary>
     private static string? Locate(string fileName, Func<string, bool> fileExists)

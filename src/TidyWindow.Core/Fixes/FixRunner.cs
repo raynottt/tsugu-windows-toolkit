@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>One step of a fix, ready to run. The helper never receives a command: it receives the fix id, the options and the step's position, and rebuilds the step from the catalog itself.</summary>
 public sealed record FixStepContext(FixItem Item, IReadOnlyList<string> Options, int Index, FixStep Step);
@@ -202,7 +202,7 @@ public sealed class FixService(IReadOnlyList<FixItem> catalog, IFixStepExecutor 
     public async Task<PackageActionResult> RunAsync(FixRun run, IProgress<CommandOutput> progress, CancellationToken cancellationToken)
     {
         var item = catalog.FirstOrDefault(x => x.Id.Equals(run.Id, StringComparison.OrdinalIgnoreCase));
-        if (item is null) return new(ActionOutcome.Failed, "That fix is not available", "It is not in this version of TidyWindow.");
+        if (item is null) return new(ActionOutcome.Failed, "That fix is not available", "It is not in this version of TSUGU.");
         // One that was stopped but is still finishing a step keeps its turn until it really ends, so this one says why it has not started and can itself be stopped.
         if (turn.CurrentCount == 0) progress.Report(new("Another fix is still finishing. This one starts when it has; stop it here to give up waiting.", CommandOutputKind.Notice));
         await turn.WaitAsync(cancellationToken).ConfigureAwait(false);

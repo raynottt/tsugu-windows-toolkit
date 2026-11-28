@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum RepairKind { BrokenEntry, InstallerRecord, InstallLock, RunningInstaller, PendingRestart, BundleRecord, DanglingLinks, InstallerService, MissingPatch, BrokenShortcut, EmptyFolder, InstallerFiles }
 public enum RepairLevel { Recommended, Review, Info }
@@ -198,10 +198,10 @@ public static partial class InstallRepair
             var named = entry.InstallLocation.Trim().Length > 0 || entry.DisplayIcon.Trim().Length > 0;
             var cached = CacheMarker().IsMatch(command ?? "");
             var (detail, level) =
-                innoData is not null ? ($"{reason} Inno Setup writes that file when the program is installed and it cannot be rebuilt, so Windows cannot uninstall the program. Installing the same version over it puts it back, which TidyWindow can do with WinGet when downloading is allowed.", RepairLevel.Review)
+                innoData is not null ? ($"{reason} Inno Setup writes that file when the program is installed and it cannot be rebuilt, so Windows cannot uninstall the program. Installing the same version over it puts it back, which TSUGU can do with WinGet when downloading is allowed.", RepairLevel.Review)
                 : alive ? ($"{reason} The program's files are still on this PC, so check that you no longer need it before removing the entry.", RepairLevel.Review)
                 : cached ? ($"{reason} Windows keeps it in a cache that has been cleared. Running the program's installer again restores it; remove the entry only if you do not want the program.", RepairLevel.Review)
-                : !named ? ($"{reason} It does not say where the program lives, so TidyWindow cannot tell whether it is still installed.", RepairLevel.Review)
+                : !named ? ($"{reason} It does not say where the program lives, so TSUGU cannot tell whether it is still installed.", RepairLevel.Review)
                 : ($"{reason} The program's files are gone too, so this entry only blocks reinstalling.", RepairLevel.Recommended);
             // A Burn bundle (Python, Visual C++ and many more) also keeps dependency records that name it, and they go with it.
             yield return entry.BundleProvider.Length > 0
@@ -322,7 +322,7 @@ public static partial class InstallRepair
                 : damaged ? "Windows Installer's saved copy of this program's installer is damaged (empty, cut short or not its installer), so it cannot repair or uninstall the program"
                 : "Windows Installer lost the saved copy it needs to repair or uninstall this program";
             yield return new($"record:{product.Code}", RepairKind.InstallerRecord, name,
-                alive ? $"{lost}, and the program is still on this PC. TidyWindow first tries to restore the copy from the program's own installer files; if it cannot, it removes the record so the program can be installed again."
+                alive ? $"{lost}, and the program is still on this PC. TSUGU first tries to restore the copy from the program's own installer files; if it cannot, it removes the record so the program can be installed again."
                       : $"{lost}, and the program is gone. Its leftover record blocks installing it again.",
                 product.Code, alive ? RepairLevel.Review : RepairLevel.Recommended, keys,
                 Footprint: new("product", product.Code, product.Context, product.Sid, arp.Select(x => x.Key).ToList()), Product: product, Alive: alive);
@@ -349,7 +349,7 @@ public static partial class InstallRepair
         {
             var programs = patch.Programs.Count == 0 ? "a program" : string.Join(", ", patch.Programs.Take(3)) + (patch.Programs.Count > 3 ? $" and {patch.Programs.Count - 3} more" : "");
             yield return new($"patch:{patch.Patch}", RepairKind.MissingPatch, $"{(patch.Damaged ? "Damaged" : "Missing")} update file for {(patch.Programs.Count == 0 ? "a program" : patch.Programs[0])}",
-                $"{programs} wears an update whose saved file ({Path.GetFileName(patch.File)}) is {(patch.Damaged ? "damaged" : "gone")}, so repairing, updating or removing it can fail with error 1612 or 1714. TidyWindow first looks for that update's own .msp file and puts it back; only when none is found does it remove the update's registration, which lets Windows Installer carry on (the changes the update made to the program's files stay).",
+                $"{programs} wears an update whose saved file ({Path.GetFileName(patch.File)}) is {(patch.Damaged ? "damaged" : "gone")}, so repairing, updating or removing it can fail with error 1612 or 1714. TSUGU first looks for that update's own .msp file and puts it back; only when none is found does it remove the update's registration, which lets Windows Installer carry on (the changes the update made to the program's files stay).",
                 patch.File, RepairLevel.Review, patch.Keys, Patch: patch);
         }
     }

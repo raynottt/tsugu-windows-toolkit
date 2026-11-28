@@ -25,7 +25,7 @@ function Download-Official([string]$uri, [string]$destination, [string]$sha256 =
         $request.AllowAutoRedirect = $false
         $request.Timeout = 90000
         $request.ReadWriteTimeout = 90000
-        $request.UserAgent = 'TidyWindow'
+        $request.UserAgent = 'TSUGU'
         try { $response = $request.GetResponse() } catch [Net.WebException] { if ($_.Exception.Response) { $response = $_.Exception.Response } else { throw } }
         $status = [int]$response.StatusCode
         if ($status -ge 300 -and $status -lt 400) {
@@ -43,7 +43,7 @@ function Download-Official([string]$uri, [string]$destination, [string]$sha256 =
     }
     if (-not $sha256) { return }
     $actual = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash
-    if ($actual -ne $sha256) { throw "The download from $uri is not the file this version of TidyWindow expects (SHA-256 $actual), so nothing from it was run." }
+    if ($actual -ne $sha256) { throw "The download from $uri is not the file this version of TSUGU expects (SHA-256 $actual), so nothing from it was run." }
 }
 function Get-Redirect([string]$uri) {
     # Where an official address points to next, without following it: how "the latest release" is asked of GitHub.
@@ -51,7 +51,7 @@ function Get-Redirect([string]$uri) {
     $request = [Net.HttpWebRequest]::Create($uri)
     $request.AllowAutoRedirect = $false
     $request.Timeout = 60000
-    $request.UserAgent = 'TidyWindow'
+    $request.UserAgent = 'TSUGU'
     try { $response = $request.GetResponse() } catch [Net.WebException] { if ($_.Exception.Response) { $response = $_.Exception.Response } else { throw } }
     $status = [int]$response.StatusCode
     $next = $response.Headers['Location']

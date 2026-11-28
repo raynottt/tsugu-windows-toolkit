@@ -1,8 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public enum BackgroundTab { Telemetry, Ai, Optional, Changes }
 public enum BackgroundFilter { All, Running, On, Off }
@@ -64,7 +64,7 @@ public sealed class BackgroundRow(BackgroundEntry entry, Func<bool>? pageBusy = 
     public string AutomationName => $"{Name} is allowed in the background";
     public string DetailsName => $"Details for {Name}";
 
-    /// <summary>TidyWindow turned this off earlier and something has switched it back on, as a Windows update sometimes does.</summary>
+    /// <summary>TSUGU turned this off earlier and something has switched it back on, as a Windows update sometimes does.</summary>
     public bool Reverted { get => reverted; set { if (Set(ref reverted, value)) Changed(nameof(RevertedVisibility)); } }
 
     public bool Expanded => expanded;
@@ -196,7 +196,7 @@ public sealed class BackgroundViewModel(IBackgroundSystem system, IReadOnlyList<
 
     public string FooterNote => $"Some things are never offered here because other apps depend on them: Windows Update, Windows Search, notifications, audio, printing, Microsoft Edge updates and security services. Other companies' background apps are on the Startup page.{(notOnThisPc > 0 ? $" {notOnThisPc:N0} more known items are not on this PC." : "")}";
 
-    // Turned off by TidyWindow earlier and switched back on since, such as by a Windows update. Only those that can be changed again are offered.
+    // Turned off by TSUGU earlier and switched back on since, such as by a Windows update. Only those that can be changed again are offered.
     private IReadOnlyList<BackgroundRow> RevertedRows => all.Where(x => x.Reverted && x.Entry.FullyOn && x.Entry.CanChange).ToList();
     public int RevertedCount => RevertedRows.Count;
     public Visibility RevertedVisibility => RevertedCount > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -445,7 +445,7 @@ public sealed class BackgroundViewModel(IBackgroundSystem system, IReadOnlyList<
 
     public Task<bool> TurnBackOnAsync(BackgroundChangeRow change) => SetByIdAsync(change.Change.Id, true);
 
-    /// <summary>Turns back on everything TidyWindow turned off.</summary>
+    /// <summary>Turns back on everything TSUGU turned off.</summary>
     public async Task RestoreAllAsync()
     {
         if (Busy) return;

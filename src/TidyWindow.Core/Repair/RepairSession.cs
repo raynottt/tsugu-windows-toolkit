@@ -4,7 +4,7 @@ using System.IO.Pipes;
 using System.Security.Principal;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// One request to the administrator helper. A request names what to change and, for a put-back, the <see cref="Token"/> of the helper's own copy of it;
@@ -24,7 +24,7 @@ public sealed record RepairReply(bool Ok, string? Error = null, KeyBackup? Backu
 public static class RepairHost
 {
     public const string Command = "--repair";
-    private const string NoCopy = "There is no protected copy of this to put back. It may have been removed by an earlier version of TidyWindow, or its copy may have been cleared.";
+    private const string NoCopy = "There is no protected copy of this to put back. It may have been removed by an earlier version of TSUGU, or its copy may have been cleared.";
     private const string NotThis = "That copy does not belong to what was asked for.";
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
 
@@ -104,7 +104,7 @@ public static class RepairHost
 
     private static RepairReply Handle(RepairRequest request, IKeyEditor editor, IElevatedOps ops, IShortcutEditor? shortcuts, IFolderEditor? folders, RepairVault vault)
     {
-        const string Refused = "TidyWindow does not change that part of the registry.";
+        const string Refused = "TSUGU does not change that part of the registry.";
         try
         {
             switch (request.Op)

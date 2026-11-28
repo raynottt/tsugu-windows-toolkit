@@ -1,10 +1,10 @@
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 [SupportedOSPlatform("windows")]
 public sealed class InstallRepairTests
@@ -236,9 +236,9 @@ public sealed class InstallRepairTests
 [SupportedOSPlatform("windows")]
 public sealed class RegistryRepairTests : IDisposable
 {
-    private const string Base = @"SOFTWARE\TidyWindowTests";
+    private const string Base = @"SOFTWARE\TSUGUTests";
     private readonly string name = "t" + Guid.NewGuid().ToString("N")[..8];
-    private readonly RegistryRepair repair = new([new(@"^HKCU\\SOFTWARE\\TidyWindowTests\\t[0-9a-f]{8}$", RegexOptions.IgnoreCase)]);
+    private readonly RegistryRepair repair = new([new(@"^HKCU\\SOFTWARE\\TSUGUTests\\t[0-9a-f]{8}$", RegexOptions.IgnoreCase)]);
     private string Path => $@"HKCU\{Base}\{name}";
 
     public void Dispose() { using var key = Registry.CurrentUser.OpenSubKey(Base, true); try { key?.DeleteSubKeyTree(name, false); } catch (ArgumentException) { } }

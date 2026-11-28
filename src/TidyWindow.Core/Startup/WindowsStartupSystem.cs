@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The real PC: the registry, the Startup folders, Task Scheduler, the service list and the Store apps' startup tasks.</summary>
 [SupportedOSPlatform("windows")]
@@ -966,7 +966,7 @@ public sealed partial class WindowsStartupWriter(Func<DateTimeOffset>? clock = n
         using var key = Registry.CurrentUser.OpenSubKey($@"{WindowsStartupSystem.StoreRoot}\{family}\{taskId}", writable: true) ?? throw new InvalidOperationException("That app's startup task was not found.");
         if (key.GetValue("State") is not int) throw new InvalidOperationException("That app's startup task was not found.");
         key.SetValue("State", enabled ? 2 : 1, RegistryValueKind.DWord);
-        // Windows itself writes this as a 64-bit number of Unix seconds (a 32-bit value is what an older TidyWindow left behind).
+        // Windows itself writes this as a 64-bit number of Unix seconds (a 32-bit value is what an older TSUGU left behind).
         if (!enabled) key.SetValue("LastDisabledTime", now().ToUnixTimeSeconds(), RegistryValueKind.QWord);
     }
 

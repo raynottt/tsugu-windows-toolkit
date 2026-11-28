@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum StartupKind { RunKey, StartupFolder, ScheduledTask, Service, StoreApp, WindowsSetting }
 public enum StartupScope { User, Machine }
@@ -17,7 +17,7 @@ public sealed record StartupEntry(
     public bool CanChange => Risk != StartupRisk.Protected;
     /// <summary>Explorer keeps no on/off record for some Run-style keys, so those items can only be taken out, never switched.</summary>
     public bool CanToggle => CanChange && Kind != StartupKind.WindowsSetting && Array.IndexOf(StartupLocations.NoSwitchSources, Source) < 0;
-    /// <summary>Items that live somewhere TidyWindow can take them out of and put back exactly as they were.</summary>
+    /// <summary>Items that live somewhere TSUGU can take them out of and put back exactly as they were.</summary>
     public bool CanRemove => CanChange && Kind is StartupKind.RunKey or StartupKind.StartupFolder or StartupKind.ScheduledTask or StartupKind.WindowsSetting;
 }
 
@@ -143,11 +143,11 @@ public interface IStartupChanger
     StartupOutcome Change(StartupRequest request);
 }
 
-/// <summary>What TidyWindow turned off, so it can all be turned back on later, even if the app was closed in between.</summary>
+/// <summary>What TSUGU turned off, so it can all be turned back on later, even if the app was closed in between.</summary>
 public sealed record StartupChange(string Id, string Name, StartupKind Kind, StartupScope Scope, DateTimeOffset When, int ServiceStart = 2, bool ServiceDelayed = false,
     bool Removed = false, StartupVault? Vault = null);
 
-/// <summary>The Run-style registry keys Windows reads at sign-in, by the name TidyWindow gives each. Explorer keeps an on/off record for the first two only.</summary>
+/// <summary>The Run-style registry keys Windows reads at sign-in, by the name TSUGU gives each. Explorer keeps an on/off record for the first two only.</summary>
 public static class StartupLocations
 {
     /// <summary>Task Scheduler's folder for Windows' own tasks.</summary>
@@ -158,7 +158,7 @@ public static class StartupLocations
     /// <summary>Where Explorer's own on/off record cannot reach: these can only be taken out.</summary>
     public static readonly string[] NoSwitchSources = [RunOnce, RunOnce32, PolicyRun];
 
-    /// <summary>The key under the hive for a source, or null if it is not one TidyWindow reads.</summary>
+    /// <summary>The key under the hive for a source, or null if it is not one TSUGU reads.</summary>
     public static string? PathFor(string source) => source switch
     {
         Run => @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",

@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// One file or folder as ranking and filtering see it: spans over text that lives somewhere else, so looking at an entry costs no allocation.

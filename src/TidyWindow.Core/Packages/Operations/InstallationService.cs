@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum PackageAction { Update, Uninstall }
 public enum ActionOutcome { Completed, RestartRequired, Unverified, Failed }
@@ -16,7 +16,7 @@ public sealed record ManagedPackage(ManagerKind Manager, string Id, string Name,
     public bool HasCopies => Copies is { Count: > 1 };
     /// <summary>A newer version the Microsoft Store lists that WinGet does not know of. Nothing can queue an update for it, so it is shown, not acted on.</summary>
     public bool HasStoreUpdate => StoreVersion is { Length: > 0 } && AvailableVersion is null && !Held;
-    /// <summary>Something newer exists, whether TidyWindow can install it or only point to where it can be installed.</summary>
+    /// <summary>Something newer exists, whether TSUGU can install it or only point to where it can be installed.</summary>
     public bool HasUpdateInfo => AvailableVersion is not null && !Held || HasStoreUpdate;
     public string Key => $"{Manager}:{Id}:{Global}";
     public string ManagerName => ManagerDefinition.All.Single(x => x.Kind == Manager).Name;
@@ -235,14 +235,14 @@ public sealed class InstallationService(PackageService packages, ICommandRunner 
                 result = recovered.Result; trail = recovered.Trail; entryRemoved = recovered.EntryRemoved;
             }
             var reason = InstallFailure.Explain(result, action == PackageAction.Uninstall);
-            var detail = $"{current.ManagerName} · {current.Id}\n" + (trail.Count > 0 ? "What TidyWindow tried:\n" + string.Join("\n", trail.Select(x => "• " + x)) + "\n" : "")
+            var detail = $"{current.ManagerName} · {current.Id}\n" + (trail.Count > 0 ? "What TSUGU tried:\n" + string.Join("\n", trail.Select(x => "• " + x)) + "\n" : "")
                 + $"Exit code: {result.ExitCode}\n" + (reason is null ? "" : reason + "\n") + PackageOutputParser.Clean(result.Output + "\n" + result.Error).Trim();
             if (result.ExitCode is not (0 or 1641 or 3010))
             {
                 if (action == PackageAction.Update && InstallFailure.UpdateCannotBeApplied(result.ExitCode) && app.AvailableVersion is { Length: > 0 } rejected)
                 {
                     skipped.Skip(current, rejected);
-                    detail += $"\nTidyWindow won’t offer version {rejected} again. A newer version will be offered when one is released.";
+                    detail += $"\nTSUGU won’t offer version {rejected} again. A newer version will be offered when one is released.";
                 }
                 return new(ActionOutcome.Failed, $"Couldn’t {(action == PackageAction.Update ? "update" : "uninstall")} {app.Name}", detail);
             }
@@ -269,7 +269,7 @@ public sealed class InstallationService(PackageService packages, ICommandRunner 
             if (!verified && ladder is not null && app.Manager != ManagerKind.Winget && remaining is not null)
             {
                 var silent = await ladder.RecoverAsync(current, result with { ExitCode = 1 }, Rerun, progress, token).ConfigureAwait(false);
-                if (silent.Trail.Count > 0) detail += "\nThe manager reported success, but the app is still installed.\nWhat TidyWindow tried:\n" + string.Join("\n", silent.Trail.Select(x => "• " + x));
+                if (silent.Trail.Count > 0) detail += "\nThe manager reported success, but the app is still installed.\nWhat TSUGU tried:\n" + string.Join("\n", silent.Trail.Select(x => "• " + x));
                 if (silent.Result.ExitCode is 0 or 1641 or 3010 && silent.Trail.Count > 0)
                 {
                     packages.ClearSearchCache();

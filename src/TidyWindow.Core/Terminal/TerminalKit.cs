@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>One program the terminal setup relies on. <paramref name="Command"/> is what is typed to run it, which is how it is found on the PC.</summary>
 public sealed record TerminalTool(string WingetId, string Name, string Command, string Purpose)
@@ -59,7 +59,7 @@ public static class TerminalKit
 
     private static string Read(string name)
     {
-        using var stream = typeof(TerminalKit).Assembly.GetManifestResourceStream(name) ?? throw new InvalidOperationException($"{name} is missing from TidyWindow.");
+        using var stream = typeof(TerminalKit).Assembly.GetManifestResourceStream(name) ?? throw new InvalidOperationException($"{name} is missing from TSUGU.");
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }

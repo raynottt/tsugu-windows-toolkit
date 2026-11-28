@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.IO.Enumeration;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Removes what a scan found. Only files that match their rule are touched, links are never followed, and a file that is

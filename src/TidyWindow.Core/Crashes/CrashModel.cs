@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What went wrong. Apps are split from Windows itself because they are read and fixed differently.</summary>
 public enum CrashKind

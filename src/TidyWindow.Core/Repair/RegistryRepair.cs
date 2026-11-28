@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// One registry value kept exactly as it was. New copies hold the raw type and bytes, so every kind of value comes back identical;
@@ -174,7 +174,7 @@ public sealed class RegistryRepair : IKeyEditor
     /// <summary>Copies the key and removes it. A key that is already gone counts as done, with no copy. A key that cannot be copied in full is never removed.</summary>
     public KeyBackup? Delete(string path)
     {
-        if (!IsAllowed(path)) throw new InvalidOperationException("TidyWindow does not change that part of the registry.");
+        if (!IsAllowed(path)) throw new InvalidOperationException("TSUGU does not change that part of the registry.");
         var (root, sub) = Open(path);
         using var parent = root;
         KeyBackup copy;
@@ -210,7 +210,7 @@ public sealed class RegistryRepair : IKeyEditor
     /// <summary>Removes one value from a key other programs also use. The key goes too when that leaves it empty, as Windows Installer does itself.</summary>
     public KeyBackup? DeleteValue(string path, string name)
     {
-        if (!IsValueAllowed(path, name)) throw new InvalidOperationException("TidyWindow does not change that part of the registry.");
+        if (!IsValueAllowed(path, name)) throw new InvalidOperationException("TSUGU does not change that part of the registry.");
         var (root, sub) = Open(path);
         using var parent = root;
         ValueBackup copy;
@@ -238,7 +238,7 @@ public sealed class RegistryRepair : IKeyEditor
     /// <summary>Changes one text value of a list entry, keeping its type, and hands back the old value (or the fact that there was none) so it can be put back.</summary>
     public KeyBackup? SetText(string path, string name, string value)
     {
-        if (!IsValueAllowed(path, name)) throw new InvalidOperationException("TidyWindow does not change that part of the registry.");
+        if (!IsValueAllowed(path, name)) throw new InvalidOperationException("TSUGU does not change that part of the registry.");
         var (root, sub) = Open(path);
         using var parent = root;
         ValueBackup? old;
@@ -284,7 +284,7 @@ public sealed class RegistryRepair : IKeyEditor
     /// <summary>Writes a removed key back with its values, subkeys and permissions. Values that already exist are replaced.</summary>
     public void Restore(KeyBackup backup)
     {
-        if (!IsAllowed(backup.Path)) throw new InvalidOperationException("TidyWindow does not change that part of the registry.");
+        if (!IsAllowed(backup.Path)) throw new InvalidOperationException("TSUGU does not change that part of the registry.");
         var (root, sub) = Open(backup.Path);
         using var parent = root;
         Write(parent, sub, backup);

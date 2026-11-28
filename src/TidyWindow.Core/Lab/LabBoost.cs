@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>An app with a window, as the Lab sees it. <see cref="Priority"/> is null when Windows does not let this user read it, which also means it cannot be changed.</summary>
 public sealed record AppProcess(int Id, string Name, string Title, long StartTicks, ProcessPriorityClass? Priority, long MemoryMegabytes);
@@ -23,7 +23,7 @@ public static class BoostGuard
     private static readonly HashSet<string> Protected = new(StringComparer.OrdinalIgnoreCase)
     {
         "system", "idle", "registry", "smss", "csrss", "wininit", "winlogon", "services", "lsass", "lsm", "dwm", "fontdrvhost", "svchost", "explorer",
-        "msmpeng", "nissrv", "securityhealthservice", "securityhealthsystray", "sihost", "ctfmon", "taskmgr", "TidyWindow.Next",
+        "msmpeng", "nissrv", "securityhealthservice", "securityhealthsystray", "sihost", "ctfmon", "taskmgr", "TSUGU",
         "textinputhost", "applicationframehost", "shellexperiencehost", "startmenuexperiencehost", "searchhost", "searchapp", "runtimebroker", "widgets", "lockapp"
     };
 
@@ -96,13 +96,13 @@ public sealed class ProcessBoost(IProcessSource source)
     public IReadOnlyList<AppProcess> List() =>
         source.Windowed().Where(x => !BoostGuard.IsProtected(x.Name)).OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.Title, StringComparer.OrdinalIgnoreCase).ToList();
 
-    /// <summary>True while a change TidyWindow made to this app is still in force.</summary>
+    /// <summary>True while a change TSUGU made to this app is still in force.</summary>
     public bool IsChanged(AppProcess app) => changed.TryGetValue(app.Id, out var saved) && saved.Start == app.StartTicks;
 
     public ActionResult Set(AppProcess app, BoostLevel level)
     {
         if (BoostGuard.IsProtected(app.Name)) return new(false, $"{app.Name} is part of Windows or your security software, so its priority is left alone.");
-        if (source.Priority(app.Id, app.StartTicks) is not { } current) return new(false, $"{app.Name} has closed, or Windows does not allow changing it (an app run as administrator needs TidyWindow to run as administrator too).");
+        if (source.Priority(app.Id, app.StartTicks) is not { } current) return new(false, $"{app.Name} has closed, or Windows does not allow changing it (an app run as administrator needs TSUGU to run as administrator too).");
         var wanted = BoostGuard.Class(level);
         if (current == wanted) return new(true, $"{app.Name} already has {Describe(wanted)} priority.");
         var original = changed.TryGetValue(app.Id, out var saved) && saved.Start == app.StartTicks ? saved.Original : current;
@@ -113,7 +113,7 @@ public sealed class ProcessBoost(IProcessSource source)
         return new(true, level == BoostLevel.Normal ? $"{app.Name} is back to normal." : $"{app.Name} now has {Describe(wanted)} priority until it closes.");
     }
 
-    /// <summary>Puts an app back to the priority it had before TidyWindow changed it.</summary>
+    /// <summary>Puts an app back to the priority it had before TSUGU changed it.</summary>
     public ActionResult Reset(AppProcess app)
     {
         if (!changed.TryGetValue(app.Id, out var saved) || saved.Start != app.StartTicks) return new(true, $"{app.Name} was not changed.");

@@ -1,8 +1,8 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The queue keeps the newest 65,536 characters of an operation's output in at most 512 runs of one kind. It now does so without rebuilding that text for every chunk.</summary>
 public sealed class QueueOutputBufferTests(ITestOutputHelper output)

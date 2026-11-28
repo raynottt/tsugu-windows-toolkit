@@ -1,8 +1,8 @@
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// What a damaged Windows Installer cache needs: an update's own file put back before its registration is given up on, a saved copy that exists but is garbage
@@ -115,7 +115,7 @@ public sealed class RepairCacheRestoreTests : IDisposable
         Assert.Equal(87, ops.RestorePatchCopy(notAnUpdate, PatchCode, target).ExitCode);
         Assert.Equal(87, ops.RestorePatchCopy(notAnUpdate, PatchCode, Path.Combine(folder, "elsewhere.msp")).ExitCode);
         Assert.False(File.Exists(target));
-        Assert.False(File.Exists(target + ".tidywindow-new"));
+        Assert.False(File.Exists(target + ".tsugu-new"));
     }
 
     private string UpdateFileAnyoneCouldWrite()
@@ -165,7 +165,7 @@ public sealed class RepairCacheRestoreTests : IDisposable
         Assert.Equal(87, result.ExitCode);
         Assert.Contains("not used with administrator rights", result.Output);
         Assert.False(File.Exists(target));
-        Assert.False(File.Exists(target + ".tidywindow-new"));
+        Assert.False(File.Exists(target + ".tsugu-new"));
     }
 
     [Fact]
@@ -331,7 +331,7 @@ public sealed class RepairCacheRestoreTests : IDisposable
     [Fact]
     public void AComponentWhoseKeyPathIsARegistryValueCountsAsTheProgramBeingThereWhileTheValueIs()
     {
-        var key = @"Software\TidyWindowTest-" + Guid.NewGuid().ToString("N")[..8];
+        var key = @"Software\TSUGUTest-" + Guid.NewGuid().ToString("N")[..8];
         using (var created = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(key)) created.SetValue("Installed", 1);
         try
         {

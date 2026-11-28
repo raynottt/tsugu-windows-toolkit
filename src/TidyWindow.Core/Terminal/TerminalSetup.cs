@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Where the setup reads and writes. Every path is in the person's own profile, so no administrator rights are involved.</summary>
 public sealed record TerminalPaths(string Profile, string Starship, IReadOnlyList<string> TerminalSettings, IReadOnlyList<string> PsFzfFolders, string Backups)
@@ -23,7 +23,7 @@ public sealed record TerminalPaths(string Profile, string Starship, IReadOnlyLis
                 Path.Combine(local, "Microsoft", "Windows Terminal", "settings.json")
             ],
             [Path.Combine(documents, "PowerShell", "Modules", "PSFzf"), Path.Combine(programFiles, "PowerShell", "Modules", "PSFzf")],
-            Path.Combine(local, "TidyWindow.Next", "Terminal"));
+            Path.Combine(local, "TSUGU", "Terminal"));
     }
 }
 
@@ -344,7 +344,7 @@ public sealed class TerminalSetup(TerminalPaths paths, Func<string, bool>? comma
     private static void Write(string path, string text)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        var temp = path + ".tidywindow-new";
+        var temp = path + ".tsugu-new";
         File.WriteAllText(temp, text, new UTF8Encoding(false));
         File.Move(temp, path, true);
     }
@@ -353,7 +353,7 @@ public sealed class TerminalSetup(TerminalPaths paths, Func<string, bool>? comma
     private static void Put(string path, string source)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        var temp = path + ".tidywindow-new";
+        var temp = path + ".tsugu-new";
         File.Copy(source, temp, true);
         File.Move(temp, path, true);
     }
@@ -367,7 +367,7 @@ public sealed class TerminalSetup(TerminalPaths paths, Func<string, bool>? comma
     private static string Normalize(string text) => text.Replace("\r\n", "\n").TrimEnd();
 }
 
-/// <summary>Finds programs the way a new terminal would: through the PATH as Windows has it now, not as it was when TidyWindow started.</summary>
+/// <summary>Finds programs the way a new terminal would: through the PATH as Windows has it now, not as it was when TSUGU started.</summary>
 public static class CommandPath
 {
     private static readonly string[] Extensions = [".exe", ".cmd", ".bat", ".com"];

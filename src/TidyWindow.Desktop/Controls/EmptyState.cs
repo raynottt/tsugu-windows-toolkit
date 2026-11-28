@@ -1,7 +1,7 @@
 using System.Numerics;
 using Microsoft.UI.Xaml;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Makes a placeholder ease in (a short fade and a small rise) each time it appears, instead of snapping in.
 /// The motion runs on the compositor, so it costs the UI thread nothing, and it is skipped when Windows has animations turned off.</summary>

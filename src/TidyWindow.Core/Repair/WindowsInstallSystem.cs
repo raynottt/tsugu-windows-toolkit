@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The real PC: the installed-programs list in the registry, Windows Installer's own database, and the processes that run installs.</summary>
 [SupportedOSPlatform("windows")]

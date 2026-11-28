@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The Devices tab of Fixes: a stuck print service, the Bluetooth and camera services, and the rules that keep device restarts to a short list.</summary>
 public sealed class DevicesTabTests

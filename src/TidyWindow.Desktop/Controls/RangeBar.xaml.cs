@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Where the rounds of one check fell, as positions from 0 (left) to 1 (right) on a shared scale, with the middle result.</summary>
 public sealed record RangeBand(double Low, double High, double Mid);

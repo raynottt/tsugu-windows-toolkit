@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Plain-text forms of crash records, for a support request or a search engine. The Windows account name is replaced, as in the activity log.</summary>
 public static class CrashReport

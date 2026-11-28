@@ -3,7 +3,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Whether an installer file (.msi) or an update file (.msp) that Windows Installer saved is usable. The question is only ever "is this certainly broken":

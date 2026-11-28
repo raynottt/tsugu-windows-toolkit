@@ -6,7 +6,7 @@
     if ($configuration -and (Test-Path -LiteralPath $configuration)) {
         try { Get-Content -LiteralPath $configuration -Raw | ConvertFrom-Json -ErrorAction Stop | Out-Null }
         catch {
-            Move-Item -LiteralPath $configuration -Destination ($configuration + '.tidywindow-backup-' + [guid]::NewGuid().ToString('N'))
+            Move-Item -LiteralPath $configuration -Destination ($configuration + '.tsugu-backup-' + [guid]::NewGuid().ToString('N'))
             @{ root_path = $root } | ConvertTo-Json | Set-Content -LiteralPath $configuration -Encoding UTF8
         }
     }
@@ -24,7 +24,7 @@
     if ($problem -eq 'NotInstalled' -and !(Test-Path -LiteralPath $core)) {
         $installer = Join-Path $work 'install-scoop.ps1'
         # Scoop's own documented installer, from its official repository. Scoop belongs to the account and never runs with administrator rights, so this is the same
-        # trust as installing it by hand, and a new Scoop needs no new TidyWindow.
+        # trust as installing it by hand, and a new Scoop needs no new TSUGU.
         Download-Official 'https://raw.githubusercontent.com/ScoopInstaller/Install/master/install.ps1' $installer
         # In its own host: the installer ends with exit when it refuses (already installed, running as administrator), which must not end this recovery.
         & $powershell -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File $installer -ScoopDir $root
@@ -65,7 +65,7 @@
             # Move only Scoop's own core; never remove apps/, buckets/, persist/ or caches. A link in its place could make the move act elsewhere, so only a real folder is moved aside.
             if (Test-Path -LiteralPath $core) {
                 if ((Get-Item -LiteralPath $core -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Scoop's core folder is a link, which this repair does not replace: $core" }
-                Move-Item -LiteralPath $core -Destination ($core + '.tidywindow-backup-' + [guid]::NewGuid().ToString('N'))
+                Move-Item -LiteralPath $core -Destination ($core + '.tsugu-backup-' + [guid]::NewGuid().ToString('N'))
             }
             Move-Item -LiteralPath $replacement -Destination $core
         }

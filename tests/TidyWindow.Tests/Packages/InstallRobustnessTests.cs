@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class InstallRobustnessTests
 {
@@ -101,7 +101,7 @@ public sealed class InstallRobustnessTests
     {
         var runs = 0;
         var runner = new ScriptedRunner(_ => { runs++; return new(-1978335226, StoreAdminOutput, ""); });
-        const string reason = @"winget.exe is installed in a folder that any program on this PC could change (C:\Users\me\x), so TidyWindow will not run it with administrator rights.";
+        const string reason = @"winget.exe is installed in a folder that any program on this PC could change (C:\Users\me\x), so TSUGU will not run it with administrator rights.";
         var result = await InstallFailure.RunAsync(runner, new("winget", ["install"], TimeSpan.FromMinutes(1)), "Claude", CancellationToken.None, new Locator { Problem = reason });
         Assert.Equal(1, runs);
         Assert.NotEqual(0, result.ExitCode);
@@ -123,7 +123,7 @@ public sealed class InstallRobustnessTests
     public async Task AnInstallThatAsksForAdministratorRightsIsRefusedWhenItsProgramLivesWhereAnyoneCouldReplaceIt()
     {
         var runner = new Runner();
-        const string reason = @"choco.exe is installed in a folder that any program on this PC could change (C:\Users\me\choco), so TidyWindow will not run it with administrator rights.";
+        const string reason = @"choco.exe is installed in a folder that any program on this PC could change (C:\Users\me\choco), so TSUGU will not run it with administrator rights.";
         var packages = new PackageService(runner, new Locator { Problem = reason });
         var manager = new ManagerStatus(ManagerDefinition.All[1], ManagerHealth.Ready, "2", "choco.exe", "Ready");
         var refused = await Assert.ThrowsAsync<InvalidOperationException>(() => packages.InstallAsync(manager, Msys2));

@@ -1,12 +1,12 @@
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class ScoopBucketsTests : IDisposable
 {
-    private readonly string root = Path.Combine(Path.GetTempPath(), "tidywindow-buckets-" + Guid.NewGuid().ToString("N"));
+    private readonly string root = Path.Combine(Path.GetTempPath(), "tsugu-buckets-" + Guid.NewGuid().ToString("N"));
 
     public ScoopBucketsTests() => Directory.CreateDirectory(Path.Combine(root, "buckets"));
     public void Dispose() { try { Directory.Delete(root, true); } catch (IOException) { } }

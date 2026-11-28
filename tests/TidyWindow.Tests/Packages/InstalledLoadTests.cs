@@ -1,12 +1,12 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>How quickly the Installed page gets something to show: the list before the update check, and the saved list from the last run.</summary>
 public sealed class InstalledLoadTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-installed-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-installed-" + Guid.NewGuid().ToString("N"));
 
     public void Dispose() { try { Directory.Delete(folder, recursive: true); } catch (IOException) { } }
 

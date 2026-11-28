@@ -5,13 +5,13 @@ using System.Security.Principal;
 using System.Text.Json;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record PathRequest(string Op, string? Expected = null, string? Value = null);
 public sealed record PathReply(bool Ok, bool Stale = false, string? Error = null);
 
 /// <summary>
-/// The elevated side of Windows-wide PATH editing. TidyWindow itself never runs as administrator, so this runs as a separate process that stays
+/// The elevated side of Windows-wide PATH editing. TSUGU itself never runs as administrator, so this runs as a separate process that stays
 /// for as long as the person keeps editing unlocked. It can do one thing, replace the Windows-wide PATH, and only when that PATH is still the
 /// one the caller based the change on, so it can neither run anything nor touch any other setting. It leaves by itself after sitting idle.
 /// </summary>

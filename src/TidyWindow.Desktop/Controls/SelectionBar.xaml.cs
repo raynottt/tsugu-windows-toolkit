@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>The strip above a list the person can tick things in: the "select all" tick, how many are ticked, Clear, and the actions for the ticked things.</summary>
 public sealed partial class SelectionBar : UserControl

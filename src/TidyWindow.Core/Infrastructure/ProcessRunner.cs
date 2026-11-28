@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed class ProcessRunner(TimeSpan? pipeGrace = null) : ICommandRunner
 {
@@ -32,7 +32,7 @@ public sealed class ProcessRunner(TimeSpan? pipeGrace = null) : ICommandRunner
             start.Environment["NO_COLOR"] = "1";
             // Windows PowerShell started from PowerShell 7 inherits its module folders, and cannot load its own modules from them (Get-FileHash and
             // Get-AuthenticodeSignature vanish). Give it Windows' own folders, which are also the only ones an administrator-owned run should trust.
-            if (string.Equals(command.FileName, ElevatedProgram.WindowsPowerShell, StringComparison.OrdinalIgnoreCase)) start.Environment["PSModulePath"] = DebloatProcess.SystemModulePath;
+            if (string.Equals(command.FileName, ElevatedProgram.WindowsPowerShell, StringComparison.OrdinalIgnoreCase)) start.Environment["PSModulePath"] = string.Join(Path.PathSeparator, new[] { Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "WindowsPowerShell", "Modules"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "Modules") });
         }
         using var process = new Process { StartInfo = start };
         if (command.Elevate) Report(command, new("Approve the Windows administrator prompt. Output will appear in the separate administrator window; it cannot be captured by this launch method.", CommandOutputKind.Notice));
@@ -44,7 +44,7 @@ public sealed class ProcessRunner(TimeSpan? pipeGrace = null) : ICommandRunner
             Report(command, new("Administrator permission was declined. Nothing was started.", CommandOutputKind.Notice));
             return new(-1, "", "Administrator permission was declined. Nothing was started.");
         }
-        if (command.Elevate) Report(command, new("Running in a separate administrator window. Complete any installer steps there. Live output is available in that window, not inside TidyWindow.", CommandOutputKind.Notice));
+        if (command.Elevate) Report(command, new("Running in a separate administrator window. Complete any installer steps there. Live output is available in that window, not inside TSUGU.", CommandOutputKind.Notice));
 
         // Drain both pipes concurrently, but bound retained output independently of CLI verbosity.
         using var drain = new CancellationTokenSource();
@@ -59,7 +59,7 @@ public sealed class ProcessRunner(TimeSpan? pipeGrace = null) : ICommandRunner
         {
             var orphaned = await EndAsync(process, command).ConfigureAwait(false);
             await FinishReadingAsync(reading, drain, command, output, error).ConfigureAwait(false);
-            if (orphaned) Report(command, new("The program is still running in its own window; TidyWindow has no right to end it. Check that window before trying again.", CommandOutputKind.Notice));
+            if (orphaned) Report(command, new("The program is still running in its own window; TSUGU has no right to end it. Check that window before trying again.", CommandOutputKind.Notice));
             // A stop is a stop, whatever was left running; only a timeout is reported by what it left behind.
             if (cancellationToken.IsCancellationRequested) throw;
             if (orphaned) throw new InvalidOperationException("The installer is still running in its own window. Check that window before trying again.", null);
@@ -92,7 +92,7 @@ public sealed class ProcessRunner(TimeSpan? pipeGrace = null) : ICommandRunner
     {
         if (await FinishReadingAsync(reading, drain, pipeGrace, KillWait).ConfigureAwait(false)) return;
         foreach (var capture in captures) capture.Close();
-        Report(command, new("Something the command started is still running in the background, so TidyWindow stopped waiting for its output.", CommandOutputKind.Notice));
+        Report(command, new("Something the command started is still running in the background, so TSUGU stopped waiting for its output.", CommandOutputKind.Notice));
     }
 
     /// <summary>

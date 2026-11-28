@@ -2,10 +2,10 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Windows.System;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class SettingsView : UserControl
 {
@@ -79,7 +79,7 @@ public sealed partial class SettingsView : UserControl
                 Title = "Work is still running",
                 Content = new TextBlock
                 {
-                    Text = "An install, update, or uninstall is still in the queue. The installer closes TidyWindow, which stops that work and can leave an app incomplete.\n\nFinish the queue first unless you mean to stop it.",
+                    Text = "An install, update, or uninstall is still in the queue. The installer closes TSUGU, which stops that work and can leave an app incomplete.\n\nFinish the queue first unless you mean to stop it.",
                     TextWrapping = TextWrapping.Wrap,
                     MaxWidth = 440
                 },
@@ -129,7 +129,6 @@ public sealed partial class SettingsView : UserControl
     }
 
     private void ReleasesClick(object sender, RoutedEventArgs e) => _ = OpenAsync(SettingsLinks.ReleasesUrl);
-    private void CoffeeClick(object sender, RoutedEventArgs e) => _ = OpenAsync(SettingsLinks.BuyMeACoffeeUrl);
 
     private void LinkClick(object sender, RoutedEventArgs e)
     {

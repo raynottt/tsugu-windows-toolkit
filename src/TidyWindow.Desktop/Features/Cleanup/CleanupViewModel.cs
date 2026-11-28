@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public static class ByteSize
 {
@@ -458,7 +458,7 @@ public sealed class CleanupViewModel : ObservableState, IDisposable
         if (step.Starting)
         {
             if (row is not null) row.StateText = "Working…";
-            BeginProgress($"Cleaning {step.Name}", step.Detail ?? "Windows is doing this itself and it can take several minutes. Keep TidyWindow open.", indeterminate: true);
+            BeginProgress($"Cleaning {step.Name}", step.Detail ?? "Windows is doing this itself and it can take several minutes. Keep TSUGU open.", indeterminate: true);
             return;
         }
         if (row is not null && row.StateText != "Cleaned") { row.StateText = "Cleaned"; stepsDone = Math.Min(stepsTotal, stepsDone + 1); }

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Windows.UI.ViewManagement;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// The window that is on screen from the first moment of launch until the app underneath it is drawn. It is plain Win32 on a thread of its own,
@@ -148,11 +148,11 @@ internal sealed class NativeSplash
     private static IntPtr CreateWindow(Windows.Graphics.RectInt32 frame)
     {
         var instance = GetModuleHandle(null);
-        var wndClass = new WindowClass { Size = (uint)Marshal.SizeOf<WindowClass>(), Procedure = Marshal.GetFunctionPointerForDelegate(Procedure), Instance = instance, Cursor = LoadCursor(IntPtr.Zero, (IntPtr)32512 /* the arrow */), ClassName = "TidyWindow.Splash" };
+        var wndClass = new WindowClass { Size = (uint)Marshal.SizeOf<WindowClass>(), Procedure = Marshal.GetFunctionPointerForDelegate(Procedure), Instance = instance, Cursor = LoadCursor(IntPtr.Zero, (IntPtr)32512 /* the arrow */), ClassName = "TSUGU.Splash" };
         // A second registration fails harmlessly: the class from the first one is still there.
         RegisterClassEx(ref wndClass);
         // Tool window and no-activate: out of the taskbar and Alt+Tab, and never takes the keyboard from the window that is opening.
-        return CreateWindowEx(0x80000 | 0x80 | 0x08000000, wndClass.ClassName, "TidyWindow", 0x80000000, frame.X, frame.Y, frame.Width, frame.Height, IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
+        return CreateWindowEx(0x80000 | 0x80 | 0x08000000, wndClass.ClassName, "TSUGU", 0x80000000, frame.X, frame.Y, frame.Width, frame.Height, IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
     }
 
     private const uint NoSize = 0x1, NoMove = 0x2, NoActivate = 0x10;

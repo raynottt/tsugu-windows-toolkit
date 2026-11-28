@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Turns catalog paths into real folders and refuses any that could harm Windows or the user's own files.</summary>
 public static partial class CleanupPaths

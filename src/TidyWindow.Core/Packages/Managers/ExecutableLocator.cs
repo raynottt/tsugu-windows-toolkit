@@ -3,7 +3,7 @@ using System.Security.AccessControl;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Which programs may run with administrator rights. An elevated command runs whatever file its path names, as an administrator, so the file must

@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record StartupScanResult(IReadOnlyList<StartupEntry> Entries, int WindowsTasks, int WindowsServices);
 
@@ -413,9 +413,9 @@ public static partial class StartupScan
 
     private static string ClearableReason(string id) => id switch
     {
-        "User.Winlogon.Shell" => "Replaces the Windows desktop for your account only. Clearing it makes Windows use the usual one. If you did not set this up, run a security scan. TidyWindow keeps a copy so you can put it back.",
-        "User.Winlogon.Userinit" => "Replaces the sign-in program for your account only. Clearing it makes Windows use the usual one. If you did not set this up, run a security scan. TidyWindow keeps a copy so you can put it back.",
-        _ => "Starts a program every time you sign in, from a setting that is empty on most PCs and that Task Manager does not show. Only clear it if you recognize the program. TidyWindow keeps a copy so you can put it back."
+        "User.Winlogon.Shell" => "Replaces the Windows desktop for your account only. Clearing it makes Windows use the usual one. If you did not set this up, run a security scan. TSUGU keeps a copy so you can put it back.",
+        "User.Winlogon.Userinit" => "Replaces the sign-in program for your account only. Clearing it makes Windows use the usual one. If you did not set this up, run a security scan. TSUGU keeps a copy so you can put it back.",
+        _ => "Starts a program every time you sign in, from a setting that is empty on most PCs and that Task Manager does not show. Only clear it if you recognize the program. TSUGU keeps a copy so you can put it back."
     };
 
     /// <summary>The entry the full scan lists under this id, or null, found by reading only what that one item needs.</summary>
@@ -460,9 +460,9 @@ public static partial class StartupScan
     {
         if (entry.Kind != StartupKind.RunKey || entry.Risk == StartupRisk.Protected || Array.IndexOf(StartupLocations.NoSwitchSources, entry.Source) < 0) return entry;
         if (entry.Source == StartupLocations.PolicyRun)
-            return entry with { Risk = StartupRisk.Careful, Reason = "Listed under the Policies Run key. Task Manager has no switch for it, and a company's policy can put things here, so remove it only if you recognize it. TidyWindow keeps a copy so you can put it back." };
+            return entry with { Risk = StartupRisk.Careful, Reason = "Listed under the Policies Run key. Task Manager has no switch for it, and a company's policy can put things here, so remove it only if you recognize it. TSUGU keeps a copy so you can put it back." };
         return entry.Risk == StartupRisk.Optional
-            ? entry with { Reason = "Runs once at your next sign-in. Windows has no switch for this kind of item, so the only way to stop it is to remove it. TidyWindow keeps a copy so you can put it back." }
+            ? entry with { Reason = "Runs once at your next sign-in. Windows has no switch for this kind of item, so the only way to stop it is to remove it. TSUGU keeps a copy so you can put it back." }
             : entry;
     }
 

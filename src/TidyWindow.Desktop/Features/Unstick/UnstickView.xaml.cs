@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class UnstickView : UserControl
 {
@@ -33,7 +33,7 @@ public sealed partial class UnstickView : UserControl
 
     private void TabChecked(object sender, RoutedEventArgs e)
     {
-        if (Model is { } model && sender is RadioButton { Tag: string tag } && Enum.TryParse<TidyWindow.Next.Core.UnstickGroup>(tag, out var next))
+        if (Model is { } model && sender is RadioButton { Tag: string tag } && Enum.TryParse<TSUGU.Core.UnstickGroup>(tag, out var next))
         {
             model.Tab = next;
             // Picking a tab means "show me that one", so a search, which looks at every tab, is put away.

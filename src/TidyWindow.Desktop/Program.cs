@@ -2,9 +2,9 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
 /// The entry point, written by hand (instead of the XAML-generated one) so a second launch can hand over to the window that is already open and quit,
@@ -48,7 +48,7 @@ public static class Program
         });
     }
 
-    /// <summary>True when another TidyWindow already owns this user's key and has taken over this launch. Otherwise this process becomes the owner.</summary>
+    /// <summary>True when another TSUGU already owns this user's key and has taken over this launch. Otherwise this process becomes the owner.</summary>
     private static bool HandedOverToRunningInstance()
     {
         AppInstance owner;

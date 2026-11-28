@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// A kind of file people look for ("documents", "installers"), as the extensions that belong to it. A few extensions are only counted when the

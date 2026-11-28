@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 internal static class CleanupNative
 {

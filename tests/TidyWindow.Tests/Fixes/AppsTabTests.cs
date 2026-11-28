@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The Apps tab of Fixes: registering Windows' own apps again, including the ones an account has lost, without ever removing or resetting an app.</summary>
 public sealed class AppsTabTests

@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.IO.Enumeration;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A bounded, reusable index of one accessible folder. No content reads, and links (junctions, symbolic links, mount points) are never followed.</summary>
 public sealed class ScoutFolderIndex : IDisposable

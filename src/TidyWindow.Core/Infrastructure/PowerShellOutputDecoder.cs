@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Reads PowerShell's stderr serialization as messages, never as executable/deserialized objects.</summary>
 public sealed partial class PowerShellOutputDecoder(CommandOutputKind fallback)

@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 [Collection("Processes")]
 public sealed class LiveOutputTests
@@ -11,7 +11,7 @@ public sealed class LiveOutputTests
     [Fact]
     public async Task ProcessOutputArrivesBeforeCommandExitsWithoutWaitingForANewline()
     {
-        var releasePath = Path.Combine(Path.GetTempPath(), "tidywindow-output-" + Guid.NewGuid().ToString("N"));
+        var releasePath = Path.Combine(Path.GetTempPath(), "tsugu-output-" + Guid.NewGuid().ToString("N"));
         var first = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var chunks = new ConcurrentQueue<CommandOutput>();
         var script = "[Console]::Out.Write('first'); [Console]::Out.Flush(); [Console]::Error.Write('warning'); [Console]::Error.Flush(); while (!(Test-Path -LiteralPath '" + releasePath.Replace("'", "''") + "')) { Start-Sleep -Milliseconds 50 }; [Console]::Out.Write('last')";

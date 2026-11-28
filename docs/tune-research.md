@@ -104,12 +104,12 @@ These appear in almost every "speed up Windows" list. The evidence for them is t
 
 ## Page design
 
-Follows Quiet. A list of switches with a one-line effect each, the small print behind a chevron (values before and after, "applies after you restart Explorer"), tabs **Speed · Cleaner · Comfort · Changes**, a search box and an On/Off filter. The Changes tab lists what TidyWindow changed, with **Put everything back**. Rows that are off are dimmed, like Quiet. Items that need Explorer restarted offer a **Restart Explorer** button in the toast, and a banner at the top of the list stays until Explorer has been restarted, so several shell tweaks can be changed first. When something such as a Windows update puts tweaks back, a banner and the toast offer **Turn on again** for all of them at once. Search also looks at the registry key and value names and at the effect text (for example `ContentDeliveryManager` or `HVCI`). Careful items show a one-time confirmation that states the trade-off. Toasts and the Logs page report outcomes like the other pages.
+Follows Quiet. A list of switches with a one-line effect each, the small print behind a chevron (values before and after, "applies after you restart Explorer"), tabs **Speed · Cleaner · Comfort · Changes**, a search box and an On/Off filter. The Changes tab lists what TSUGU changed, with **Put everything back**. Rows that are off are dimmed, like Quiet. Items that need Explorer restarted offer a **Restart Explorer** button in the toast, and a banner at the top of the list stays until Explorer has been restarted, so several shell tweaks can be changed first. When something such as a Windows update puts tweaks back, a banner and the toast offer **Turn on again** for all of them at once. Search also looks at the registry key and value names and at the effect text (for example `ContentDeliveryManager` or `HVCI`). Careful items show a one-time confirmation that states the trade-off. Toasts and the Logs page report outcomes like the other pages.
 
 ## Implementation outline
 
 - `src/TidyWindow.Core/Tune/TuneModel.cs`: item/target types, `TuneCatalog`, `TuneGuard` (validation), `TuneScan`.
-- `src/TidyWindow.Core/Tune/TuneManager.cs`: local changer, history (`%LOCALAPPDATA%\TidyWindow.Next\Tune\changed.json`), manager, elevated host command `--tune` in the existing `CleanHost`.
+- `src/TidyWindow.Core/Tune/TuneManager.cs`: local changer, history (`%LOCALAPPDATA%\TSUGU\Tune\changed.json`), manager, elevated host command `--tune` in the existing `CleanHost`.
 - `src/TidyWindow.Core/Tune/WindowsTuneSystem.cs`: registry reader and writer, and an Explorer restart helper.
 - `src/TidyWindow.Core/Tune/tune-catalog.json`: the catalog above.
 - `src/TidyWindow.Desktop/Features/Tune/TuneView.xaml(.cs)`, `src/TidyWindow.Desktop/Features/Tune/TuneViewModel.cs`, a sidebar entry and page in `MainWindow`.

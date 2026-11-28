@@ -1,7 +1,7 @@
 using System.IO.Enumeration;
 using System.Runtime.InteropServices;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// The entries of the folder index, kept compactly. A file or folder is a 32-byte record and its name is copied once into a shared block of text; the folder it is in

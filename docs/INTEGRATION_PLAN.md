@@ -4,7 +4,7 @@
 
 | Source | Intended use | Integration rule |
 | --- | --- | --- |
-| [TidyWindow](https://github.com/Cosmos-0118/TidyWindow) | Functional baseline: package discovery and install queue, reviewed Windows-operation catalogs, cleanup/repair tooling, history and the privileged helper boundary | Port the relevant Core, Desktop feature and helper projects into this repository, then rename and adapt them deliberately. Preserve upstream MIT notice. |
+| [TSUGU](https://github.com/raynottt/tsugu-windows-toolkit) | Functional baseline: package discovery and install queue, reviewed Windows-operation catalogs, cleanup/repair tooling, history and the privileged helper boundary | Port the relevant Core, Desktop feature and helper projects into this repository, then rename and adapt them deliberately. Preserve upstream MIT notice. |
 | [SettingsUI](https://github.com/BobbyESP/SettingsUI) | Visual reference for a Windows 11 Settings-style shell, navigation, page headers, grouped settings rows and colorful iconography | Recreate/adapt the useful XAML patterns for the current WinUI version. Do not reference the archived library directly: it targets .NET 5/6 and Windows App SDK 1.0, while the functional baseline targets .NET 10 and Windows App SDK 2.6.5. Preserve upstream MIT notice if source is copied. |
 
 ## Application concept
@@ -53,7 +53,7 @@ The SettingsUI demo's colored Fluent icon PNGs and module illustrations are usef
 
 ## Porting sequence
 
-1. **Inventory and attribution** — identify the TidyWindow projects, source folders, embedded catalogs, assets, tests and build targets; preserve third-party notices.
+1. **Inventory and attribution** — identify the TSUGU projects, source folders, embedded catalogs, assets, tests and build targets; preserve third-party notices.
 2. **Build baseline** — port the Core, Desktop, CleanHost and SearchHost projects with their project references and build configuration. Keep a reproducible .NET 10 / WinUI 3 solution.
 3. **Brand and rename** — rename product metadata, namespaces, app IDs, paths and visible strings to TSUGU without changing behavior accidentally.
 4. **Shell redesign** — replace the compact icon-rail navigation with the SettingsUI-inspired Settings navigation and page layout while retaining each feature's existing view-model/service wiring.
@@ -63,4 +63,4 @@ The SettingsUI demo's colored Fluent icon PNGs and module illustrations are usef
 
 ## Current repository bootstrap
 
-The initial commit only establishes the product direction. The TidyWindow implementation and SettingsUI-inspired WinUI shell have not yet been ported or built. No claim of a working application should be made until the Windows build and tests pass.
+The initial commit only establishes the product direction. The TSUGU implementation and SettingsUI-inspired WinUI shell have not yet been ported or built. No claim of a working application should be made until the Windows build and tests pass.

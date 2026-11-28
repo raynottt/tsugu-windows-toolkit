@@ -1,4 +1,4 @@
-# Contributing to TidyWindow
+# Contributing to TSUGU
 
 Thanks for helping. Bug reports, ideas, documentation fixes and pull requests are all welcome.
 
@@ -6,16 +6,16 @@ By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md). To
 
 ## Ways to help
 
-- **Report a bug.** [Open a bug report](https://github.com/Cosmos-0118/TidyWindow/issues/new/choose) with the page you were using, your TidyWindow version (Settings → Current version), how you installed it, your Windows version and what you expected to happen.
+- **Report a bug.** [Open a bug report](https://github.com/raynottt/tsugu-windows-toolkit/issues/new/choose) with the page you were using, your TSUGU version (Settings → Current version), how you installed it, your Windows version and what you expected to happen.
 - **Suggest a feature or a catalog change.** Explain the problem first. For a new Tune, Quiet, Cleanup, Debloat or Fixes entry, link the Microsoft documentation or other evidence that shows what it does.
 - **Improve the docs.** The research notes in [`docs/`](docs/) are part of the project. Corrections and better sources are as useful as code.
 - **Send a pull request.** For anything larger than a small fix, open an issue first so we can agree on the approach before you spend time on it.
 
-Issues labelled [`good first issue`](https://github.com/Cosmos-0118/TidyWindow/labels/good%20first%20issue) and [`help wanted`](https://github.com/Cosmos-0118/TidyWindow/labels/help%20wanted) are good places to start.
+Issues labelled [`good first issue`](https://github.com/raynottt/tsugu-windows-toolkit/labels/good%20first%20issue) and [`help wanted`](https://github.com/raynottt/tsugu-windows-toolkit/labels/help%20wanted) are good places to start.
 
 ## Sharing logs safely
 
-Logs live in `%LOCALAPPDATA%\TidyWindow.Next\Logs`. The account name is replaced by `%USERPROFILE%`, but package names, other local paths and, for a crash, the stack trace can still appear. Read a log before you attach it and remove anything you do not want to be public.
+Logs live in `%LOCALAPPDATA%\TSUGU\Logs`. The account name is replaced by `%USERPROFILE%`, but package names, other local paths and, for a crash, the stack trace can still appear. Read a log before you attach it and remove anything you do not want to be public.
 
 ## Set up a development environment
 
@@ -26,27 +26,27 @@ You need:
 - Package managers (WinGet, Chocolatey, Scoop) are optional for building.
 
 ```powershell
-git clone https://github.com/Cosmos-0118/TidyWindow.git
-cd TidyWindow
+git clone https://github.com/raynottt/tsugu-windows-toolkit.git
+cd TSUGU
 
-dotnet restore TidyWindow.slnx --locked-mode
-dotnet build src/TidyWindow.Desktop/TidyWindow.Desktop.csproj -c Release --no-restore --output artifacts/preview
-./artifacts/preview/TidyWindow.Next.exe
+dotnet restore TSUGU.slnx --locked-mode
+dotnet build src/TidyWindow.Desktop/TSUGU.Desktop.csproj -c Release --no-restore --output artifacts/preview
+./artifacts/preview/TSUGU.exe
 ```
 
 Use `dotnet build`, not `dotnet publish`, for the desktop app: `publish` leaves out the compiled pages and the app closes at startup.
 
-If Windows Search starts listing many `TidyWindow.*.exe` copies from `bin/`, `obj/` and `artifacts/`, run `pwsh scripts/exclude-build-output-from-search.ps1` once.
+If Windows Search starts listing many `TSUGU.*.exe` copies from `bin/`, `obj/` and `artifacts/`, run `pwsh scripts/exclude-build-output-from-search.ps1` once.
 
 ### Project layout
 
 | Folder | What is in it |
 | --- | --- |
-| `src/TidyWindow.Core` | The work itself, one folder per area (`Packages`, `Cleanup`, `Tune`, `Debloat` and so on). Catalogs such as `tune-catalog.json` sit next to the code that uses them. |
-| `src/TidyWindow.Desktop` | The WinUI 3 app: pages in `Features/`, shared controls, styles and the shell. |
-| `src/TidyWindow.CleanHost` | The helper that runs Windows-wide changes with administrator rights after the user approves the prompt. |
-| `src/TidyWindow.SearchHost` | The Scout search helper and the Everything SDK integration. |
-| `tests/TidyWindow.Tests` | The test suite, one folder per area. |
+| `src/TSUGU.Core` | The work itself, one folder per area (`Packages`, `Cleanup`, `Tune`, `Debloat` and so on). Catalogs such as `tune-catalog.json` sit next to the code that uses them. |
+| `src/TSUGU.Desktop` | The WinUI 3 app: pages in `Features/`, shared controls, styles and the shell. |
+| `src/TSUGU.AdminHost` | The helper that runs Windows-wide changes with administrator rights after the user approves the prompt. |
+| `src/TSUGU.SearchHost` | The Scout search helper and the Everything SDK integration. |
+| `tests/TSUGU.Tests` | The test suite, one folder per area. |
 | `docs/` | Architecture notes and the research behind each tool. |
 
 [`docs/architecture.md`](docs/architecture.md) explains how the pieces fit together.
@@ -56,8 +56,8 @@ If Windows Search starts listing many `TidyWindow.*.exe` copies from `bin/`, `ob
 Run the tests the way CI does, after the restore above:
 
 ```powershell
-dotnet build TidyWindow.slnx -c Release --no-restore
-dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj -c Release --no-build
+dotnet build TSUGU.slnx -c Release --no-restore
+dotnet test tests/TidyWindow.Tests/TSUGU.Tests.csproj -c Release --no-build
 ```
 
 The standard tests do not install packages, change Windows settings or need a network. Tests that look at the real PC are opt-in and are reported as skipped until you switch them on; `dotnet test --filter "Category!=Live"` leaves them out altogether.

@@ -1,7 +1,7 @@
-<UserControl x:Class="TidyWindow.Next.Desktop.ToastCard"
+<UserControl x:Class="TSUGU.Desktop.ToastCard"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- xmlns:local="using:TidyWindow.Next.Desktop"
+ xmlns:local="using:TSUGU.Desktop"
  HorizontalContentAlignment="Stretch" IsTabStop="False">
  <Border x:Name="Card" Background="{ThemeResource CanvasBrush}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="1" CornerRadius="8"
   PointerEntered="PointerOver" PointerExited="PointerAway" GotFocus="FocusInside" LostFocus="FocusOutside"

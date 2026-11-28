@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>What a removed program was known by, to tell which stale shortcuts were its own.</summary>
 public sealed record ProgramMarks(IReadOnlyList<string> Folders, IReadOnlyList<string> Files, IReadOnlyList<string> Codes)

@@ -1,7 +1,7 @@
-using TidyWindow.Next.Desktop;
+using TSUGU.Desktop;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class AppearanceSettingsTests
 {
@@ -12,7 +12,7 @@ public sealed class AppearanceSettingsTests
     public void AppearanceChoiceSurvivesReload(int choice)
     {
         var value = (Appearance)choice;
-        var file = Path.Combine(Path.GetTempPath(), "tidywindow-theme-" + Guid.NewGuid().ToString("N"), "appearance.json");
+        var file = Path.Combine(Path.GetTempPath(), "tsugu-theme-" + Guid.NewGuid().ToString("N"), "appearance.json");
         var settings = new AppearanceSettings(file);
         Assert.Equal(Appearance.System, settings.Load());
         settings.Save(value);

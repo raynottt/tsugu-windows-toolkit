@@ -1,11 +1,11 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class ActivityLogTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-log-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-log-" + Guid.NewGuid().ToString("N"));
     private DateTimeOffset now = new(2026, 10, 29, 12, 0, 0, TimeSpan.Zero);
     private ActivityLog Create(string? where = null, int capacity = 500) => new(where, capacity, () => now);
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
@@ -101,7 +101,7 @@ public sealed class ActivityLogTests : IDisposable
     [Fact]
     public void UnwritableFolderIsReportedAndNeverThrows()
     {
-        var blocker = Path.Combine(Path.GetTempPath(), "tidywindow-block-" + Guid.NewGuid().ToString("N"));
+        var blocker = Path.Combine(Path.GetTempPath(), "tsugu-block-" + Guid.NewGuid().ToString("N"));
         File.WriteAllText(blocker, "a file, not a folder");
         try
         {
@@ -168,15 +168,15 @@ public sealed class ActivityLogTests : IDisposable
     {
         var log = Create(folder);
         var detail = "System.InvalidOperationException: first\n" + string.Join("\n", Enumerable.Range(0, 300).Select(i => $"   at Frame{i}()")) + "\nMIDDLE-MARKER\n" + new string('x', 5000);
-        var first = log.WriteCrash("TidyWindow hit an unexpected error", detail);
-        var second = log.WriteCrash("TidyWindow hit an unexpected error", "System.NullReferenceException: second");
+        var first = log.WriteCrash("TSUGU hit an unexpected error", detail);
+        var second = log.WriteCrash("TSUGU hit an unexpected error", "System.NullReferenceException: second");
         Assert.Equal(2, log.Count); Assert.Equal(1, second.Count);
         Assert.StartsWith("Details were saved to crash-", first.Detail);
         var files = Directory.GetFiles(folder, "crash-*.txt");
         Assert.Equal(2, files.Length);
         var savedName = first.Detail!.Split(' ', '\n').First(x => x.StartsWith("crash-", StringComparison.Ordinal));
         var saved = File.ReadAllText(Path.Combine(folder, savedName));
-        Assert.Contains("TidyWindow ", saved); Assert.Contains("Time: ", saved); Assert.Contains("MIDDLE-MARKER", saved); Assert.Contains("at Frame299()", saved);
+        Assert.Contains("TSUGU ", saved); Assert.Contains("Time: ", saved); Assert.Contains("MIDDLE-MARKER", saved); Assert.Contains("at Frame299()", saved);
         // Without a folder the entry carries the text itself.
         Assert.StartsWith("System.", Create().WriteCrash("x", "System.Exception: in memory").Detail);
     }

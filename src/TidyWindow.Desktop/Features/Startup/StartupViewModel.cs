@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed record StartupFact(string Label, string Value, bool Mono)
 {
@@ -235,7 +235,7 @@ public sealed class StartupViewModel(IStartupSystem system, StartupService servi
             foreach (var row in all) if (icons.TryGet(row.IconQuery, out var cached) && cached is not null) row.SetIcon(cached);
             hiddenTasks = scan.WindowsTasks; hiddenServices = scan.WindowsServices;
             scanned = true;
-            // Anything turned back on outside TidyWindow no longer counts as turned off by it.
+            // Anything turned back on outside TSUGU no longer counts as turned off by it.
             // An item that was removed is expected to be gone; if it is back (put back by hand or reinstalled), the saved copy is no longer needed.
             foreach (var change in remembered)
             {
@@ -425,7 +425,7 @@ public sealed class StartupViewModel(IStartupSystem system, StartupService servi
         return done;
     }
 
-    /// <summary>Turns back on everything TidyWindow turned off.</summary>
+    /// <summary>Turns back on everything TSUGU turned off.</summary>
     public async Task RestoreAllAsync()
     {
         if (Busy) return;

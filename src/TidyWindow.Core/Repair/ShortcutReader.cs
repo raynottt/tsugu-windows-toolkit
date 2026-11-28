@@ -3,7 +3,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Versioning;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Reads shortcut files with Windows' own shell link object, which handles every Unicode path (WScript.Shell returns nothing for a name with a character like U+A789)

@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 [Collection("Processes")]
 public sealed class OutputFormattingTests

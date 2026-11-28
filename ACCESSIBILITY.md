@@ -1,6 +1,6 @@
 # Accessibility
 
-TidyWindow should be usable by everyone who maintains a Windows PC, including people who use a keyboard instead of a mouse, a screen reader, high contrast themes or reduced motion. This page describes what the app supports today, where we know it falls short, and how to tell us about a barrier.
+TSUGU should be usable by everyone who maintains a Windows PC, including people who use a keyboard instead of a mouse, a screen reader, high contrast themes or reduced motion. This page describes what the app supports today, where we know it falls short, and how to tell us about a barrier.
 
 ## Our commitment
 
@@ -29,17 +29,17 @@ TidyWindow should be usable by everyone who maintains a Windows PC, including pe
 
 ## Known limitations
 
-- **No formal audit yet.** TidyWindow has not been tested against WCAG 2.2, and no full screen reader pass of every page has been done.
+- **No formal audit yet.** TSUGU has not been tested against WCAG 2.2, and no full screen reader pass of every page has been done.
 - **Few keyboard shortcuts.** Apart from Ctrl+K there are no shortcuts for jumping to a page or a common action; you move with Tab.
 - **Large text sizes.** Large Windows text sizes have not been checked on every page, so some rows may clip or wrap awkwardly.
-- **Native windows outside the app.** Installer dialogs, Windows administrator prompts and Chocolatey's elevated console are Windows or third-party windows. Their accessibility is outside TidyWindow's control.
+- **Native windows outside the app.** Installer dialogs, Windows administrator prompts and Chocolatey's elevated console are Windows or third-party windows. Their accessibility is outside TSUGU's control.
 
 ## Report a barrier
 
-If something in TidyWindow is hard or impossible to use with your setup, please tell us:
+If something in TSUGU is hard or impossible to use with your setup, please tell us:
 
-- [Open a bug report](https://github.com/Cosmos-0118/TidyWindow/issues/new?template=bug_report.yml) and choose **Accessibility** as the kind of problem. Include the page, what you were trying to do, and the assistive technology you use (for example Narrator, NVDA, high contrast, keyboard only, text size) with its version.
-- If you prefer not to post publicly, email [dhanush13244@gmail.com](mailto:dhanush13244@gmail.com) with "TidyWindow accessibility" in the subject.
+- [Open a bug report](https://github.com/raynottt/tsugu-windows-toolkit/issues/new?template=bug_report.yml) and choose **Accessibility** as the kind of problem. Include the page, what you were trying to do, and the assistive technology you use (for example Narrator, NVDA, high contrast, keyboard only, text size) with its version.
+- If you prefer not to post publicly, email [dhanush13244@gmail.com](mailto:dhanush13244@gmail.com) with "TSUGU accessibility" in the subject.
 
 We aim to reply within 7 days. Barriers that block a task completely are prioritized with other serious bugs.
 

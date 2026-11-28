@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The real thing. Everything here works as the signed-in user: no administrator permission is used or asked for.</summary>
 [SupportedOSPlatform("windows")]

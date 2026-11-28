@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
 // Only this helper loads the native SDK, so a native failure ends this process and never the app.
 // --serve keeps it running and answers one JSON line per request; otherwise it answers a single request given as an argument.
@@ -22,7 +22,7 @@ if (args.Contains("--serve"))
 {
     using var input = new StreamReader(Console.OpenStandardInput(), utf8);
     using var output = new StreamWriter(Console.OpenStandardOutput(), utf8) { AutoFlush = true };
-    // Ends when the app closes its end of the pipe, so the helper never outlives TidyWindow.
+    // Ends when the app closes its end of the pipe, so the helper never outlives TSUGU.
     while (input.ReadLine() is { } line)
     {
         ScoutWorkerRequest? request;

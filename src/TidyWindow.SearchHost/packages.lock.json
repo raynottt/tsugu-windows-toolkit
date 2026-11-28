@@ -2,7 +2,7 @@
   "version": 1,
   "dependencies": {
     "net10.0": {
-      "tidywindow.core": {
+      "tsugu.core": {
         "type": "Project"
       }
     },

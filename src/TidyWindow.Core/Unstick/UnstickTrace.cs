@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>The things one Unstick action did, in order, written for a person to read in Logs. Safe to add to from any thread.</summary>
 public sealed class UnstickTrace

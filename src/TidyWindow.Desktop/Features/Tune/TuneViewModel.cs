@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public enum TuneTab { Speed, Cleaner, Comfort, Changes }
 public enum TuneFilter { All, On, Off }
@@ -66,7 +66,7 @@ public sealed class TuneRow(TuneEntry entry, Func<bool>? pageBusy = null) : Obse
         _ => "At once"
     };
 
-    /// <summary>TidyWindow changed this earlier and something has put it back, as a Windows update or a policy sometimes does.</summary>
+    /// <summary>TSUGU changed this earlier and something has put it back, as a Windows update or a policy sometimes does.</summary>
     public bool Reverted { get => reverted; set { if (Set(ref reverted, value)) Changed(nameof(RevertedVisibility)); } }
 
     public bool Expanded => expanded;
@@ -87,7 +87,7 @@ public sealed class TuneRow(TuneEntry entry, Func<bool>? pageBusy = null) : Obse
         Add("Right now", current.Applied ? "On" : current.Partly ? "Partly on" : "Off");
         Add("Takes effect", item.Takes switch
         {
-            TuneEffect.Explorer => "When File Explorer restarts. TidyWindow can do that for you.",
+            TuneEffect.Explorer => "When File Explorer restarts. TSUGU can do that for you.",
             TuneEffect.SignOut => "The next time you sign in.",
             TuneEffect.Restart => "The next time you restart Windows.",
             _ => "Straight away."
@@ -189,7 +189,7 @@ public sealed class TuneViewModel(ITuneSystem system, IReadOnlyList<TuneItem> ca
 
     public string FooterNote => $"Only settings with a clear, noticeable effect are listed. Popular “registry boosters” with no proof behind them are left out on purpose. Every change keeps the original value so it can be put back exactly.{(notOnThisPc > 0 ? $" {notOnThisPc:N0} more are for other versions of Windows." : "")}";
 
-    // Turned on by TidyWindow earlier and put back since, such as by a Windows update. Only those that can be changed again are offered.
+    // Turned on by TSUGU earlier and put back since, such as by a Windows update. Only those that can be changed again are offered.
     private IReadOnlyList<TuneRow> RevertedRows => all.Where(x => x.Reverted && !x.Entry.Applied && !x.Entry.Partly && x.Entry.CanChange).ToList();
     public int RevertedCount => RevertedRows.Count;
     public Visibility RevertedVisibility => RevertedCount > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -374,7 +374,7 @@ public sealed class TuneViewModel(ITuneSystem system, IReadOnlyList<TuneItem> ca
         finally { row.Busy = false; }
     }
 
-    /// <summary>Turns on again everything TidyWindow turned on that something else has since put back.</summary>
+    /// <summary>Turns on again everything TSUGU turned on that something else has since put back.</summary>
     public async Task TurnOnAgainAsync()
     {
         var rows = RevertedRows;
@@ -419,7 +419,7 @@ public sealed class TuneViewModel(ITuneSystem system, IReadOnlyList<TuneItem> ca
 
     public Task<bool> PutBackAsync(TuneChangeRow change) => SetByIdAsync(change.Change.Id, false);
 
-    /// <summary>Puts back everything TidyWindow changed.</summary>
+    /// <summary>Puts back everything TSUGU changed.</summary>
     public async Task RestoreAllAsync()
     {
         if (Busy) return;

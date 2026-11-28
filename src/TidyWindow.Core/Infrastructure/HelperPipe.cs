@@ -6,10 +6,10 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
-/// The private pipe between TidyWindow and its administrator helper, and the way the helper is started. Every elevated feature uses the
+/// The private pipe between TSUGU and its administrator helper, and the way the helper is started. Every elevated feature uses the
 /// same arrangement: the app makes a pipe with a random name that only this account (and administrators, who approve the prompt) can open,
 /// starts the helper through the Windows permission prompt, and the helper connects back by name and checks that the pipe belongs to the
 /// account it was started for. Messages are JSON lines; a line longer than <see cref="MaxLineLength"/> ends the conversation instead of
@@ -24,7 +24,7 @@ public static class HelperPipe
     public const int ConnectTimeout = 15000;
 
     /// <summary>A pipe name nobody can guess ahead of time.</summary>
-    public static string NewName(string area) => "tidywindow-" + area + "-" + Guid.NewGuid().ToString("N");
+    public static string NewName(string area) => "tsugu-" + area + "-" + Guid.NewGuid().ToString("N");
 
     /// <summary>The app side: one pipe for one helper, in this account's name, that no other ordinary account can open.</summary>
     public static NamedPipeServerStream CreateServer(string name)
@@ -80,7 +80,7 @@ public static class HelperPipe
         using var identity = WindowsIdentity.GetCurrent();
         var owner = pipe.GetAccessControl().GetOwner(typeof(SecurityIdentifier)) as SecurityIdentifier;
         if (owner is not null && identity.User is { } user && owner.Equals(user)) return;
-        // An administrator who approved the prompt for another account's TidyWindow is talking to that account's pipe. The helper is bound
+        // An administrator who approved the prompt for another account's TSUGU is talking to that account's pipe. The helper is bound
         // by the same catalog rules whoever is on the other end, so the only thing refused is a pipe that no account made.
         if (owner is not null && owner.IsAccountSid() && new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator)) return;
         throw new UnauthorizedAccessException("The pipe does not belong to the account that started the helper.");

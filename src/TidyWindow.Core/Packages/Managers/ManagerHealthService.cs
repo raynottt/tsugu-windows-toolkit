@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <param name="elevatedProblem">Why a manager's executable must not be used for runs with administrator rights (kind, path), or null. The default applies <see cref="ElevatedProgram"/> and the Chocolatey account rule; tests that work in temporary folders replace it.</param>
 public sealed partial class ManagerHealthService(PackageService packages, ICommandRunner runner, IExecutableLocator locator, Func<ManagerKind, string, string?>? elevatedProblem = null)

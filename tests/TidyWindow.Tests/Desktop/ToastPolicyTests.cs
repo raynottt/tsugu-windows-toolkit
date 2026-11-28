@@ -1,7 +1,7 @@
-using TidyWindow.Next.Desktop;
+using TSUGU.Desktop;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class ToastPolicyTests
 {

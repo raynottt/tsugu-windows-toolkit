@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum CleanupLevel { Recommended, Review }
 public enum CleanupAction { Files, RecycleBin, ComponentStore, PreviousWindows, Hibernation, DiskCleanup }

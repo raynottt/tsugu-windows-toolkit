@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class PackageOperationQueueTests
 {
@@ -192,7 +192,7 @@ public sealed class PackageOperationQueueTests
         await queue.WhenIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
         var result = Assert.Single(queue.Snapshot().Entries).Result!;
         Assert.Equal(ActionOutcome.Failed, result.Outcome);
-        Assert.Contains("did not finish within the time TidyWindow allows", result.Detail);
+        Assert.Contains("did not finish within the time TSUGU allows", result.Detail);
         Assert.DoesNotContain("connection", result.Detail);
     }
 

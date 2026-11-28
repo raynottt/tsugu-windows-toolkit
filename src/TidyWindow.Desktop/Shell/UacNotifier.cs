@@ -1,11 +1,11 @@
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>
-/// Tells the person when Windows is waiting for them to approve an administrator prompt that TidyWindow's work needs. Inside TidyWindow it is a toast over whatever page is open;
+/// Tells the person when Windows is waiting for them to approve an administrator prompt that TSUGU's work needs. Inside TSUGU it is a toast over whatever page is open;
 /// anywhere else in Windows it is a notification at the corner of the screen. Either one has a button that brings the prompt forward, and goes away by itself when the prompt does.
 /// </summary>
 internal sealed class UacNotifier : IDisposable
@@ -30,7 +30,7 @@ internal sealed class UacNotifier : IDisposable
         }
         catch (Exception ex)
         {
-            log.Write(ActivityLevel.Warning, ActivityArea.App, "Windows notifications are unavailable", ex.Message + "\nA waiting permission prompt is still announced inside TidyWindow.");
+            log.Write(ActivityLevel.Warning, ActivityArea.App, "Windows notifications are unavailable", ex.Message + "\nA waiting permission prompt is still announced inside TSUGU.");
         }
         watcher = new UacPromptWatcher(UacPrompt.IsOpen, hasWork);
         watcher.Changed += open => post(() => Changed(open));
@@ -45,7 +45,7 @@ internal sealed class UacNotifier : IDisposable
             if (system) _ = RemoveAsync();
             return;
         }
-        // The prompt is waiting. In TidyWindow a toast says so; with another program in front, so does a notification, since the toast would be unseen.
+        // The prompt is waiting. In TSUGU a toast says so; with another program in front, so does a notification, since the toast would be unseen.
         if (toasts.Attentive || !system) ShowToast();
         else ShowNotification();
     }
@@ -59,7 +59,7 @@ internal sealed class UacNotifier : IDisposable
         {
             var notification = new AppNotificationBuilder()
                 .AddText("Windows is waiting for your approval")
-                .AddText("TidyWindow is paused until a permission prompt is answered.")
+                .AddText("TSUGU is paused until a permission prompt is answered.")
                 .AddButton(new AppNotificationButton("Show prompt").AddArgument("action", "uac"))
                 .SetScenario(AppNotificationScenario.Reminder)
                 .BuildNotification();

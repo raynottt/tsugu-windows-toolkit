@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>A pretend powercfg that keeps a list of plans, so nothing on this PC is switched.</summary>
 internal sealed class FakePowerCfg : IPowerCfg
@@ -86,7 +86,7 @@ public sealed class PowerGuardTests
 
 public sealed class PowerModeTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-lab-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-lab-" + Guid.NewGuid().ToString("N"));
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     [Fact]
@@ -560,7 +560,7 @@ public sealed class ProcessBoostTests
 
 public sealed class LabStoreTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-labstore-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-labstore-" + Guid.NewGuid().ToString("N"));
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     private static ProbeRun Run(DateTimeOffset when) => new(when, "Balanced", "on", [new("wake", 2, 1)]);
@@ -625,7 +625,7 @@ public sealed class LabLiveTests
     [Fact]
     public void TheRealPowercfgListsPlansAndNamesTheActiveOne()
     {
-        var state = new PowerMode(new PowerCfgProcess(), new(Path.Combine(Path.GetTempPath(), "tidywindow-live-" + Guid.NewGuid().ToString("N")))).Read();
+        var state = new PowerMode(new PowerCfgProcess(), new(Path.Combine(Path.GetTempPath(), "tsugu-live-" + Guid.NewGuid().ToString("N")))).Read();
 
         Assert.NotEmpty(state.Plans); Assert.True(PowerGuard.IsId(state.Active.Id)); Assert.Contains(state.Plans, p => p.Id == state.Active.Id);
     }

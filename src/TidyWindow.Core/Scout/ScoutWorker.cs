@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>One line sent to the long-running search helper.</summary>
 public sealed record ScoutWorkerRequest(int Id, string Op, ScoutRequest? Request = null, bool Fuzzy = false);
@@ -27,9 +27,9 @@ public static class ScoutWorkerErrors
     {
         detail = detail?.Trim() ?? "";
         if (exitCode == 150 || detail.Contains("You must install", StringComparison.OrdinalIgnoreCase) || detail.Contains("framework", StringComparison.OrdinalIgnoreCase) && detail.Contains(".NET", StringComparison.OrdinalIgnoreCase))
-            return "The search helper could not start because the .NET runtime it needs was not found. Reinstall TidyWindow, or choose a folder to search directly.";
+            return "The search helper could not start because the .NET runtime it needs was not found. Reinstall TSUGU, or choose a folder to search directly.";
         if (detail.Contains("Everything64.dll", StringComparison.OrdinalIgnoreCase) && detail.Contains("load", StringComparison.OrdinalIgnoreCase))
-            return "The search helper could not load the Everything library it ships with. Reinstall TidyWindow, or choose a folder to search directly.";
+            return "The search helper could not load the Everything library it ships with. Reinstall TSUGU, or choose a folder to search directly.";
         return $"The index worker stopped unexpectedly (code {exitCode}). Folder search is still available.";
     }
 }
@@ -41,7 +41,7 @@ public sealed class OneShotScoutWorker(ICommandRunner runner, string hostPath) :
 
     public async Task<ScoutReply> QueryAsync(ScoutRequest? request, bool fuzzy, CancellationToken token)
     {
-        if (!File.Exists(hostPath)) return new(false, [], Error: "The search worker is unavailable. Rebuild TidyWindow.");
+        if (!File.Exists(hostPath)) return new(false, [], Error: "The search worker is unavailable. Rebuild TSUGU.");
         var argument = request is null ? "--status" : Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)));
         try
         {
@@ -74,7 +74,7 @@ public sealed class PersistentScoutWorker(string hostPath, bool killOnCancel = f
 
     public async Task<ScoutReply> QueryAsync(ScoutRequest? request, bool fuzzy, CancellationToken token)
     {
-        if (!File.Exists(hostPath)) return new(false, [], Error: "The search worker is unavailable. Rebuild TidyWindow.");
+        if (!File.Exists(hostPath)) return new(false, [], Error: "The search worker is unavailable. Rebuild TSUGU.");
         await gate.WaitAsync(token).ConfigureAwait(false);
         try
         {
@@ -160,13 +160,17 @@ public sealed class PersistentScoutWorker(string hostPath, bool killOnCancel = f
 
         public static Session Start(string hostPath, JsonSerializerOptions json)
         {
-            var start = new ProcessStartInfo(hostPath)
+            var batchFile = Path.GetExtension(hostPath).Equals(".cmd", StringComparison.OrdinalIgnoreCase)
+                || Path.GetExtension(hostPath).Equals(".bat", StringComparison.OrdinalIgnoreCase);
+            var executable = batchFile ? (Environment.GetEnvironmentVariable("ComSpec") ?? "cmd.exe") : hostPath;
+            var start = new ProcessStartInfo(executable)
             {
                 UseShellExecute = false, CreateNoWindow = true, RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true,
                 StandardInputEncoding = new UTF8Encoding(false), StandardOutputEncoding = new UTF8Encoding(false), StandardErrorEncoding = Encoding.UTF8,
                 WorkingDirectory = Path.GetDirectoryName(hostPath) ?? ""
             };
-            start.ArgumentList.Add("--serve");
+            if (batchFile) start.Arguments = "/d /s /c " + (char)34 + (char)34 + hostPath + (char)34 + " --serve" + (char)34;
+            else start.ArgumentList.Add("--serve");
             try { return new Session(Process.Start(start) ?? throw new InvalidOperationException("The index worker could not be started."), json); }
             catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException)
             { return new Session("The index worker could not be started. " + ex.Message); }

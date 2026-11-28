@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Programs that were running from an app's folder: the ones that were closed, and the ones left open because a person may be working in them.</summary>
 public sealed record ClosedPrograms(IReadOnlyList<string> Closed, IReadOnlyList<string> StillOpen)
@@ -332,8 +332,8 @@ public sealed class UninstallRecovery(IInstallSystem system, IUninstallHost host
             if (entry is not null && tried.Add("native"))
             {
                 var plan = Safe(() => NativeUninstall.Plan(entry, system, host.ReadHead, MachineExpand));
-                if (plan is null) { trail.Add("TidyWindow does not know a silent way to run this app’s own uninstaller, so it did not guess one."); continue; }
-                // An uninstaller registered for the whole PC runs with administrator rights (asked for, or TidyWindow's own), so where it lives decides whether it runs at all.
+                if (plan is null) { trail.Add("TSUGU does not know a silent way to run this app’s own uninstaller, so it did not guess one."); continue; }
+                // An uninstaller registered for the whole PC runs with administrator rights (asked for, or TSUGU's own), so where it lives decides whether it runs at all.
                 var file = plan.FileName;
                 if (plan.Machine)
                 {
@@ -525,7 +525,7 @@ public sealed class WindowsUninstallHost : IUninstallHost
             {
                 var name = names[process];
                 if (Exited(process)) closed.Add(name);
-                // A window that stayed open may be asking whether to save; a person decides that, not TidyWindow.
+                // A window that stayed open may be asking whether to save; a person decides that, not TSUGU.
                 else if (HasWindow(process)) open.Add(name);
                 else if (End(process)) closed.Add(name);
                 else open.Add(name);
@@ -563,7 +563,7 @@ public sealed class WindowsUninstallHost : IUninstallHost
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Path.Combine(local, "Programs"), Path.Combine(local, "Microsoft", "WindowsApps"),
             AppContext.BaseDirectory.TrimEnd('\\')
         };
-        // Protected when the folder is one of these or contains one (so a folder above Program Files, or above TidyWindow itself, is refused too).
+        // Protected when the folder is one of these or contains one (so a folder above Program Files, or above TSUGU itself, is refused too).
         return places.Where(x => x.Length > 0).Any(x => x.Equals(root, StringComparison.OrdinalIgnoreCase) || x.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase));
     }
 }

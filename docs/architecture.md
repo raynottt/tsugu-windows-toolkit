@@ -1,6 +1,6 @@
 # Architecture and behavior
 
-TidyWindow is a Windows-specific desktop app built with C#, .NET 10 and WinUI 3. Native controls and desktop integration run without a web renderer; the UI and backend share one language.
+TSUGU is a Windows-specific desktop app built with C#, .NET 10 and WinUI 3. Native controls and desktop integration run without a web renderer; the UI and backend share one language.
 
 ## Project map
 
@@ -10,7 +10,7 @@ TidyWindow is a Windows-specific desktop app built with C#, .NET 10 and WinUI 3.
 | [`src/TidyWindow.Core/`](../src/TidyWindow.Core/) | Everything that does the work, one folder per area: `Packages/` (managers, search, queue), `Repair/`, `Cleanup/`, `Scout/`, `Paths/`, `Startup/`, `Background/`, `Tune/`, `Debloat/`, `Fixes/`, `Unstick/`, `Lab/`, `Crashes/`, plus `Infrastructure/` (process runner, logs, output) and `Icons/`. Each area keeps its catalog next to its code. |
 | [`src/TidyWindow.CleanHost/`](../src/TidyWindow.CleanHost/) | The elevated helper for Windows-wide changes. |
 | [`src/TidyWindow.SearchHost/`](../src/TidyWindow.SearchHost/) | The Scout worker that talks to Everything. |
-| [`tests/TidyWindow.Tests/`](../tests/TidyWindow.Tests/) | Unit tests, in folders that mirror `TidyWindow.Core` (and `Desktop/` for the UI code they link). |
+| [`tests/TidyWindow.Tests/`](../tests/TidyWindow.Tests/) | Unit tests, in folders that mirror `TSUGU.Core` (and `Desktop/` for the UI code they link). |
 | [`tests/TidyWindow.UiSmoke/`](../tests/TidyWindow.UiSmoke/) | A small WinUI program that checks shared UI pieces and the live Scout lookup. Run by hand; it is part of the solution so CI keeps it compiling. |
 | [`docs/`](./) | Research, implementation decisions and validation notes. |
 | [`installer/`](../installer/) | Inno Setup script, the script that builds it, and an install/uninstall smoke test. |
@@ -18,7 +18,7 @@ TidyWindow is a Windows-specific desktop app built with C#, .NET 10 and WinUI 3.
 | [`scripts/`](../scripts/) | Checks that run against the real PC and are not part of the test suite. |
 | [`.github/`](../.github/) | CI (locked restore, build, tests, installer smoke test), the release workflow, CodeQL and Dependabot. Actions are pinned to commit SHAs. |
 
-Build output goes to `artifacts/` at the repository root (set once as `ArtifactsDir` in `Directory.Build.props`). Release builds keep their debug information inside the assemblies (`DebugType=embedded`), so stack traces carry line numbers without separate `.pdb` files. Namespaces stay `TidyWindow.Next.Core` and `TidyWindow.Next.Desktop` whatever folder a file is in.
+Build output goes to `artifacts/` at the repository root (set once as `ArtifactsDir` in `Directory.Build.props`). Release builds keep their debug information inside the assemblies (`DebugType=embedded`), so stack traces carry line numbers without separate `.pdb` files. Namespaces stay `TSUGU.Core` and `TSUGU.Desktop` whatever folder a file is in.
 
 ## Package search
 
@@ -36,7 +36,7 @@ Windows administrator prompts and installer dialogs stay native windows that the
 
 A command runs with administrator rights only when its program lives where accounts without those rights cannot change it (`ElevatedProgram`): nothing under a profile, the temporary folder or a folder whose permissions let ordinary accounts write, and nothing whose permissions cannot be read. WinGet's command is an alias in the profile, so the packaged program it stands for under Program Files\WindowsApps is what is checked and run. A program that fails the check is not run elevated and the card says why; because Scoop keeps its script in the profile, its all-users operations are refused. The same rule covers an app's own uninstaller when the ladder runs one for a per-machine entry, whose command is expanded with the PC's variables only, never the person's.
 
-Chocolatey operations use a separate elevated window, so their output cannot be shown in TidyWindow; their cards point to that window. Declining elevation reports a failure and the queue moves on. Scoop keeps its script in your profile, where any program you run could change it, so TidyWindow does not run Scoop operations for all users with administrator rights; the card says to use an administrator PowerShell window for those.
+Chocolatey operations use a separate elevated window, so their output cannot be shown in TSUGU; their cards point to that window. Declining elevation reports a failure and the queue moves on. Scoop keeps its script in your profile, where any program you run could change it, so TSUGU does not run Scoop operations for all users with administrator rights; the card says to use an administrator PowerShell window for those.
 
 The queue belongs to the current session and does not resume after a crash. Closing while work remains asks first: Keep open is the default, and Stop and close drops what is waiting and stops the running command, then closes once that has happened. A fix step that must not be ended half way (DISM, SFC) is let finish and the steps that put things back still run, so the window waits for them behind a "Finishing before closing" dialog instead of for a fixed time; its Close now button is the one way out early. A running fix can be stopped from the Queue page too. If it is still finishing a step it must not end, a Stop waiting button appears: the queue moves on, the fix is not ended and carries on in the background (its real result reaches Logs when it ends), and another fix waits for its turn until then. Closing while one is still finishing says so, because its clean-up steps will not run. A running package operation can also be stopped from the Queue page, and the queue moves on if a stop is ignored; the next operation then waits for the ignored command to end before it starts, and can itself be stopped. A note kept on disk while an operation runs lets the next launch say that the last session ended partway.
 
@@ -48,13 +48,13 @@ See [Scout research](scout-research.md) for candidate limits, backend requiremen
 
 ## Windows changes
 
-Cleanup, Quiet, Tune, Debloat and Fixes act on catalogs embedded in `TidyWindow.Core` and checked when the app starts; a second allowlist in each feature refuses anything outside them. Lab has no catalog: `PowerGuard` allows a fixed set of `powercfg` arguments, and the priority change applies to one process the person picked. Windows-wide changes run in `TidyWindow.CleanHost.exe`, started only after the person approves elevation.
+Cleanup, Quiet, Tune, Debloat and Fixes act on catalogs embedded in `TSUGU.Core` and checked when the app starts; a second allowlist in each feature refuses anything outside them. Lab has no catalog: `PowerGuard` allows a fixed set of `powercfg` arguments, and the priority change applies to one process the person picked. Windows-wide changes run in `TidyWindow.CleanHost.exe`, started only after the person approves elevation.
 
 ### The helper boundary
 
 The app runs as the ordinary account and never elevates itself. When a feature needs administrator rights, the app first creates a named pipe with a random name whose permissions admit only the current account, administrators and SYSTEM (`HelperPipe.CreateServer`), then starts the helper through the Windows permission prompt from the `CleanHost` folder next to the app (`HelperPipe.LaunchElevated`). The helper connects by name, checks that the pipe's owner is the account it was started for, and reads JSON lines with a ceiling on line length. The app sends catalog item IDs and arguments; the helper loads its own copy of the catalog and rebuilds every action from it, so a damaged or hostile app process can choose which entry runs, not what it does.
 
-Anything the helper later writes back with administrator rights comes from `ProtectedStore` ([`src/TidyWindow.Core/Infrastructure/ProtectedStore.cs`](../src/TidyWindow.Core/Infrastructure/ProtectedStore.cs)): a folder under `%ProgramData%\TidyWindow.Next` that administrators own and no other account can change, created with those permissions in one step and checked again on every call. A folder or file there with the wrong owner or permissions is moved aside and never read. The startup items the helper removed, the registry a repair backed up and the originals of tweaks are kept there; the app keeps its own copy under `%LOCALAPPDATA%\TidyWindow.Next` for display, and the helper never trusts that copy.
+Anything the helper later writes back with administrator rights comes from `ProtectedStore` ([`src/TidyWindow.Core/Infrastructure/ProtectedStore.cs`](../src/TidyWindow.Core/Infrastructure/ProtectedStore.cs)): a folder under `%ProgramData%\TSUGU` that administrators own and no other account can change, created with those permissions in one step and checked again on every call. A folder or file there with the wrong owner or permissions is moved aside and never read. The startup items the helper removed, the registry a repair backed up and the originals of tweaks are kept there; the app keeps its own copy under `%LOCALAPPDATA%\TSUGU` for display, and the helper never trusts that copy.
 
 Two refusals follow from the same rule. `MachinePath` will not add a folder to the Windows-wide PATH when an account without administrator rights could change it or any folder above it, because a program planted there would run as whoever next types the command. And the helper starts package managers only from locations ordinary accounts cannot change.
 
@@ -72,12 +72,12 @@ The per-tool research notes linked from the [README](../README.md#documentation)
 
 Crashes reads app crashes, freezes and Windows problems (blue screens, failing services, driver resets, disk and hardware errors) from the Windows event log, using the system's own query engine so Windows does the filtering. Nothing watches the log: a scan runs when the page opens, on Refresh, and once shortly after launch so the sidebar can show whether something is new. A scan reads only what is newer than the last, on a lowest-priority thread.
 
-Records are kept in `%LOCALAPPDATA%\TidyWindow.Next\Crashes` (up to 6,000 records and 120 days) so the page opens at once and outlives Windows' own log rotation. Duplicates are merged (a .NET crash is written twice, a blue screen up to three times), repeats of one system problem within ten minutes become one entry with a count, and search runs over strings built once per refresh. See [Crashes research](crashes-research.md).
+Records are kept in `%LOCALAPPDATA%\TSUGU\Crashes` (up to 6,000 records and 120 days) so the page opens at once and outlives Windows' own log rotation. Duplicates are merged (a .NET crash is written twice, a blue screen up to three times), repeats of one system problem within ten minutes become one entry with a count, and search runs over strings built once per refresh. See [Crashes research](crashes-research.md).
 
-This is separate from Logs, which records what TidyWindow itself did.
+This is separate from Logs, which records what TSUGU itself did.
 
 ## Logs
 
 Logs record events worth acting on: install and setup outcomes, a package manager changing state, a failing search source and unexpected errors. A normal session can leave them empty. An identical event within six hours bumps one entry's count.
 
-Entries are JSON lines in `%LOCALAPPDATA%\TidyWindow.Next\Logs`, with the account name replaced by `%USERPROFILE%`. This replacement does not remove every potentially identifying detail; review logs before sharing them. A crash is recorded with the exception and its stack trace; because release builds carry their debug information inside the assemblies, those traces name the source file and line, with the build machine's paths replaced by the repository-relative `/_/` form on CI.
+Entries are JSON lines in `%LOCALAPPDATA%\TSUGU\Logs`, with the account name replaced by `%USERPROFILE%`. This replacement does not remove every potentially identifying detail; review logs before sharing them. A crash is recorded with the exception and its stack trace; because release builds carry their debug information inside the assemblies, those traces name the source file and line, with the build machine's paths replaced by the repository-relative `/_/` form on CI.

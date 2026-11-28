@@ -1,8 +1,8 @@
 using System.Text.Json;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 internal sealed class FakeTunePc : ITuneSystem, ITuneWriter
 {
@@ -470,7 +470,7 @@ public sealed class TuneScanTests
 
 public sealed class TuneChangeTests : IDisposable
 {
-    private readonly string folder = Path.Combine(Path.GetTempPath(), "tidywindow-tune-" + Guid.NewGuid().ToString("N"));
+    private readonly string folder = Path.Combine(Path.GetTempPath(), "tsugu-tune-" + Guid.NewGuid().ToString("N"));
     public void Dispose() { try { Directory.Delete(folder, true); } catch (IOException) { } }
 
     private const string Mouse = @"Control Panel\Mouse";

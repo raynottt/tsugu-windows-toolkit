@@ -4,14 +4,14 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Windows.System;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class MainWindow : Window
 {
-    private enum Page { Overview, Install, Installed, Suggested, Scout, Cleanup, Paths, Repair, Startup, Quiet, Tune, Debloat, Fixes, Unstick, Lab, Crashes, Queue, Logs, Settings }
+    private enum Page { Overview, Install, Installed, Suggested, Scout, Cleanup, Paths, Repair, Startup, Quiet, Tune, Fixes, Unstick, Lab, Crashes, Queue, Logs, Settings }
     private readonly ActivityLog log;
     private readonly WorkspaceViewModel model;
     private readonly LogsViewModel logs;
@@ -30,8 +30,6 @@ public sealed partial class MainWindow : Window
     private readonly BackgroundSession quietSession;
     private readonly TuneViewModel tune;
     private readonly TuneSession tuneSession;
-    private readonly DebloatViewModel debloat;
-    private readonly DebloatSession debloatSession;
     private readonly FixesViewModel fixes;
     private readonly FixSession fixSession;
     private readonly UnstickViewModel unstick;
@@ -67,20 +65,20 @@ public sealed partial class MainWindow : Window
         // Repairs to Windows-wide records go through a helper that only runs after the person approves the Windows permission prompt.
         // An uninstall that fails uses the same repair engine, so the helper is shared.
         var installSystem = new WindowsInstallSystem();
-        var repairHistory = new RepairHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "RepairBackups"));
+        var repairHistory = new RepairHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "RepairBackups"));
         repairSession = RepairSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
         var repairService = new RepairService(installSystem, RegistryRepair.User, repairSession, repairSession.OpenAsync, repairSession.Close, repairHistory, new WindowsInstallerOps(), repairSession, new WingetFetcher(), FileShortcutEditor.User(), repairSession, FileFolderEditor.User(), repairSession);
         var uninstallRecovery = new UninstallRecovery(installSystem, new WindowsUninstallHost(), runner, repairService) { AllowDownload = true };
-        var management = new InstallationService(packages, runner, locator, new SkippedUpdates(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "skipped-updates.json")), uninstallRecovery, new StoreUpdateCheck(runner));
+        var management = new InstallationService(packages, runner, locator, new SkippedUpdates(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "skipped-updates.json")), uninstallRecovery, new StoreUpdateCheck(runner));
         var suggestedInstallService = new SuggestedInstallService(runner, locator);
         var executor = new PackageOperationExecutor(packages, management, locator, InstalledInventory.ReadWindows, runner, suggestedInstallService);
         // Fixes share the queue, and so its live output. Machine-wide fixes run in a helper that sends its output back as it is produced.
         fixSession = FixSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
-        var fixStore = new FixRunStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Fixes"));
+        var fixStore = new FixRunStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Fixes"));
         var fixService = new FixService(FixCatalog.Load(), new FixStepExecutor(), fixSession, FixService.IsAdministrator, () => fixSession.OpenAsync(), fixStore, helperOpen: () => fixSession.IsOpen, log: log);
         var packageQueue = PackageOperationQueue.WithLiveOutput((operation, progress, token) => operation.Fix is { } run ? fixService.RunAsync(run, progress, token) : executor.ExecuteAsync(operation, progress, token));
         // A note is kept while an operation runs, so a run that ended partway (closed, killed, crashed) is reported at the next launch.
-        interrupted = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "interrupted-operation.json"));
+        interrupted = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "interrupted-operation.json"));
         previousRun = interrupted.Take();
         packageQueue.Started += entry => interrupted.Begin(entry.Operation);
         // Closing from the warning stops the work on purpose but keeps the note, because the work was still cut short.
@@ -93,7 +91,7 @@ public sealed partial class MainWindow : Window
         terminal = new(new TerminalSetup(TerminalPaths.ForCurrentUser()), runner, operationQueue, log, toasts,
             () => model.Managers.Any(x => x.Definition.Kind == ManagerKind.Winget && x.Status?.Health == ManagerHealth.Ready), ConfirmAsync,
             FontSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe")));
-        installations = new(management, model, log, operationQueue, snapshot: new InstalledSnapshot(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "installed-apps.json")));
+        installations = new(management, model, log, operationQueue, snapshot: new InstalledSnapshot(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "installed-apps.json")));
         packageQueue.Finished += entry =>
         {
             if (entry.Operation.SuggestedInstall is not null &&
@@ -103,11 +101,11 @@ public sealed partial class MainWindow : Window
         var scoutHost = Path.Combine(AppContext.BaseDirectory, "ScoutHost", "TidyWindow.SearchHost.exe");
         // Two long-running helpers: quick exact searches, and a separate one for slower near-match searches that can be stopped without disturbing typing.
         scout = new(new ScoutService(runner, scoutHost, worker: new PersistentScoutWorker(scoutHost), fuzzyWorker: new PersistentScoutWorker(scoutHost, killOnCancel: true)), log, Post);
-        var undo = new CleanupQuarantine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Undo"));
+        var undo = new CleanupQuarantine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Undo"));
         cleanup = new(CleanupCatalog.Load(), new CleanupScanner(CleanupContext.Current), new CleanupCleaner(CleanupContext.Current, undo), undo, SystemCleanLauncher.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe")), log, Post, toasts);
         _ = Task.Run(undo.Purge);
         var pathAnalyzer = new PathAnalyzer(Environment.ExpandEnvironmentVariables, Directory.Exists);
-        var pathBackups = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "PathBackups");
+        var pathBackups = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "PathBackups");
         var registry = new RegistryPathStore();
         var pathDoctor = new PathDoctor(registry, new PathBackup(pathBackups), pathAnalyzer, EnvironmentBroadcast.Notify);
         // Windows-wide edits go through a helper that only runs after the person approves the Windows permission prompt.
@@ -118,47 +116,37 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         ToastStack.ItemsSource = toasts.Items;
         // A card is read from a file in the install folder when a toast appears. If that folder was changed under the open window, a plain card is shown instead.
-        ToastStack.CardFailed = ex => log.Write(ActivityLevel.Warning, ActivityArea.App, "A message was shown in plain form", "Its card could not be loaded, usually because TidyWindow was updated or removed while it was open. Restart it to get the normal look back.\n" + ex.Message);
+        ToastStack.CardFailed = ex => log.Write(ActivityLevel.Warning, ActivityArea.App, "A message was shown in plain form", "Its card could not be loaded, usually because TSUGU was updated or removed while it was open. Restart it to get the normal look back.\n" + ex.Message);
         Root.DataContext = model;
         TerminalSection.DataContext = terminal;
         repair = new(installSystem, repairService, repairHistory, log, toasts, chooseFolder: PickFolderAsync);
         // Turning off a machine-wide item (a service, or something for every user) goes through a helper that only runs after the permission prompt.
         var startupSystem = new WindowsStartupSystem();
         startupSession = StartupSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
-        var startupHistory = new StartupHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Startup"));
+        var startupHistory = new StartupHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Startup"));
         startup = new(startupSystem, new StartupService(new LocalStartupChanger(startupSystem, new WindowsStartupWriter()), startupSession, () => startupSession.OpenAsync(), startupHistory), log, toasts);
         // The same goes for the services, scheduled tasks and Windows settings behind Quiet Windows.
         var quietSystem = new WindowsBackgroundSystem();
         var quietCatalog = BackgroundCatalog.Load();
         quietSession = BackgroundSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
-        var quietHistory = new BackgroundHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Background"));
+        var quietHistory = new BackgroundHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Background"));
         quiet = new(quietSystem, quietCatalog, new BackgroundManager(new LocalBackgroundChanger(quietSystem, new WindowsBackgroundWriter(), quietCatalog), quietSession, () => quietSession.OpenAsync(), quietHistory), log, toasts);
         // Tune changes your own settings directly; settings for every user go through the same kind of helper, after the permission prompt.
         var tuneSystem = new WindowsTuneSystem();
         var tuneCatalog = TuneCatalog.Load();
         tuneSession = TuneSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
-        var tuneHistory = new TuneHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Tune"));
-        // Removing apps needs administrator rights, so the page never removes anything itself: it asks the helper, after the permission prompt.
-        // The page reads the PC without them. The helper reads it again for every account and checks the same rules.
-        var debloatCatalog = DebloatCatalog.Load();
-        var debloatSystem = new WindowsDebloatSystem(elevated: false);
-        debloatSession = DebloatSession.Elevated(Path.Combine(AppContext.BaseDirectory, "CleanHost", "TidyWindow.CleanHost.exe"));
-        var debloatHistory = new DebloatHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Debloat"));
-        debloat = new(debloatSystem, debloatCatalog, new DebloatManager(debloatSession, () => debloatSession.OpenAsync(), debloatHistory, new DebloatReinstaller(runner, locator)), log, toasts);
-        var labStore = new LabStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Lab"));
+        var tuneHistory = new TuneHistory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Tune"));
+        var labStore = new LabStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Lab"));
         lab = new(new PowerMode(new PowerCfgProcess(), labStore), labStore, new ProcessBoost(new LiveProcesses()), tuneSystem, log, toasts, OpenTune, PowerSource.HasBattery());
         tune = new(tuneSystem, tuneCatalog, new TuneManager(new LocalTuneChanger(tuneSystem, new WindowsTuneWriter(), tuneCatalog), tuneSession, () => tuneSession.OpenAsync(), tuneHistory), log, toasts, ExplorerShell.RestartAsync);
         // Crash records are read from Windows' own event log when the page opens or is refreshed, and a short while after launch to show whether anything is new. Nothing watches the log.
-        crashes = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TidyWindow.Next", "Crashes"), new WindowsEventSource(), log, toasts);
+        crashes = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSUGU", "Crashes"), new WindowsEventSource(), log, toasts);
         unstick = new(new UnstickRunner(new WindowsUnstickSystem(), (run, progress, token) => fixService.RunAsync(run, progress, token)), log, toasts);
         CleanupPage.DataContext = cleanup;
         RepairPage.DataContext = repair;
         StartupPage.DataContext = startup;
         QuietPage.DataContext = quiet;
         TunePage.DataContext = tune;
-        DebloatPage.DataContext = debloat;
-        // Debloat removes apps behind the package managers' backs, so the Installed list is read again the next time it is opened.
-        debloat.AppsChanged += () => installations.NeedsRefresh = true;
         FixesPage.DataContext = fixes;
         UnstickPage.DataContext = unstick;
         LabPage.DataContext = lab;
@@ -195,7 +183,7 @@ public sealed partial class MainWindow : Window
         AppWindow.Resize(new(1100, 740));
         appearance = appearanceSettings.Load();
         Root.ActualThemeChanged += (_, _) => UpdateThemeChrome();
-        if (!SystemUi.Watch(SystemColorsChanged)) log.Write(ActivityLevel.Warning, ActivityArea.App, "Windows did not report its colour settings", "The theme and accent colour stay as they were when TidyWindow opened.");
+        if (!SystemUi.Watch(SystemColorsChanged)) log.Write(ActivityLevel.Warning, ActivityArea.App, "Windows did not report its colour settings", "The theme and accent colour stay as they were when TSUGU opened.");
         ApplyAppearance();
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
@@ -236,7 +224,7 @@ public sealed partial class MainWindow : Window
         // Work that stops for a Windows permission prompt nobody has seen is announced, in the app or at the corner of the screen.
         uac = new UacNotifier(toasts, log, () => operationQueue.HasWork, Post);
         Root.SizeChanged += (_, e) => ToastScroll.MaxHeight = Math.Max(120, e.NewSize.Height - 32);
-        Closed += (_, _) => { initialized = false; Open = null; scoutStatusTimer.Stop(); SystemUi.Unwatch(SystemColorsChanged); operationQueue.StateChanged -= QueueStateChanged; operationQueue.Dispose(); scout.Dispose(); cleanup.Dispose(); paths.Dispose(); repair.Dispose(); repairSession.Dispose(); startup.Dispose(); startupSession.Dispose(); quiet.Dispose(); quietSession.Dispose(); tune.Dispose(); tuneSession.Dispose(); debloat.Dispose(); debloatSession.Dispose(); fixes.Dispose(); fixSession.Dispose(); unstick.Dispose(); lab.Dispose(); crashes.Dispose(); settings.Dispose(); terminal.Dispose(); uac.Dispose(); toasts.Dispose(); installations.Dispose(); logs.Dispose(); model.Dispose(); };
+        Closed += (_, _) => { initialized = false; Open = null; scoutStatusTimer.Stop(); SystemUi.Unwatch(SystemColorsChanged); operationQueue.StateChanged -= QueueStateChanged; operationQueue.Dispose(); scout.Dispose(); cleanup.Dispose(); paths.Dispose(); repair.Dispose(); repairSession.Dispose(); startup.Dispose(); startupSession.Dispose(); quiet.Dispose(); quietSession.Dispose(); tune.Dispose(); tuneSession.Dispose(); fixes.Dispose(); fixSession.Dispose(); unstick.Dispose(); lab.Dispose(); crashes.Dispose(); settings.Dispose(); terminal.Dispose(); uac.Dispose(); toasts.Dispose(); installations.Dispose(); logs.Dispose(); model.Dispose(); };
     }
 
     /// <summary>The window that is open, for a page that needs <see cref="ShowDialogAsync"/>, <see cref="Post"/> or <see cref="Run"/>; null once it has closed.</summary>
@@ -270,7 +258,7 @@ public sealed partial class MainWindow : Window
         catch (Exception ex)
         {
             log.Write(ActivityLevel.Error, ActivityArea.App, "Something went wrong while " + doing, ex.ToString());
-            toasts.Show("failed:" + doing, ToastKind.Warning, "Something went wrong", $"TidyWindow could not finish {doing}. The details are in Logs.", "Open Logs", () => { ShowPage(Page.Logs); return Task.CompletedTask; }, 15);
+            toasts.Show("failed:" + doing, ToastKind.Warning, "Something went wrong", $"TSUGU could not finish {doing}. The details are in Logs.", "Open Logs", () => { ShowPage(Page.Logs); return Task.CompletedTask; }, 15);
         }
     }
 
@@ -316,7 +304,7 @@ public sealed partial class MainWindow : Window
         if (previousRun is not { } last) return;
         previousRun = null;
         var title = $"Last session ended while {last.Kind} {last.Name}";
-        var detail = $"{last.Source} was {last.Kind} {last.Name} when TidyWindow last stopped (started {last.Started:g}). It may be incomplete or damaged. Check it under Installed apps, and run it again if needed.";
+        var detail = $"{last.Source} was {last.Kind} {last.Name} when TSUGU last stopped (started {last.Started:g}). It may be incomplete or damaged. Check it under Installed apps, and run it again if needed.";
         log.Write(ActivityLevel.Warning, ActivityArea.Install, title, detail);
         toasts.Show("interrupted-run", ToastKind.Warning, title, ToastCenter.Flat(detail), "Open Installed apps",
             async () => { ShowPage(Page.Installed); if (installations.NeedsRefresh) await installations.RefreshAsync(); }, 0);
@@ -326,7 +314,7 @@ public sealed partial class MainWindow : Window
     {
         // Missing art must never stop the app from opening.
         var folder = Path.Combine(AppContext.BaseDirectory, "Assets", "Brand");
-        try { AppWindow.SetIcon(Path.Combine(folder, "tidywindow.ico")); } catch (Exception ex) when (ex is IOException or ArgumentException or System.Runtime.InteropServices.COMException) { }
+        try { AppWindow.SetIcon(Path.Combine(folder, "tsugu.ico")); } catch (Exception ex) when (ex is IOException or ArgumentException or System.Runtime.InteropServices.COMException) { }
         var logo = Path.Combine(folder, "logo-64.png");
         if (File.Exists(logo)) TitleLogo.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(logo)) { DecodePixelWidth = 18, DecodePixelType = Microsoft.UI.Xaml.Media.Imaging.DecodePixelType.Logical };
     }
@@ -506,7 +494,6 @@ public sealed partial class MainWindow : Window
         StartupNav.Visibility = Match("Startup", query);
         QuietNav.Visibility = Match("Quiet Background", query);
         TuneNav.Visibility = Match("Tune Settings", query);
-        DebloatNav.Visibility = Match("Debloat Remove Apps", query);
         FixesNav.Visibility = Match("Fixes", query);
         UnstickNav.Visibility = Match("Unstick", query);
         LabNav.Visibility = Match("Lab", query);
@@ -581,7 +568,7 @@ public sealed partial class MainWindow : Window
 
     private UIElement PageElement(Page value) => value switch
     {
-        Page.Install => InstallPage, Page.Installed => InstalledPage, Page.Suggested => SuggestedPage, Page.Scout => ScoutPage, Page.Cleanup => CleanupPage, Page.Paths => PathsPage, Page.Repair => RepairPage, Page.Startup => StartupPage, Page.Quiet => QuietPage, Page.Tune => TunePage, Page.Debloat => DebloatPage, Page.Fixes => FixesPage, Page.Unstick => UnstickPage, Page.Lab => LabPage, Page.Crashes => CrashesPage, Page.Queue => QueuePage, Page.Logs => LogsPage, Page.Settings => SettingsPage, _ => OverviewPage
+        Page.Install => InstallPage, Page.Installed => InstalledPage, Page.Suggested => SuggestedPage, Page.Scout => ScoutPage, Page.Cleanup => CleanupPage, Page.Paths => PathsPage, Page.Repair => RepairPage, Page.Startup => StartupPage, Page.Quiet => QuietPage, Page.Tune => TunePage, Page.Fixes => FixesPage, Page.Unstick => UnstickPage, Page.Lab => LabPage, Page.Crashes => CrashesPage, Page.Queue => QueuePage, Page.Logs => LogsPage, Page.Settings => SettingsPage, _ => OverviewPage
     };
 
     private bool pageShown;
@@ -594,7 +581,7 @@ public sealed partial class MainWindow : Window
         UpdateNavSelection();
         foreach (var other in Enum.GetValues<Page>()) if (other != next) PageElement(other).Visibility = Visibility.Collapsed;
         Reveal(PageElement(next));
-        // The font or a tool may have been installed outside TidyWindow since the list was last read.
+        // The font or a tool may have been installed outside TSUGU since the list was last read.
         if (next == Page.Overview && initialized) Run(terminal.RefreshAsync, "checking the terminal setup");
         if (page == Page.Install) SearchBox.Focus(FocusState.Programmatic);
     }
@@ -635,7 +622,7 @@ public sealed partial class MainWindow : Window
     private Brush navSelected = BrushCache.Transparent, navPrimary = BrushCache.Transparent, navMuted = BrushCache.Transparent, navAccent = BrushCache.Transparent;
     private void UpdateNavSelection()
     {
-        foreach (var (button, target) in new[] { (OverviewNav, Page.Overview), (InstallNav, Page.Install), (InstalledNav, Page.Installed), (SuggestedNav, Page.Suggested), (ScoutNav, Page.Scout), (CleanupNav, Page.Cleanup), (PathsNav, Page.Paths), (RepairNav, Page.Repair), (StartupNav, Page.Startup), (QuietNav, Page.Quiet), (TuneNav, Page.Tune), (DebloatNav, Page.Debloat), (FixesNav, Page.Fixes), (UnstickNav, Page.Unstick), (LabNav, Page.Lab), (CrashesNav, Page.Crashes), (QueueButton, Page.Queue), (LogsNav, Page.Logs), (SettingsNav, Page.Settings) })
+        foreach (var (button, target) in new[] { (OverviewNav, Page.Overview), (InstallNav, Page.Install), (InstalledNav, Page.Installed), (SuggestedNav, Page.Suggested), (ScoutNav, Page.Scout), (CleanupNav, Page.Cleanup), (PathsNav, Page.Paths), (RepairNav, Page.Repair), (StartupNav, Page.Startup), (QuietNav, Page.Quiet), (TuneNav, Page.Tune), (FixesNav, Page.Fixes), (UnstickNav, Page.Unstick), (LabNav, Page.Lab), (CrashesNav, Page.Crashes), (QueueButton, Page.Queue), (LogsNav, Page.Logs), (SettingsNav, Page.Settings) })
         {
             var active = page == target;
             button.Background = active ? navSelected : BrushCache.Transparent;
@@ -763,14 +750,6 @@ public sealed partial class MainWindow : Window
         if (!tune.Scanned && !tune.Busy) _ = tune.ScanAsync();
     }
 
-    private void DebloatClick(object sender, RoutedEventArgs e)
-    {
-        ShowPage(Page.Debloat);
-        debloat.RefreshRemoved();
-        // An app can be uninstalled from Start or Settings while this page sits in the background, so every visit reads the PC again.
-        // The first visit shows a loading screen; after that the list is updated in place, without losing the person's place or ticks.
-        if (!debloat.Busy) _ = debloat.ScanAsync();
-    }
 
     private async Task<string?> PickFolderAsync()
     {
@@ -1049,7 +1028,7 @@ public sealed partial class MainWindow : Window
         if (sender is not FrameworkElement { DataContext: QueueRow row } || row.Entry.State != QueueItemState.Running) return;
         var text = row.Entry.Operation.Fix is not null
             ? "The fix stops after the step it is on, and the steps that put back what it changed still run. Some steps (DISM, SFC) are not ended half way, because that could leave Windows damaged, so this can take a few minutes. If it does not end, you can then stop waiting for it."
-            : "TidyWindow will end the running installer. An install or update that is stopped partway can leave the app incomplete or broken, so do this only if it has stopped responding.";
+            : "TSUGU will end the running installer. An install or update that is stopped partway can leave the app incomplete or broken, so do this only if it has stopped responding.";
         var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, RequestedTheme = Root.ActualTheme, Title = $"Stop {row.Name}?",
             Content = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, MaxWidth = 440 },
             PrimaryButtonText = "Stop it", CloseButtonText = "Keep running", DefaultButton = ContentDialogButton.Close };
@@ -1060,7 +1039,7 @@ public sealed partial class MainWindow : Window
         if (sender is not FrameworkElement { DataContext: QueueRow row } || row.Entry.State != QueueItemState.Running || !row.Entry.StopRequested) return;
         var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, RequestedTheme = Root.ActualTheme, Title = $"Stop waiting for {row.Name}?",
             Content = new TextBlock { Text = $"The queue moves on, but {row.Name} is not ended: it keeps running in the background, because ending DISM or SFC half way could leave Windows damaged. When it ends it puts back what it changed, and the result goes to Logs. Another fix waits until then.\n\n" +
-                "Do this only if it is not making progress. If it never ends, end its program in Task Manager. Closing TidyWindow meanwhile leaves it running without its clean-up steps.", TextWrapping = TextWrapping.Wrap, MaxWidth = 440 },
+                "Do this only if it is not making progress. If it never ends, end its program in Task Manager. Closing TSUGU meanwhile leaves it running without its clean-up steps.", TextWrapping = TextWrapping.Wrap, MaxWidth = 440 },
             PrimaryButtonText = "Stop waiting", CloseButtonText = "Keep waiting", DefaultButton = ContentDialogButton.Close };
         if (await ShowDialogAsync(dialog) == ContentDialogResult.Primary) operationQueue.StopWaiting(row);
     }, "letting the queue move on");
@@ -1191,7 +1170,7 @@ public sealed partial class MainWindow : Window
     private void ClearLogsClick(object sender, RoutedEventArgs e) => Run(async () =>
     {
         if (log.Count == 0) return;
-        var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, RequestedTheme = Root.ActualTheme, Title = "Clear all logs?", Content = "This deletes every saved entry from this computer. It does not undo anything TidyWindow has done.", PrimaryButtonText = "Clear logs", CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Close };
+        var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, RequestedTheme = Root.ActualTheme, Title = "Clear all logs?", Content = "This deletes every saved entry from this computer. It does not undo anything TSUGU has done.", PrimaryButtonText = "Clear logs", CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Close };
         if (await ShowDialogAsync(dialog) == ContentDialogResult.Primary) log.Clear();
     }, "clearing the logs");
     private ManagerKind? Filter => SourceFilter.SelectedIndex switch { 1 => ManagerKind.Winget, 2 => ManagerKind.Chocolatey, 3 => ManagerKind.Scoop, _ => null };
@@ -1212,7 +1191,7 @@ public sealed partial class MainWindow : Window
     private void TerminalActClick(object sender, RoutedEventArgs e)
     { if (sender is FrameworkElement { DataContext: TerminalRow row } button) Run(() => terminal.Act(row, (button.Tag as string) == "secondary"), "setting up the terminal"); }
 
-    /// <summary>Asks before something that changes files outside TidyWindow. Answers false when the person cancels or the window cannot show the question.</summary>
+    /// <summary>Asks before something that changes files outside TSUGU. Answers false when the person cancels or the window cannot show the question.</summary>
     private async Task<bool> ConfirmAsync(string title, string body, string primary)
     {
         var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, RequestedTheme = Root.ActualTheme, Title = title, Content = new TextBlock { Text = body, TextWrapping = TextWrapping.Wrap, MaxWidth = 440 }, PrimaryButtonText = primary, CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Close };
@@ -1267,7 +1246,7 @@ public sealed partial class MainWindow : Window
         content.Children.Add(new TextBlock { Text = PackageService.DisplayInstallCommand(row.Package), FontFamily = new FontFamily("Consolas"), FontSize = 12, TextWrapping = TextWrapping.Wrap, IsTextSelectionEnabled = true });
         content.Children.Add(new TextBlock { Text = "This installs the latest version from this source and accepts the package’s license agreements. The package manager may open an installer or request administrator permission.", TextWrapping = TextWrapping.Wrap, FontSize = 12 });
         if (row.Package.Manager == ManagerKind.Chocolatey)
-            content.Children.Add(new TextBlock { Text = "Chocolatey will open in a separate administrator window. TidyWindow itself stays unelevated.", TextWrapping = TextWrapping.Wrap, FontSize = 12 });
+            content.Children.Add(new TextBlock { Text = "Chocolatey will open in a separate administrator window. TSUGU itself stays unelevated.", TextWrapping = TextWrapping.Wrap, FontSize = 12 });
         var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, RequestedTheme = Root.ActualTheme, Title = $"Install {row.Name}?", Content = content, PrimaryButtonText = "Install package", CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Close };
         if (await ShowDialogAsync(dialog) == ContentDialogResult.Primary) model.QueueInstall(row);
     }, "queueing the install");
@@ -1284,7 +1263,7 @@ public sealed partial class MainWindow : Window
         args.Cancel = true;
         if (closingDialog) return;
         closingDialog = true;
-        Run(() => ConfirmCloseAsync(running), "closing TidyWindow");
+        Run(() => ConfirmCloseAsync(running), "closing TSUGU");
     }
 
     /// <summary>What closing now would cut short, one line each. Empty when nothing is running.</summary>
@@ -1299,7 +1278,6 @@ public sealed partial class MainWindow : Window
         // The pages that change the PC, by the state each exposes. A page whose first scan is still running is left alone: a scan only reads.
         if (cleanup.CleaningVisibility == Visibility.Visible) what.Add("Cleanup is still cleaning.");
         if (repair.FixOverlay || repair.Changing) what.Add("Repair is still fixing a program.");
-        if (debloat.WorkOverlay && !debloat.ScanOverlay) what.Add("Debloat is still removing an app or putting one back.");
         if (startup.Busy && !startup.ScanOverlay) what.Add("Startup is still working on a change.");
         if (quiet.Busy && !quiet.ScanOverlay) what.Add("Quiet is still working on a change.");
         if (tune.Busy && !tune.ScanOverlay) what.Add("Tune is still working on a change.");
@@ -1328,12 +1306,12 @@ public sealed partial class MainWindow : Window
                 Title = "Work is still running",
                 Content = new TextBlock
                 {
-                    Text = string.Join(" ", what) + "\n\nTidyWindow stops this work before it closes. " + (fix
+                    Text = string.Join(" ", what) + "\n\nTSUGU stops this work before it closes. " + (fix
                         ? "A fix finishes the step it is on and puts back what it changed first, because ending that step half way could leave Windows damaged. Closing can take a few minutes. "
                         : packages
                         ? "An install or update that is cut off can leave an app broken or incomplete, and anything waiting in the queue is dropped. "
                         : "A repair or cleanup that is cut off can be left half done, and may not be recorded for undo. ")
-                        + (operationQueue.Lingering.Count > 0 ? "A fix you stopped waiting for keeps running after TidyWindow closes, but its clean-up steps will not run. " : "") + "Closing now is not recommended.",
+                        + (operationQueue.Lingering.Count > 0 ? "A fix you stopped waiting for keeps running after TSUGU closes, but its clean-up steps will not run. " : "") + "Closing now is not recommended.",
                     TextWrapping = TextWrapping.Wrap, MaxWidth = 440
                 },
                 CloseButtonText = "Keep open", SecondaryButtonText = "Stop and close", DefaultButton = ContentDialogButton.Close

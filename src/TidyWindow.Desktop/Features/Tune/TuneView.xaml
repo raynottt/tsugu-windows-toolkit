@@ -1,7 +1,7 @@
-<UserControl x:Class="TidyWindow.Next.Desktop.TuneView"
+<UserControl x:Class="TSUGU.Desktop.TuneView"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- xmlns:local="using:TidyWindow.Next.Desktop"
+ xmlns:local="using:TSUGU.Desktop"
  HorizontalContentAlignment="Stretch">
  <UserControl.Resources>
   <ResourceDictionary>
@@ -96,7 +96,7 @@
     <RadioButton GroupName="TuneTabs" Tag="Comfort" Checked="TabChecked" Style="{StaticResource StatTabStyle}" AutomationProperties.Name="Comfort" ToolTipService.ToolTip="Small annoyances fixed">
      <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="Comfort" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" /><Border Background="{ThemeResource BadgeBrush}" CornerRadius="10" Padding="7,1" VerticalAlignment="Center"><TextBlock Text="{Binding ComfortCount}" FontSize="11" /></Border></StackPanel>
     </RadioButton>
-    <RadioButton GroupName="TuneTabs" Tag="Changes" Checked="TabChecked" Style="{StaticResource StatTabStyle}" AutomationProperties.Name="Changed" ToolTipService.ToolTip="Everything TidyWindow has changed, ready to put back">
+    <RadioButton GroupName="TuneTabs" Tag="Changes" Checked="TabChecked" Style="{StaticResource StatTabStyle}" AutomationProperties.Name="Changed" ToolTipService.ToolTip="Everything TSUGU has changed, ready to put back">
      <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="Changed" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" /><Border Background="{ThemeResource BadgeBrush}" CornerRadius="10" Padding="7,1" VerticalAlignment="Center"><TextBlock Text="{Binding ChangesCount}" FontSize="11" /></Border></StackPanel>
     </RadioButton>
    </StackPanel>
@@ -177,7 +177,7 @@
       <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
       <Grid Padding="16,12" ColumnSpacing="12" BorderBrush="{ThemeResource LineBrush}" BorderThickness="0,0,0,1">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-       <TextBlock Text="Everything TidyWindow has changed is kept here, even after you close the app. Putting a tweak back restores the value it had before." Style="{StaticResource Muted}" FontSize="12" VerticalAlignment="Center" />
+       <TextBlock Text="Everything TSUGU has changed is kept here, even after you close the app. Putting a tweak back restores the value it had before." Style="{StaticResource Muted}" FontSize="12" VerticalAlignment="Center" />
        <Button Grid.Column="1" Click="RestoreAllClick" IsEnabled="{Binding CanRestore}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="Put everything back">
         <StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE7A7;" FontSize="12" /><TextBlock Text="Put everything back" FontSize="12" /></StackPanel>
        </Button>

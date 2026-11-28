@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// The administrator helper keeps the values a tweak replaced in the protected store, and putting the tweak back never trusts the copy that
@@ -52,7 +52,7 @@ public sealed class TuneVaultTests : IDisposable
         var changer = Helper(pc, Item(MemoryIntegrity()), Store());
         Assert.True(changer.Change(Apply).Ok);
 
-        // "It was already applied before TidyWindow touched it" would leave memory integrity off for good.
+        // "It was already applied before TSUGU touched it" would leave memory integrity off for good.
         Assert.True(changer.Change(PutBack(new TuneSaved(Hvci, "Enabled", true, TuneKind.Dword, "0", true))).Ok);
         Assert.Equal("1", Read(pc, Hvci, "Enabled")!.Text);
 

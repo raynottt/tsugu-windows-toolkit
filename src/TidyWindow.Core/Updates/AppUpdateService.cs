@@ -8,15 +8,15 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
-/// Finds TidyWindow 5 releases on GitHub and downloads the installer or the portable ZIP.
+/// Finds TSUGU 5 releases on GitHub and downloads the installer or the portable ZIP.
 /// v4 releases are ignored: that app is a different product, and its installer must not replace this one.
 /// </summary>
 public sealed class AppUpdateService
 {
-    internal const string ReleasesUrl = "https://api.github.com/repos/Cosmos-0118/TidyWindow/releases?per_page=10";
+    internal const string ReleasesUrl = "https://api.github.com/repos/raynottt/tsugu-windows-toolkit/releases?per_page=10";
     private const long MaxDownloadBytes = 1024L * 1024 * 1024;
     // Ten releases with their notes are a few hundred KB at most; an answer far beyond that is not the list this asked for.
     internal const long MaxApiBytes = 2 * 1024 * 1024;
@@ -41,7 +41,7 @@ public sealed class AppUpdateService
         this.http = http ?? Shared.Value;
         CurrentVersion = Normalize(currentVersion ?? ReadCurrentVersion());
         this.isInstalledBuild = isInstalledBuild ?? DefaultInstalled;
-        this.updatesFolder = updatesFolder ?? Path.Combine(Path.GetTempPath(), "TidyWindow.Next", "Updates");
+        this.updatesFolder = updatesFolder ?? Path.Combine(Path.GetTempPath(), "TSUGU", "Updates");
         this.stallTimeout = stallTimeout ?? TimeSpan.FromSeconds(60);
     }
 
@@ -84,9 +84,9 @@ public sealed class AppUpdateService
         var releases = new List<AppRelease>();
         foreach (var item in document.RootElement.EnumerateArray())
         {
-            if (Flag(item, "draft") || Flag(item, "prerelease")) continue;
+            if (Flag(item, "draft")) continue;
             var tag = Text(item, "tag_name");
-            if (!TryParseTag(tag, out var version) || version.Major < 5) continue;
+            if (!TryParseTag(tag, out var version)) continue;
             var body = Text(item, "body");
             var title = Text(item, "name");
             releases.Add(new(tag, version, title.Length == 0 ? tag : title, body, CleanMarkdownNotes(body), Published(item), Text(item, "html_url"),
@@ -147,10 +147,10 @@ public sealed class AppUpdateService
     {
         token.ThrowIfCancellationRequested();
         var name = SafeFileName(asset.Name);
-        if (kind == PayloadKind.Exe && !IsInstallerFile(name)) throw new InvalidOperationException("The update is not a TidyWindow installer.");
-        if (kind == PayloadKind.Zip && !IsPortableFile(name)) throw new InvalidOperationException("The update is not a TidyWindow portable archive.");
+        if (kind == PayloadKind.Exe && !IsInstallerFile(name)) throw new InvalidOperationException("The update is not a TSUGU installer.");
+        if (kind == PayloadKind.Zip && !IsPortableFile(name)) throw new InvalidOperationException("The update is not a TSUGU portable archive.");
         RequireGitHubHttps(asset.DownloadUrl);
-        if (asset.SizeBytes > MaxDownloadBytes) throw new IOException("The download is larger than TidyWindow will store.");
+        if (asset.SizeBytes > MaxDownloadBytes) throw new IOException("The download is larger than TSUGU will store.");
         Directory.CreateDirectory(updatesFolder);
         var part = Path.Combine(updatesFolder, name + ".part");
         var finalPath = Path.Combine(updatesFolder, name);
@@ -175,7 +175,7 @@ public sealed class AppUpdateService
                     catch (OperationCanceledException) when (!token.IsCancellationRequested) { throw new TimeoutException("The download stopped arriving. Check your connection and try again."); }
                     if (read == 0) break;
                     received += read;
-                    if (received > MaxDownloadBytes) throw new IOException("The download is larger than TidyWindow will store.");
+                    if (received > MaxDownloadBytes) throw new IOException("The download is larger than TSUGU will store.");
                     hash.AppendData(buffer, 0, read);
                     await output.WriteAsync(buffer.AsMemory(0, read), token).ConfigureAwait(false);
                     int? percent = total is > 0 ? (int)Math.Min(100, received * 100 / total.Value) : null;
@@ -257,7 +257,7 @@ public sealed class AppUpdateService
     private static HttpRequestMessage DownloadRequest(string url)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.UserAgent.ParseAdd("TidyWindow");
+        request.Headers.UserAgent.ParseAdd("TSUGU");
         return request;
     }
 
@@ -288,16 +288,16 @@ public sealed class AppUpdateService
     }
 
     internal static bool IsInstaller(string name, Version version) =>
-        name.Equals($"TidyWindow-Setup-{version}.exe", StringComparison.OrdinalIgnoreCase);
+        name.Equals($"TSUGU-Setup-{version}.exe", StringComparison.OrdinalIgnoreCase);
 
     internal static bool IsPortable(string name, Version version) =>
-        name.Equals($"TidyWindow-{version}-win-x64.zip", StringComparison.OrdinalIgnoreCase);
+        name.Equals($"TSUGU-Portable-win-x64-{version}.zip", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsInstallerFile(string name) =>
-        name.StartsWith("TidyWindow-Setup-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+        name.StartsWith("TSUGU-Setup-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsPortableFile(string name) =>
-        name.StartsWith("TidyWindow-", StringComparison.OrdinalIgnoreCase) && name.EndsWith("-win-x64.zip", StringComparison.OrdinalIgnoreCase);
+        name.StartsWith("TSUGU-Portable-win-x64-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     private static bool TryParseTag(string tag, out Version version)
     {

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Makes one change on this PC, after checking again that the item may be changed, and reads it back to be sure it took.
@@ -53,7 +53,7 @@ public sealed class LocalTuneChanger(ITuneSystem system, ITuneWriter writer, IRe
             if (request.Apply) Unkeep(request.Id, previous);
             return new(false, "Windows did not accept the change.");
         }
-        // Put back in full: the copy has done its work. Whatever stays applied was already so before TidyWindow touched it.
+        // Put back in full: the copy has done its work. Whatever stays applied was already so before TSUGU touched it.
         if (!request.Apply) Forget(request.Id);
         return new(true, null, Note(entry.Item), before);
     }
@@ -124,7 +124,7 @@ public sealed class LocalTuneChanger(ITuneSystem system, ITuneWriter writer, IRe
         {
             var target = state.Target;
             var was = saved?.FirstOrDefault(x => string.Equals(x.Key, target.Key, StringComparison.OrdinalIgnoreCase) && string.Equals(x.Name, target.Name, StringComparison.OrdinalIgnoreCase));
-            // A value that already had the tweaked setting before TidyWindow touched it stays as it is.
+            // A value that already had the tweaked setting before TSUGU touched it stays as it is.
             if (was is { WasApplied: true }) continue;
             if (was is not null) Put(entry.Item.Scope, target, was.WasSet, was.Kind, was.Text);
             else Put(entry.Item.Scope, target, target.Normal is not null, target.Kind, target.Normal ?? "");
@@ -161,7 +161,7 @@ public sealed class LocalTuneChanger(ITuneSystem system, ITuneWriter writer, IRe
     }
 }
 
-/// <summary>What TidyWindow has changed, kept on disk so it can be put back later.</summary>
+/// <summary>What TSUGU has changed, kept on disk so it can be put back later.</summary>
 public sealed class TuneHistory(string folder)
 {
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
@@ -250,7 +250,7 @@ public sealed class TuneManager(ITuneChanger user, ITuneChanger machine, Func<Ta
         return outcome;
     }
 
-    /// <summary>Puts back everything TidyWindow changed. Items that are gone from this PC, or that something else already put back, are forgotten.</summary>
+    /// <summary>Puts back everything TSUGU changed. Items that are gone from this PC, or that something else already put back, are forgotten.</summary>
     public async Task<IReadOnlyList<(TuneChange Change, TuneOutcome Outcome)>> RestoreAllAsync(ITuneSystem system, IReadOnlyList<TuneItem> catalog)
     {
         var results = new List<(TuneChange, TuneOutcome)>();

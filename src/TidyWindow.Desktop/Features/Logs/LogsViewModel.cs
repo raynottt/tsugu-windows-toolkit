@@ -1,9 +1,9 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed class LogRow(ActivityEntry entry, bool lightTheme) : ObservableState
 {
@@ -95,7 +95,7 @@ public sealed class LogsViewModel : ObservableState, IDisposable
     }
 
     public string Summary => Rows.Count == log.Count ? Plural(Rows.Count) : $"{Rows.Count} of {Plural(log.Count)}";
-    public string StorageWarning => log.StorageError is { } error ? "Activity can’t be saved to disk, so it will be lost when TidyWindow closes. " + error : "";
+    public string StorageWarning => log.StorageError is { } error ? "Activity can’t be saved to disk, so it will be lost when TSUGU closes. " + error : "";
     public Visibility StorageWarningVisibility => log.StorageError is null ? Visibility.Collapsed : Visibility.Visible;
     public Visibility EmptyVisibility => Rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     public Visibility ListVisibility => Rows.Count == 0 ? Visibility.Collapsed : Visibility.Visible;

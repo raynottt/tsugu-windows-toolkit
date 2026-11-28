@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>A command or an installer that stops answering must never leave the queue, and so the whole app, waiting for it forever.</summary>
 [Collection("Processes")]
@@ -236,7 +236,7 @@ public sealed class HangResilienceTests
     [Fact]
     public void AnOperationThatWasNeverFinishedIsReportedOnceAtTheNextLaunch()
     {
-        var path = Path.Combine(Path.GetTempPath(), "tidywindow-interrupted-" + Guid.NewGuid().ToString("N"), "note.json");
+        var path = Path.Combine(Path.GetTempPath(), "tsugu-interrupted-" + Guid.NewGuid().ToString("N"), "note.json");
         try
         {
             var work = new InterruptedWork(path);
@@ -252,7 +252,7 @@ public sealed class HangResilienceTests
     [Fact]
     public void AFinishedOperationLeavesNothingToReportAndADamagedNoteIsIgnored()
     {
-        var folder = Path.Combine(Path.GetTempPath(), "tidywindow-interrupted-" + Guid.NewGuid().ToString("N"));
+        var folder = Path.Combine(Path.GetTempPath(), "tsugu-interrupted-" + Guid.NewGuid().ToString("N"));
         var path = Path.Combine(folder, "note.json");
         try
         {

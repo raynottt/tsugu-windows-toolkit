@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Turns package manager exit codes into a reason a person can act on, and recognizes the few that are not failures.</summary>
 public static partial class InstallFailure

@@ -1,8 +1,8 @@
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class HelperPipeTests
 {
@@ -47,7 +47,7 @@ public sealed class HelperPipeTests
     public async Task TheAppsPipeAcceptsTheHelperAndCarriesLinesBothWays()
     {
         var name = HelperPipe.NewName("test");
-        Assert.StartsWith("tidywindow-test-", name);
+        Assert.StartsWith("tsugu-test-", name);
         var step = TimeSpan.FromSeconds(5);
         await using var server = HelperPipe.CreateServer(name);
         var waiting = server.WaitForConnectionAsync();

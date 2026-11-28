@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Where a publisher name came from, so the screen can say how far to trust it.</summary>
 public enum PublisherSource { None, FileProperties, Package, Signature, InstalledApp, TaskAuthor }

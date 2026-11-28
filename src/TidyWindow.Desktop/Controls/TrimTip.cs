@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Gives a text block a tooltip with its full text, but only while the text is actually cut off.
 /// A tooltip repeating text that is already fully visible is noise, and an empty one is a bug.</summary>

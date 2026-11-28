@@ -6,8 +6,8 @@
 
 <!-- Tick what you ran and add anything you checked by hand. -->
 
-- [ ] `dotnet build TidyWindow.slnx -c Release --no-restore` builds without warnings
-- [ ] `dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj -c Release --no-build` passes
+- [ ] `dotnet build TSUGU.slnx -c Release --no-restore` builds without warnings
+- [ ] `dotnet test tests/TidyWindow.Tests/TSUGU.Tests.csproj -c Release --no-build` passes
 - [ ] Added or updated tests for the changed behavior
 - [ ] Tried the change in the running app
 

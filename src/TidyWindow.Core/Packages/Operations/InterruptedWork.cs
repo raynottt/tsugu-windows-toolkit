@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <param name="Kind">What was being done, in the form "installing".</param>
 public sealed record InterruptedOperation(string Name, string Kind, string Source, DateTimeOffset Started);

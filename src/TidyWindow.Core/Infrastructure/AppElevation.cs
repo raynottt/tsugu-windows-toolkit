@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security.Principal;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// Whether the app itself was started as administrator. It must not run that way: everything it does runs with the rights it has, and much of what it does is built to run with
@@ -19,7 +19,7 @@ public static class AppElevation
 
     /// <summary>What the person is told when the app declines to start.</summary>
     public const string Refusal =
-        "TidyWindow does not run as administrator.\n\n" +
+        "TSUGU does not run as administrator.\n\n" +
         "Open it the normal way, from the Start menu. It asks Windows for permission each time a change needs it.\n\n" +
         "Started as administrator, it would hand those rights to every program it runs, and would act on settings files that any program on this PC can change.";
 

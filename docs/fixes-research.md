@@ -276,7 +276,7 @@ A real camera (this PC has none; the empty case printed "No camera was found."),
 
 ### Run from the app (7 November 2026, afterwards)
 
-All ten Devices fixes were run from the app itself and the app's own log (`%LOCALAPPDATA%\TidyWindow.Next\Logs\activity.jsonl` and `Fixes\last-runs.json`) was read. Nine finished as Completed. *Clear stuck print jobs* finished with a warning: the empty-queue step said "6 files were in use and left as they are". The print service had been stopped (its process had exited, which the step waits for), so something other than the print service held those files; the folder was empty a few minutes later and the print service was running with a new process, so nothing was left behind. Which process held them was not found. *Stop USB devices cutting out* leaves USB power saving off (0/0) on that PC, which is what the fix is for.
+All ten Devices fixes were run from the app itself and the app's own log (`%LOCALAPPDATA%\TSUGU\Logs\activity.jsonl` and `Fixes\last-runs.json`) was read. Nine finished as Completed. *Clear stuck print jobs* finished with a warning: the empty-queue step said "6 files were in use and left as they are". The print service had been stopped (its process had exited, which the step waits for), so something other than the print service held those files; the folder was empty a few minutes later and the print service was running with a new process, so nothing was left behind. Which process held them was not found. *Stop USB devices cutting out* leaves USB power saving off (0/0) on that PC, which is what the fix is for.
 
 ## Apps tab review (7 November 2026)
 

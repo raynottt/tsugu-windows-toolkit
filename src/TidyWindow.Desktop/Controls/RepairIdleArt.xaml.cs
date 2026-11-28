@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>Repair's resting picture: a wrench that fixes an installer, a folder and a shortcut in turn. It plays only while it is visible,
 /// and holds a still frame when the system has animations turned off.</summary>

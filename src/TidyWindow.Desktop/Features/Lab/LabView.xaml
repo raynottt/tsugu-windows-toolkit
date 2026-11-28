@@ -1,7 +1,7 @@
-<UserControl x:Class="TidyWindow.Next.Desktop.LabView"
+<UserControl x:Class="TSUGU.Desktop.LabView"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- xmlns:local="using:TidyWindow.Next.Desktop"
+ xmlns:local="using:TSUGU.Desktop"
  HorizontalContentAlignment="Stretch">
  <UserControl.Resources>
   <ResourceDictionary>
@@ -98,7 +98,7 @@
       <StackPanel VerticalAlignment="Center" Spacing="2">
        <StackPanel Orientation="Horizontal" Spacing="8">
         <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" />
-        <Border Visibility="{Binding ChangedVisibility}" Style="{StaticResource Tag}" ToolTipService.ToolTip="TidyWindow changed this app. It goes back by itself when the app closes."><TextBlock Text="Changed" FontSize="11" Foreground="{ThemeResource MutedBrush}" /></Border>
+        <Border Visibility="{Binding ChangedVisibility}" Style="{StaticResource Tag}" ToolTipService.ToolTip="TSUGU changed this app. It goes back by itself when the app closes."><TextBlock Text="Changed" FontSize="11" Foreground="{ThemeResource MutedBrush}" /></Border>
        </StackPanel>
        <TextBlock Text="{Binding Title}" Style="{StaticResource RowSub}" MaxLines="1" />
       </StackPanel>

@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Runtime.Versioning;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// The administrator helper puts back only its own protected copies, named by token: whatever a request or the app's own history file says about values, permissions,
@@ -172,7 +172,7 @@ public sealed class RepairVaultTests : IDisposable
         using var session = Session(folders: folders);
         await session.OpenAsync();
 
-        var moved = session.SetAside(@"C:\Program Files\Ghost", @"C:\Users\me\AppData\Local\TidyWindow.Next\RepairBackups\SetAside")!;
+        var moved = session.SetAside(@"C:\Program Files\Ghost", @"C:\Users\me\AppData\Local\TSUGU\RepairBackups\SetAside")!;
         Assert.True(RepairVault.IsToken(moved.Token));
         Assert.StartsWith(vault.Quarantine + "\\" + moved.Token + "\\", moved.Stored);
 

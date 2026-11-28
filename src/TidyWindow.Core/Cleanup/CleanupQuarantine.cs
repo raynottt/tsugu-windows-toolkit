@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record HeldBatch(string Id, DateTimeOffset Created, int Files, long Bytes);
 public sealed record RestoreResult(int Restored, int Conflicts, int Missing);

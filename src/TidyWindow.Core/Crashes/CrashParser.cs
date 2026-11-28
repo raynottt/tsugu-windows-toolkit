@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Where crash records live. The scanner asks for exactly these and the parser understands exactly these; one list keeps them agreeing.</summary>
 internal sealed record CrashSource(string Log, string Provider, int[] Ids, string[]? EventNames = null);

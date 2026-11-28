@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 internal static class DialogExtensions
 {

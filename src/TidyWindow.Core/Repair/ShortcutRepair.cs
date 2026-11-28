@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum ShortcutArea { StartMenu, Desktop, Taskbar, SendTo }
 
@@ -93,8 +93,8 @@ public sealed class FileShortcutEditor(Func<string, bool> allowed) : IShortcutEd
     private string Checked(string path)
     {
         string full;
-        try { full = Path.GetFullPath(path); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new IOException("That is not a path TidyWindow can change."); }
-        if (!allowed(full)) throw new IOException("TidyWindow does not change shortcuts in that place.");
+        try { full = Path.GetFullPath(path); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new IOException("That is not a path TSUGU can change."); }
+        if (!allowed(full)) throw new IOException("TSUGU does not change shortcuts in that place.");
         return full;
     }
 

@@ -2,11 +2,11 @@ using System.IO.Compression;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 [Collection("Processes")]
 public sealed class ManagerRecoveryTests(ITestOutputHelper output)
@@ -368,7 +368,7 @@ public sealed class ManagerRecoveryTests(ITestOutputHelper output)
         var result = await RunScriptAsync(host, Variables(root, job, "Executable", host), "Scoop", stub);
         Assert.True(result.ExitCode == 0, result.Output + result.Error + ResultError(job));
         Assert.Contains("v0.6.0", File.ReadAllText(Path.Combine(core, "bin", "scoop.ps1")));
-        Assert.NotEmpty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tidywindow-backup-*"));
+        Assert.NotEmpty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tsugu-backup-*"));
         Assert.Contains("Join-Path", File.ReadAllText(Path.Combine(root, "shims", "scoop.ps1")));
         Assert.True(File.Exists(Path.Combine(root, "shims", "scoop.cmd")));
         Assert.Equal("user data must survive", File.ReadAllText(persisted));
@@ -512,7 +512,7 @@ public sealed class ManagerRecoveryTests(ITestOutputHelper output)
         var result = await RunScriptAsync(host, Variables(root, job, "Update", host), "Scoop", "function Download-Official { throw 'Nothing may be downloaded when Scoop can update itself' }");
         Assert.True(result.ExitCode == 0, result.Output + result.Error + ResultError(job));
         Assert.True(File.Exists(marker), "Scoop's own updater did not run.");
-        Assert.Empty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tidywindow-backup-*"));
+        Assert.Empty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tsugu-backup-*"));
     }
 
     [Fact]
@@ -557,7 +557,7 @@ public sealed class ManagerRecoveryTests(ITestOutputHelper output)
         Assert.True(result.ExitCode == 0, result.Output + result.Error + ResultError(job));
         Assert.False(File.Exists(marker), "Scoop's updater needs Git and must not have been run without it.");
         Assert.Contains("v0.6.0", File.ReadAllText(Path.Combine(core, "bin", "scoop.ps1")));
-        Assert.NotEmpty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tidywindow-backup-*"));
+        Assert.NotEmpty(Directory.EnumerateDirectories(Path.GetDirectoryName(core)!, "current.tsugu-backup-*"));
         Assert.Equal("user data must survive", File.ReadAllText(persisted));
         Assert.True(File.Exists(keep));
     }
@@ -687,7 +687,7 @@ public sealed class ManagerRecoveryTests(ITestOutputHelper output)
 
     private sealed class Fixture : IDisposable
     {
-        public string DirectoryPath { get; } = Path.Combine(Path.GetTempPath(), "TidyWindow-Recovery-Tests", Guid.NewGuid().ToString("N"));
+        public string DirectoryPath { get; } = Path.Combine(Path.GetTempPath(), "TSUGU-Recovery-Tests", Guid.NewGuid().ToString("N"));
         public string Root => Path.Combine(DirectoryPath, "manager");
         public string ProtectedRoot => Path.Combine(DirectoryPath, "protected");
         public Locator Locator { get; } = new();
@@ -703,7 +703,7 @@ public sealed class ManagerRecoveryTests(ITestOutputHelper output)
         }
         public void Dispose()
         {
-            var expected = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "TidyWindow-Recovery-Tests")) + Path.DirectorySeparatorChar;
+            var expected = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "TSUGU-Recovery-Tests")) + Path.DirectorySeparatorChar;
             if (Path.GetFullPath(DirectoryPath).StartsWith(expected, StringComparison.OrdinalIgnoreCase)) try { Directory.Delete(DirectoryPath, true); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
         }
     }

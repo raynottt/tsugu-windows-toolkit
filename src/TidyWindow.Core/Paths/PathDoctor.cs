@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Where PATH lives. The user's own list can be written directly; the Windows-wide list only by something running as administrator.</summary>
 public interface IPathStore

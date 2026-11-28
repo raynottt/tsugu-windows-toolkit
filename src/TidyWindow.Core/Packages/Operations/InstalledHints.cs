@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// What an installed app's identity already says about where its icon and its publisher can be found, so the icon and publisher finders

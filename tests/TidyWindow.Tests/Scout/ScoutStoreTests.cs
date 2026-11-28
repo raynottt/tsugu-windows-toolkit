@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// The folder index keeps its entries in a compact store instead of one object and one path string each. These tests hold it to the old behavior:

@@ -1,7 +1,7 @@
-<Window x:Class="TidyWindow.Next.Desktop.MainWindow"
+<Window x:Class="TSUGU.Desktop.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- xmlns:local="using:TidyWindow.Next.Desktop"
+ xmlns:local="using:TSUGU.Desktop"
  Title="TSUGU">
  <Grid x:Name="Root" Background="{ThemeResource CanvasBrush}" KeyboardAcceleratorPlacementMode="Hidden">
   <Grid.KeyboardAccelerators><KeyboardAccelerator Key="K" Modifiers="Control" Invoked="SearchShortcut" /></Grid.KeyboardAccelerators>
@@ -72,9 +72,6 @@
      </Button>
      <Button x:Name="TuneNav" Style="{StaticResource NavButton}" Click="TuneClick" AutomationProperties.Name="Tune">
       <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#EDE9FE"><FontIcon Glyph="&#xE9E9;" FontSize="16" Foreground="#7C3AED" /></Border><TextBlock x:Name="TuneLabel" Text="Tune" FontSize="13" /></StackPanel>
-     </Button>
-     <Button x:Name="DebloatNav" Style="{StaticResource NavButton}" Click="DebloatClick" AutomationProperties.Name="Debloat">
-      <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FCE7F3"><FontIcon Glyph="&#xE738;" FontSize="16" Foreground="#BE185D" /></Border><TextBlock x:Name="DebloatLabel" Text="Debloat" FontSize="13" /></StackPanel>
      </Button>
      <Button x:Name="FixesNav" Style="{StaticResource NavButton}" Click="FixesClick" AutomationProperties.Name="Fixes">
       <StackPanel Orientation="Horizontal" Spacing="10"><Border Width="30" Height="30" CornerRadius="9" Background="#FEF3C7"><FontIcon Glyph="&#xEC7A;" FontSize="16" Foreground="#B45309" /></Border><TextBlock x:Name="FixesLabel" Text="Fixes" FontSize="13" /></StackPanel>
@@ -538,7 +535,6 @@
     <local:StartupView x:Name="StartupPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
     <local:BackgroundView x:Name="QuietPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
     <local:TuneView x:Name="TunePage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
-    <local:DebloatView x:Name="DebloatPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
     <local:FixesView x:Name="FixesPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
     <local:UnstickView x:Name="UnstickPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
     <local:SettingsView x:Name="SettingsPage" Visibility="Collapsed" HorizontalAlignment="Stretch" />
@@ -610,7 +606,7 @@
      <Grid>
       <StackPanel Spacing="4" VerticalAlignment="Center">
         <TextBlock Text="Logs" Style="{StaticResource PageTitle}" />
-        <TextBlock Text="A record of what TidyWindow has done." Style="{StaticResource Muted}" />
+        <TextBlock Text="A record of what TSUGU has done." Style="{StaticResource Muted}" />
        </StackPanel>
       <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
        <Button x:Name="CopyLogsButton" Click="CopyLogsClick" Padding="12,7" ToolTipService.ToolTip="Copy the entries shown" AutomationProperties.Name="Copy entries">

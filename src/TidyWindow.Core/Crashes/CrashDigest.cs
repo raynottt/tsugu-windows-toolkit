@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Turns the saved records into what a person reads: one entry per real event, then per program, then a few plain observations.</summary>
 public static class CrashDigest

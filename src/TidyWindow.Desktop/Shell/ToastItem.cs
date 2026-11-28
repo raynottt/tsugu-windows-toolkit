@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>A message that appears over the page, optionally with one button. It goes away on its own unless it has no time limit, and waits while it is being read.</summary>
 public sealed class ToastItem : ObservableState

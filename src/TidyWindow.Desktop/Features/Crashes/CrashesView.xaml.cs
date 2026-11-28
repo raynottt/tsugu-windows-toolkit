@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class CrashesView : UserControl
 {
@@ -31,7 +31,7 @@ public sealed partial class CrashesView : UserControl
         {
             XamlRoot = XamlRoot,
             Title = "Clear saved crash history?",
-            Content = new TextBlock { Text = "This forgets what TidyWindow saved, including crashes Windows has since removed from its own log. Windows’ records are not touched, and whatever it still has is read in again now.", TextWrapping = TextWrapping.Wrap },
+            Content = new TextBlock { Text = "This forgets what TSUGU saved, including crashes Windows has since removed from its own log. Windows’ records are not touched, and whatever it still has is read in again now.", TextWrapping = TextWrapping.Wrap },
             PrimaryButtonText = "Clear",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,

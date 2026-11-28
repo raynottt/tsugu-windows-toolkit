@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public enum ToastKind { Info, Success, Warning }
 

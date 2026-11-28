@@ -1,10 +1,10 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>
 /// Measures how much of the junk that really sits on this PC the Cleanup page finds. The reference list is built without the

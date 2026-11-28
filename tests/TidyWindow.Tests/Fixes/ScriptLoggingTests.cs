@@ -1,8 +1,8 @@
-using TidyWindow.Next.Core;
-using TidyWindow.Tests;
+using TSUGU.Core;
+using TSUGU.Tests;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>What Logs is told when a fix or an Unstick action runs: the exact command, how it ended, and what never ran.</summary>
 public sealed class ScriptLoggingTests

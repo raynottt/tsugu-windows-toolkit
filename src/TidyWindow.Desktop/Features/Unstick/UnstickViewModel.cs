@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>One action with its button, what happened the last time it ran, and whether the thing it fixes is running now.</summary>
 /// <param name="fix">For an action that runs a fix from the Fixes catalog: that fix, so the page can show the exact commands before anything starts.</param>
@@ -77,7 +77,7 @@ public sealed class UnstickRow(UnstickAction action, bool hasHint, FixItem? fix 
         // A fix-backed action runs reviewed commands from the Fixes catalog; they are shown whole, so nothing runs that the page did not say.
         if (fix is not null)
             list.Add(new("Commands", string.Join("\n", FixPlan.Build(fix, FixPlan.DefaultOptions(fix)).Select((step, i) => $"{i + 1}. {FixPlan.Describe(step)}")), true));
-        list.Add(new("Needs", Admin ? "Administrator permission. Windows asks the first time; the helper then stays open until you close TidyWindow, so the next one does not ask again." : "Nothing special. It runs as you and never asks for administrator permission.", false));
+        list.Add(new("Needs", Admin ? "Administrator permission. Windows asks the first time; the helper then stays open until you close TSUGU, so the next one does not ask again." : "Nothing special. It runs as you and never asks for administrator permission.", false));
         if (lastDetail.Length > 0) list.Add(new("Last run", $"{took}\n{lastDetail}", true));
         return list;
     }
@@ -191,7 +191,7 @@ public sealed class UnstickViewModel : ObservableState, IDisposable
         catch (OperationCanceledException)
         {
             row.Busy = false;
-            log.Write(ActivityLevel.Warning, ActivityArea.App, $"Unstick stopped: {row.Name}", "TidyWindow was closing, so it was stopped before it finished.");
+            log.Write(ActivityLevel.Warning, ActivityArea.App, $"Unstick stopped: {row.Name}", "TSUGU was closing, so it was stopped before it finished.");
             return;
         }
         catch (Exception ex) { result = new(false, ex.Message, "It stopped with an unexpected error:\n" + ex); }

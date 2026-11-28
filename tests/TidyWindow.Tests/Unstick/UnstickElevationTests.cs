@@ -1,12 +1,12 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Tests;
+namespace TSUGU.Tests;
 
 public sealed class UnstickElevationTests
 {
     [Fact]
-    public async Task WhenTidyWindowRunsAsAdministratorNoProgramIsStartedWithItsRights()
+    public async Task WhenTSUGURunsAsAdministratorNoProgramIsStartedWithItsRights()
     {
         var fake = new FakeUnstickSystem { Elevated = true, Running_ = { "TextInputHost", "rdpclip", "explorer" } };
         var runner = new UnstickRunner(fake);

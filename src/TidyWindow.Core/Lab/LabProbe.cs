@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>One thing a check measures, which direction is better, and the smallest change in percent that is worth calling a difference for it.</summary>
 public sealed record ProbeKind(string Id, string Name, string Unit, bool HigherIsBetter, string What, double Floor = ProbeCompare.Floor);

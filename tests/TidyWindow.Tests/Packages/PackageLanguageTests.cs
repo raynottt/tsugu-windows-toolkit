@@ -1,9 +1,9 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
-/// <summary>WinGet speaks the language of Windows. What TidyWindow concludes from it must not depend on the words, only on its codes and on how its output is laid out.</summary>
+/// <summary>WinGet speaks the language of Windows. What TSUGU concludes from it must not depend on the words, only on its codes and on how its output is laid out.</summary>
 public sealed class PackageLanguageTests
 {
     private sealed class Locator : IExecutableLocator

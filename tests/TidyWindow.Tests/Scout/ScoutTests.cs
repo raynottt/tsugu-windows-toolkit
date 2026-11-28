@@ -1,13 +1,13 @@
 using System.Diagnostics;
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 public sealed class ScoutTests(ITestOutputHelper output) : IDisposable
 {
-    private readonly string fixture = Path.Combine(Path.GetTempPath(), "tidywindow-scout-" + Guid.NewGuid().ToString("N"));
+    private readonly string fixture = Path.Combine(Path.GetTempPath(), "tsugu-scout-" + Guid.NewGuid().ToString("N"));
     private ScoutEntry Entry(string name, bool folder = false) => new(Path.Combine(fixture, name), folder, folder ? null : 42, null);
     [Fact]
     public void RankingPrioritizesExactNamesThenPrefixesAndHandlesTypos()

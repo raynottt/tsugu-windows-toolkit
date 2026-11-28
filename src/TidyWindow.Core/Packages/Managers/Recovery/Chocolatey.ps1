@@ -16,12 +16,12 @@
         try { [xml](Get-Content -LiteralPath $config -Raw) | Out-Null }
         catch {
             # Retain malformed configuration for recovery; Chocolatey generates its default file.
-            Move-Item -LiteralPath $config -Destination ($config + '.tidywindow-backup-' + [guid]::NewGuid().ToString('N'))
+            Move-Item -LiteralPath $config -Destination ($config + '.tsugu-backup-' + [guid]::NewGuid().ToString('N'))
         }
     }
     # The current Chocolatey package serves both a fresh install and a repair: its own installer creates the folder when there is none and repairs the
     # binaries in place when there is, leaving lib/, config/ and installed applications intact. It comes from Chocolatey's own address for the latest release, so
-    # a new Chocolatey needs no new TidyWindow; nothing from it runs until every file in it that can run has been checked for Chocolatey's signature.
+    # a new Chocolatey needs no new TSUGU; nothing from it runs until every file in it that can run has been checked for Chocolatey's signature.
     $archive = Join-Path $work 'chocolatey.nupkg'
     Download-Official 'https://community.chocolatey.org/api/v2/package/chocolatey' $archive
     $unpacked = Join-Path $work 'chocolatey-package'

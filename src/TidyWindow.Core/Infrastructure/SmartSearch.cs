@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A piece of text a search looks in. A match in a heavier field (a name) outranks one in a lighter field (a description).</summary>
 public readonly record struct SearchField(string Text, double Weight = 1);

@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The administrator helper's copies of removed items live in the protected store, and a put-back never trusts the app's copy.</summary>
 public sealed class StartupVaultTests : IDisposable

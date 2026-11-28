@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The Network tab of Fixes: the order of the refresh, what the new repairs may touch, and the rules that keep them small.</summary>
 public sealed class NetworkTabTests

@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 [Flags]
 public enum ArchiveKinds { None = 0, Registry = 1, Shortcut = 2, Folder = 4, Setup = 8 }

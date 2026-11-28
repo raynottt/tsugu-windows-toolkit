@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public sealed record ManagerLocation(string Root, string Configuration);
 
@@ -44,7 +44,7 @@ public sealed class ManagerLocations(Func<string, EnvironmentVariableTarget?, st
         var root = ChocolateyRoot();
         foreach (var scope in new EnvironmentVariableTarget?[] { EnvironmentVariableTarget.User, null })
             if (variables("ChocolateyInstall", scope) is { Length: > 0 } other && !SamePath(other, root))
-                return $"A ChocolateyInstall setting for this account points Chocolatey at {other}, not at the PC-wide installation at {root}. Chocolatey runs with administrator rights, so TidyWindow does not use it until that setting is removed.";
+                return $"A ChocolateyInstall setting for this account points Chocolatey at {other}, not at the PC-wide installation at {root}. Chocolatey runs with administrator rights, so TSUGU does not use it until that setting is removed.";
         return null;
     }
 

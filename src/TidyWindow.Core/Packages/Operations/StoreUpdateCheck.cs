@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A Microsoft Store app as Windows reports it installed: Store-signed, so a sideloaded or developer package is never in this list.</summary>
 public sealed record StoreInstalled(string Name, string FamilyName, string Version);
@@ -34,7 +34,7 @@ public sealed class StoreUpdateCheck : IDisposable
     {
         this.runner = runner;
         client = new(handler ?? new SocketsHttpHandler()) { Timeout = TimeSpan.FromSeconds(8) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("TidyWindow");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("TSUGU");
     }
 
     /// <summary>Package key → the newer Store version, for the installed apps whose Store listing is ahead of what is installed.</summary>

@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum PackageOperationKind { Install, Update, Uninstall, Fix }
 public enum QueueItemState { Waiting, Running, Finished, Cancelled }
@@ -315,7 +315,7 @@ public sealed class PackageOperationQueue
             }
             Detach(entry, work);
             return new(ActionOutcome.Failed, $"Stopped waiting for {entry.Operation.Name}",
-                $"TidyWindow stopped waiting, but {entry.Operation.Name} is still running in the background. It was not ended, because ending DISM or SFC half way could leave Windows damaged. " +
+                $"TSUGU stopped waiting, but {entry.Operation.Name} is still running in the background. It was not ended, because ending DISM or SFC half way could leave Windows damaged. " +
                 "When it ends it puts back what it changed, and the result is recorded in Logs. Another fix waits until then. If it never ends, end the program it is running in Task Manager.");
         }
         finally { lock (gate) stopWaiting = null; }
@@ -339,7 +339,7 @@ public sealed class PackageOperationQueue
             ? new(ActionOutcome.Failed, $"Stopped {operation.Name}", operation.Fix is not null ? "This fix was stopped before it finished." : "It was stopped before it finished. An install or update that is stopped partway can leave the app incomplete; check Installed apps before trying again.")
             // The runner ends a command that reaches its time budget, and its own words blame the connection, which a two-hour install does not deserve.
             : ex is TimeoutException
-            ? new(ActionOutcome.Failed, $"Couldn’t {operation.Kind.ToString().ToLowerInvariant()} {operation.Name}", "It did not finish within the time TidyWindow allows, so its command was ended. An install or update that is ended partway can leave the app incomplete; check Installed apps before trying again.")
+            ? new(ActionOutcome.Failed, $"Couldn’t {operation.Kind.ToString().ToLowerInvariant()} {operation.Name}", "It did not finish within the time TSUGU allows, so its command was ended. An install or update that is ended partway can leave the app incomplete; check Installed apps before trying again.")
             : new(ActionOutcome.Failed, $"Couldn’t {operation.Kind.ToString().ToLowerInvariant()} {operation.Name}", ex.Message);
     private static void Notify(Action<QueueEntry>? handlers, QueueEntry entry)
     { if (handlers is not null) foreach (Action<QueueEntry> handler in handlers.GetInvocationList()) { try { handler(entry); } catch { /* Observers cannot stall the queue. */ } } }

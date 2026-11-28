@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>A folder that holds programs and could be added to PATH. <paramref name="Strong"/> marks the usual homes of command-line tools (bin, cmd, Scripts, shims).</summary>
 public sealed record FolderCandidate(string Folder, IReadOnlyList<string> Programs, bool Strong, int Score);

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>
 /// The installed-apps list as it was the last time it was read in full, kept on disk so the Installed page can show something the moment it opens

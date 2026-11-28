@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 /// <summary>The square an app's icon sits in. Shows <see cref="Glyph"/> until <see cref="Source"/> has a picture.</summary>
 public sealed partial class AppIcon : UserControl

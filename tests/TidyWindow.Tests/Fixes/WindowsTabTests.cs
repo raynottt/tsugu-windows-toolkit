@@ -1,7 +1,7 @@
-using TidyWindow.Next.Core;
+using TSUGU.Core;
 using Xunit;
 
-namespace TidyWindow.Next.Tests;
+namespace TSUGU.Tests;
 
 /// <summary>The Windows tab of Fixes: services that must really start, the new reports, and the rules that keep the new steps small.</summary>
 public sealed class WindowsTabTests
@@ -81,7 +81,7 @@ public sealed class WindowsTabTests
     [Fact]
     public void AReadOnlyFolderLeftFromAnEarlierResetCanStillBeRemoved()
     {
-        var folder = Path.Combine(Path.GetTempPath(), "tidywindow-readonly-" + Guid.NewGuid().ToString("N"));
+        var folder = Path.Combine(Path.GetTempPath(), "tsugu-readonly-" + Guid.NewGuid().ToString("N"));
         var inner = Directory.CreateDirectory(Path.Combine(folder, "sub"));
         var file = Path.Combine(inner.FullName, "a.txt");
         File.WriteAllText(file, "x");
@@ -226,7 +226,7 @@ public sealed class WindowsTabTests
             .Where(x => x.Script is not null).Select(x => (x.Name, Script: x.Script!))
             .Append((Name: "start a service", Script: FixSupport.ServiceStep(context).Step.Args[^1]))
             .Append((Name: "stop a service", Script: FixSupport.ServiceStep(context with { Step = new FixStep { Title = "t", Kind = FixStepKind.StopService, Service = "bits" } }).Step.Args[^1])).ToList();
-        var folder = Directory.CreateTempSubdirectory("tidywindow-parse-");
+        var folder = Directory.CreateTempSubdirectory("tsugu-parse-");
         try
         {
             for (var i = 0; i < scripts.Count; i++) File.WriteAllText(Path.Combine(folder.FullName, $"{i:000}.ps1"), scripts[i].Script, new System.Text.UTF8Encoding(true));

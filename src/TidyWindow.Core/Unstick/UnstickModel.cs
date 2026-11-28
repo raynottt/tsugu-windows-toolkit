@@ -1,4 +1,4 @@
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 public enum UnstickGroup { Desktop, Input, Network, Hardware }
 
@@ -151,7 +151,7 @@ public interface IUnstickSystem
     /// <summary>Starts a program from the Windows folder. False when it could not start.</summary>
     bool Start(string file);
     bool HasProgram(string file);
-    /// <summary>True when TidyWindow itself runs as administrator. A program it starts then runs that way too, for the rest of the session, so the runner starts none.</summary>
+    /// <summary>True when TSUGU itself runs as administrator. A program it starts then runs that way too, for the rest of the session, so the runner starts none.</summary>
     bool Elevated { get; }
     Task RestartExplorerAsync();
     void RefreshDisplay();
@@ -203,7 +203,7 @@ public sealed class UnstickRunner(IUnstickSystem system, UnstickFix? fixes = nul
             {
                 case "restart-explorer":
                     // Started from an elevated app, File Explorer, and everything opened from Start and the taskbar after it, would run as administrator with no prompts.
-                    if (system.Elevated) return new(false, "TidyWindow is running as administrator, so File Explorer was not restarted: it would come back with administrator rights too. Restart it from Task Manager, or sign out and back in.");
+                    if (system.Elevated) return new(false, "TSUGU is running as administrator, so File Explorer was not restarted: it would come back with administrator rights too. Restart it from Task Manager, or sign out and back in.");
                     await system.RestartExplorerAsync().ConfigureAwait(false);
                     return Done("File Explorer restarted. The taskbar is back.");
                 case "restart-start-menu":
@@ -284,7 +284,7 @@ public sealed class UnstickRunner(IUnstickSystem system, UnstickFix? fixes = nul
     private static ActionResult Close(EndResult ended, string done, string what)
     {
         if (ended.Ended > 0) return Done(done);
-        if (ended.Denied > 0) return new(false, $"Windows did not let TidyWindow close {what.ToLowerInvariant()}. Restart File Explorer, or sign out and back in.");
+        if (ended.Denied > 0) return new(false, $"Windows did not let TSUGU close {what.ToLowerInvariant()}. Restart File Explorer, or sign out and back in.");
         return Done($"{what} was not running, so nothing was stuck. Windows starts it when you next use it.");
     }
 
@@ -295,9 +295,9 @@ public sealed class UnstickRunner(IUnstickSystem system, UnstickFix? fixes = nul
         _ => Done($"{what} was not running, so nothing was stuck. Windows starts it when you next use it.")
     };
 
-    /// <summary>Why a program was not started: TidyWindow runs as administrator, and the program would inherit that for the rest of the session.</summary>
+    /// <summary>Why a program was not started: TSUGU runs as administrator, and the program would inherit that for the rest of the session.</summary>
     private static string ElevatedNote(string what, string instead) =>
-        $"TidyWindow is running as administrator, so {what} was not started: it would run with administrator rights too. {instead}";
+        $"TSUGU is running as administrator, so {what} was not started: it would run with administrator rights too. {instead}";
 
     private ActionResult UnstickInput(UnstickAction action)
     {
@@ -305,7 +305,7 @@ public sealed class UnstickRunner(IUnstickSystem system, UnstickFix? fixes = nul
         var started = false; string? held = null;
         if (!system.Running(["ctfmon"]))
         {
-            if (system.Elevated) held = ElevatedNote("the keyboard helper (ctfmon.exe)", "Start it from Task Manager, or run TidyWindow normally.");
+            if (system.Elevated) held = ElevatedNote("the keyboard helper (ctfmon.exe)", "Start it from Task Manager, or run TSUGU normally.");
             else started = system.Start("ctfmon.exe");
         }
         if (ended.Ended == 0 && ended.Denied > 0 && !started) return Close(ended, "", "The text input host");

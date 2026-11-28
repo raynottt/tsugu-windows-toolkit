@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
-namespace TidyWindow.Next.Desktop;
+namespace TSUGU.Desktop;
 
 public sealed partial class StartupView : UserControl
 {
@@ -26,7 +26,7 @@ public sealed partial class StartupView : UserControl
         {
             XamlRoot = XamlRoot,
             Title = $"Remove {row.Name} from startup?",
-            Content = new TextBlock { Text = $"This takes it out of {row.RemoveWhere}, so it no longer starts with Windows. TidyWindow keeps a copy, and you can put it back any time from Turned off.", TextWrapping = TextWrapping.Wrap },
+            Content = new TextBlock { Text = $"This takes it out of {row.RemoveWhere}, so it no longer starts with Windows. TSUGU keeps a copy, and you can put it back any time from Turned off.", TextWrapping = TextWrapping.Wrap },
             PrimaryButtonText = "Remove",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,

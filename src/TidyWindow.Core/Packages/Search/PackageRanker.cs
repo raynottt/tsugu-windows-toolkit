@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TidyWindow.Next.Core;
+namespace TSUGU.Core;
 
 /// <summary>Ranks the live candidate set; never infers package identity or changes install IDs.</summary>
 public static partial class PackageRanker

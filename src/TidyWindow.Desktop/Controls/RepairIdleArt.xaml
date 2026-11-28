@@ -1,4 +1,4 @@
-<UserControl x:Class="TidyWindow.Next.Desktop.RepairIdleArt"
+<UserControl x:Class="TSUGU.Desktop.RepairIdleArt"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  IsTabStop="False" HorizontalAlignment="Center" AutomationProperties.AccessibilityView="Raw">
