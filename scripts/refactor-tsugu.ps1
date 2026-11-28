@@ -49,9 +49,9 @@ $main=$main.Replace('Page.Debloat => DebloatPage, ','').Replace('(DebloatNav, Pa
 $main=[regex]::Replace($main,'(?ms)    private void DebloatClick\(object sender, RoutedEventArgs e\)\r?\n    \{.*?^\s*\}\r?\n','')
 $main=[regex]::Replace($main,'(?m)^\s*if \(debloat\.WorkOverlay && !debloat\.ScanOverlay\).*?\r?\n','')
 if($main -match '\bDebloat'){throw 'Debloat references remain in MainWindow.'};Write-Text $mainPath $main
-$hostPath=Join-Path $repo 'src/TSUGU.AdminHost/Program.cs';$host=Read-Text $hostPath
-$host=[regex]::Replace($host,'(?m)^\s*:\s*args\.Length > 0 && args\[0\] == TSUGU\.Core\.DebloatHost\.Command\r?\n\s*\?\s*await TSUGU\.Core\.DebloatHost\.RunAsync\(args\)\r?\n','')
-if($host -match '\bDebloat'){throw 'Debloat still registered in AdminHost.'};Write-Text $hostPath $host
+$hostPath=Join-Path $repo 'src/TSUGU.AdminHost/Program.cs';$adminHostText=Read-Text $hostPath
+$adminHostText=[regex]::Replace($adminHostText,'(?m)^\s*:\s*args\.Length > 0 && args\[0\] == TSUGU\.Core\.DebloatHost\.Command\r?\n\s*\?\s*await TSUGU\.Core\.DebloatHost\.RunAsync\(args\)\r?\n','')
+if($adminHostText -match '\bDebloat'){throw 'Debloat still registered in AdminHost.'};Write-Text $hostPath $adminHostText
 $corePath=Join-Path $repo 'src/TSUGU.Core/TSUGU.Core.csproj';$core=Read-Text $corePath
 $core=$core.Replace('<EmbeddedResource Include="Debloat/debloat-catalog.json" LogicalName="debloat-catalog.json" />','')
 if($core -notmatch '<AssemblyName>'){$core=$core.Replace('<Project Sdk="Microsoft.NET.Sdk">','<Project Sdk="Microsoft.NET.Sdk">'+[Environment]::NewLine+'  <PropertyGroup><AssemblyName>TSUGU.Core</AssemblyName></PropertyGroup>')};Write-Text $corePath $core
