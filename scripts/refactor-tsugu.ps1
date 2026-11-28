@@ -162,8 +162,11 @@ $new = @'
             if (batchFile) start.Arguments = "/d /s /c " + (char)34 + (char)34 + hostPath + (char)34 + " --serve" + (char)34;
             else start.ArgumentList.Add("--serve");
 '@
-if (-not $scout.Contains($old)) { throw 'Scout process start block not found.' }
-$scout = $scout.Replace($old, $new)
+if ($scout.Contains($old)) {
+ $scout = $scout.Replace($old, $new)
+} elseif (-not $scout.Contains('var batchFile = Path.GetExtension(hostPath)')) {
+ throw 'Scout process start block not found.'
+}
 Write-Text $scoutPath $scout
 
 $pathCommandsPath = Join-Path $repo 'src/TidyWindow.Core/Paths/PathCommands.cs'
@@ -191,8 +194,11 @@ $new = @'
         if (batchFile) start.Arguments = "/d /s /c " + (char)34 + (char)34 + file + (char)34 + " " + versionArgument + (char)34;
         else start.ArgumentList.Add(versionArgument);
 '@
-if (-not $pc.Contains($old)) { throw 'Path Doctor process probe block not found.' }
-$pc = $pc.Replace($old, $new)
+if ($pc.Contains($old)) {
+ $pc = $pc.Replace($old, $new)
+} elseif (-not $pc.Contains('var batchFile = Path.GetExtension(file)')) {
+ throw 'Path Doctor process probe block not found.'
+}
 Write-Text $pathCommandsPath $pc
 
 # Remove only the obsolete upstream product icon; keep source-license attribution intact.
