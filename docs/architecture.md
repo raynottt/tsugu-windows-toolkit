@@ -7,7 +7,7 @@ TSUGU is a Windows-specific desktop app built with C#, .NET 10 and WinUI 3. Nati
 | Path | Contents |
 | --- | --- |
 | [`src/TSUGU.Desktop/`](../src/TSUGU.Desktop/) | WinUI app. `Shell/` is the main window, `Features/` has one folder per page (view and view model together), and `Controls/`, `Common/` and `Styles/` are shared. |
-| [`src/TSUGU.Core/`](../src/TSUGU.Core/) | Everything that does the work, one folder per area: `Packages/` (managers, search, queue), `Repair/`, `Cleanup/`, `Scout/`, `Paths/`, `Startup/`, `Background/`, `Tune/`, `Debloat/`, `Fixes/`, `Unstick/`, `Lab/`, `Crashes/`, plus `Infrastructure/` (process runner, logs, output) and `Icons/`. Each area keeps its catalog next to its code. |
+| [`src/TSUGU.Core/`](../src/TSUGU.Core/) | Everything that does the work, one folder per area: `Packages/` (managers, search, queue), `Repair/`, `Cleanup/`, `Scout/`, `Paths/`, `Startup/`, `Background/`, `Tune/`, `Fixes/`, `Unstick/`, `Lab/`, `Crashes/`, plus `Infrastructure/` (process runner, logs, output) and `Icons/`. Each area keeps its catalog next to its code. |
 | [`src/TSUGU.AdminHost/`](../src/TSUGU.AdminHost/) | The elevated helper for Windows-wide changes. |
 | [`src/TSUGU.SearchHost/`](../src/TSUGU.SearchHost/) | The Scout worker that talks to Everything. |
 | [`tests/TSUGU.Tests/`](../tests/TSUGU.Tests/) | Unit tests, in folders that mirror `TSUGU.Core` (and `Desktop/` for the UI code they link). |
@@ -62,7 +62,6 @@ The app itself will not run as administrator. [`AppElevation`](../src/TSUGU.Core
 
 What this does not cover: the helper is whatever `CleanHost\TSUGU.AdminHost.exe` is in the install folder when the prompt is approved. Under Program Files only administrators can change it; in a per-user install or a portable copy in a writable folder, a program running as the user can replace it beforehand, and the prompt then approves that program. The installer therefore defaults to an all-users install and offers per-user as a choice, and the README says why.
 
-Debloat is the one page that removes software. The page scans without administrator rights and sends the helper only catalog item IDs. The helper loads the catalog again, checks each request against a protected list, removes the app for every account, rescans to confirm, and records the result so **Removed** can put it back. See [Debloat research](debloat-research.md).
 
 Reversible changes save original state before writing and read back the result where supported. Cleanup holds old installers and unfinished downloads for 14 days; ordinary cache rules delete their files. Held files, installer repair backups and startup restore data survive app restarts. Windows repair commands and package operations have their own effects and do not have a universal undo mechanism.
 

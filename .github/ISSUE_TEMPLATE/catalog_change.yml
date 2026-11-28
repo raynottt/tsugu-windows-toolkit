@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Cleanup, Quiet, Tune, Debloat and Fixes only act on reviewed catalog entries, and each entry has to be tied to documented Windows behavior.
-        Settings with no evidence behind them, such as common "registry boosters", are left out on purpose. The research notes in [`docs/`](https://github.com/Cosmos-0118/TSUGU/tree/main/docs) explain what is already covered and what was rejected.
+        Settings with no evidence behind them, such as common "registry boosters", are left out on purpose. The research notes in [`docs/`](https://github.com/raynottt/tsugu-windows-toolkit/tree/main/docs) explain what is already covered and what was rejected.
 
   - type: dropdown
     id: tool

@@ -8,9 +8,9 @@ body:
       value: |
         Thanks for taking the time to report a problem.
 
-        **Security problems:** do not report them here. Follow the [security policy](https://github.com/Cosmos-0118/TSUGU/security/policy) instead.
+        **Security problems:** do not report them here. Follow the [security policy](https://github.com/raynottt/tsugu-windows-toolkit/security/policy) instead.
 
-        Please search [existing issues](https://github.com/Cosmos-0118/TSUGU/issues?q=is%3Aissue) first. TSUGU 4.x (the `legacy` branch) is no longer developed, so reports for it will be closed.
+        Please search [existing issues](https://github.com/raynottt/tsugu-windows-toolkit/issues?q=is%3Aissue) first. Include the TSUGU version and Windows build when you report a problem.
 
   - type: input
     id: version
