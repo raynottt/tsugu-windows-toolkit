@@ -17,7 +17,7 @@ body:
     attributes:
       label: TSUGU version
       description: Shown in Settings → Current version.
-      placeholder: "5.0.0"
+      placeholder: "0.1.0"
     validations:
       required: true
 
@@ -47,8 +47,8 @@ body:
     attributes:
       label: Where did it happen?
       options:
-        - Overview
-        - Install Hub
+        - Home
+        - Install
         - Installed
         - Queue
         - Scout
@@ -58,12 +58,12 @@ body:
         - Startup
         - Quiet
         - Tune
-        - Debloat
         - Fixes
         - Unstick
         - Lab
         - Crashes
         - Logs
+        - Terminal
         - Settings or updates
         - Installing, starting or uninstalling TSUGU
         - Somewhere else
