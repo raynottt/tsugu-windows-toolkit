@@ -43,4 +43,4 @@ jobs:
       - name: Build
         run: dotnet build TSUGU.slnx --configuration Release --no-restore
       - name: Test
-        run: dotnet test tests/TSUGU.Tests/TSUGU.Tests.csproj --configuration Release --no-build
+        run: dotnet test tests/TidyWindow.Tests/TidyWindow.Tests.csproj --configuration Release --no-build
