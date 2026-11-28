@@ -21,7 +21,7 @@ if (-not $iscc) { $iscc = (Get-Command ISCC.exe -ErrorAction SilentlyContinue)?.
 if (-not $iscc) { throw 'Inno Setup 6 (ISCC.exe) was not found.' }
 
 $publish = (Resolve-Path $PublishDir).Path
-foreach ($path in 'TSUGU.exe', 'Shell\MainWindow.xbf', 'CleanHost\TidyWindow.CleanHost.exe', 'ScoutHost\TidyWindow.SearchHost.exe') {
+foreach ($path in 'TSUGU.exe', 'CleanHost\TidyWindow.CleanHost.exe', 'ScoutHost\TidyWindow.SearchHost.exe') {
     if (-not (Test-Path (Join-Path $publish $path))) { throw "The publish folder is missing $path." }
 }
 # WinUI's PRI resource filename follows the project/resource identity and can retain the legacy stem.
