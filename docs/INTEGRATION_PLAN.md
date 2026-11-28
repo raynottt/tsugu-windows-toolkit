@@ -1,66 +1,55 @@
-# Integration plan
+# TSUGU product and integration plan
 
-## Sources and their roles
+This document describes the product boundaries and the work that remains. The repository is the source of truth for the current implementation; the feature pages and tests may evolve as the preview develops.
 
-| Source | Intended use | Integration rule |
-| --- | --- | --- |
-| [TSUGU](https://github.com/raynottt/tsugu-windows-toolkit) | Functional baseline: package discovery and install queue, reviewed Windows-operation catalogs, cleanup/repair tooling, history and the privileged helper boundary | Port the relevant Core, Desktop feature and helper projects into this repository, then rename and adapt them deliberately. Preserve upstream MIT notice. |
-| [SettingsUI](https://github.com/BobbyESP/SettingsUI) | Visual reference for a Windows 11 Settings-style shell, navigation, page headers, grouped settings rows and colorful iconography | Recreate/adapt the useful XAML patterns for the current WinUI version. Do not reference the archived library directly: it targets .NET 5/6 and Windows App SDK 1.0, while the functional baseline targets .NET 10 and Windows App SDK 2.6.5. Preserve upstream MIT notice if source is copied. |
+## Product goal
 
-## Application concept
+TSUGU is a native Windows desktop toolkit for software setup, maintenance, troubleshooting and recovery. It is designed to make supported Windows operations understandable and reviewable, not to apply opaque “optimization” bundles.
 
-TSUGU is a Windows setup companion, not an aggressive "one-click optimizer".
+The longer-term setup workflow is:
 
-1. **Prepare before reinstall** — inventory installed applications and export a reviewable setup profile.
-2. **Restore after reinstall** — import that profile, show what is available and what is missing, then let the user choose which supported preferences and applications to restore.
-3. **Configure Windows** — group native Windows preferences into understandable cards with the current value, proposed value, explanation and restore path where possible.
-4. **Install applications** — search known package sources and run selected installs through a visible, reviewable queue.
-5. **Maintain and diagnose** — retain carefully scoped cleanup and repair features from the functional baseline.
+1. **Prepare before reinstall** — inventory applications and export a versioned setup profile.
+2. **Restore after reinstall** — compare the profile with the new system and let the user choose which supported preferences and applications to restore.
+3. **Maintain Windows** — provide reviewed cleanup, tuning, repair and diagnostic actions.
+4. **Keep actions explainable** — show the target, expected effect, warnings and recovery path before an operation starts.
 
-The setup profile is not a disk image, system backup or unattended script. It must not export passwords, browser cookies, authentication tokens, private keys, product keys or other secrets. Import must be declarative and reviewable; it must never execute arbitrary commands supplied by a profile.
+Setup profiles are not disk images or full backups. They must not contain passwords, browser cookies, authentication tokens, private keys, product keys or other secrets. Import must be declarative and reviewable; it must never execute arbitrary commands supplied by a profile.
 
-## Architecture to preserve
+## Current application structure
 
-- A normal-user WinUI 3 desktop process.
-- A separate Core project for package management, catalogs, profile logic and system operations.
-- A narrow elevated helper for only those operations that require administrator rights. It is started only after explicit UAC consent; the full desktop app must not run elevated.
-- An explicit queue for package and repair operations. Show package ID/source/version and explain the expected action before execution.
-- Small reviewed catalogs and allowlists for Windows changes. Save original values or a recovery record when the operation supports restoration.
-- Tests around Core behavior and safety boundaries.
+- **TSUGU.Core** owns package services, Windows operations, catalogs, update logic and recovery records.
+- **TSUGU.Desktop** is the WinUI 3 interface. It runs as the signed-in user.
+- **TSUGU.AdminHost** is the narrowly scoped helper for operations that require administrator rights. It is launched only after an explicit UAC approval.
+- **TSUGU.SearchHost** runs the Scout search worker separately from the desktop process.
+- **TSUGU.Tests** covers Core behavior, safety boundaries and selected desktop logic.
+- **TSUGU.UiSmoke** provides a Windows UI smoke-test target.
 
-Do not flatten these boundaries as part of the UI redesign.
+Build references, project names and application assemblies use the TSUGU identity. Third-party copyright and license notices remain in the repository; see [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
-## TSUGU-specific behavior
+## Engineering principles
 
-- Power-saving features and balanced Windows power behavior stay enabled by default.
-- Do not silently disable sleep, hibernation, battery saver, modern standby, CPU power management, Windows Update, Defender or firewall.
-- Power-related options, if added, must be opt-in, clearly explain trade-offs, show the current setting and provide a restore action where possible.
-- Prefer supported Windows settings/APIs over opaque registry "boost" recipes.
-- Never promise a performance gain without a measurable, defensible reason.
+- Keep the desktop app un-elevated. Delegate only the operation that needs administrator rights.
+- Keep privileged operations behind a private helper channel and rebuild actions from reviewed catalogs.
+- Use explicit queues for package and repair work. Show the package ID, source, version and expected action.
+- Prefer supported Windows APIs and settings over undocumented “booster” recipes.
+- Save the original value or recovery record before reversible changes.
+- Do not silently disable Windows Update, Defender, firewall, sleep, hibernation or power-saving features.
+- Keep tests around path validation, package execution, restore behavior and privilege boundaries.
 
-## UI direction
+## Planned work
 
-The shell should feel close to Windows 11 Settings:
+### Setup profiles
 
-- a full, readable navigation pane with clear categories and search;
-- page title, subtitle and optional illustration;
-- settings grouped into roomy cards/rows with consistent spacing;
-- colorful, recognizable icons, not a monochrome glyph rail for every page;
-- light, dark and high-contrast support;
-- responsive layout and keyboard/accessibility support.
+Add a versioned schema with migrations and strict validation. Start with application inventory and a small set of supported preferences. Exclude credentials, tokens, browser data, product keys and machine-specific secrets.
 
-The SettingsUI demo's colored Fluent icon PNGs and module illustrations are useful visual references. Binary assets need to be obtained and reviewed separately before they can be included in this repository.
+### Before/after reinstall experience
 
-## Porting sequence
+Add a guided export step, profile comparison after reinstall and a selected restore/install queue. Missing applications and unsupported settings must be shown rather than silently skipped.
 
-1. **Inventory and attribution** — identify the TSUGU projects, source folders, embedded catalogs, assets, tests and build targets; preserve third-party notices.
-2. **Build baseline** — port the Core, Desktop, CleanHost and SearchHost projects with their project references and build configuration. Keep a reproducible .NET 10 / WinUI 3 solution.
-3. **Brand and rename** — rename product metadata, namespaces, app IDs, paths and visible strings to TSUGU without changing behavior accidentally.
-4. **Shell redesign** — replace the compact icon-rail navigation with the SettingsUI-inspired Settings navigation and page layout while retaining each feature's existing view-model/service wiring.
-5. **Setup profile** — add export/import as an explicit, versioned schema. Start with application inventory and a small set of safe supported preferences; add migrations and validation.
-6. **Reinstall workflow** — add a before/after checklist, profile comparison and selected restore/install queue.
-7. **Verification** — build on Windows with the pinned SDK, run tests and UI smoke checks, inspect package/installer output, and manually verify UAC boundaries and restore behavior.
+### Verification and release quality
 
-## Current repository bootstrap
+Keep locked dependency restore, Release builds and tests in CI. Before publishing a preview, run the Windows packaging workflow, verify the installer and portable archive, check the UAC boundary and test install/uninstall behavior on a clean Windows environment.
 
-The initial commit only establishes the product direction. The TSUGU implementation and SettingsUI-inspired WinUI shell have not yet been ported or built. No claim of a working application should be made until the Windows build and tests pass.
+## Non-goals
+
+TSUGU is not a disk imaging tool, an unattended deployment engine or an unrestricted PowerShell runner. It does not promise generic performance gains, and it does not weaken security protections to make a PC appear faster.

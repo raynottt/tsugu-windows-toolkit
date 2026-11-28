@@ -4,7 +4,7 @@ Research and implementation decision, 30 October 2026. This replaces the old Ess
 
 ## Decision
 
-A fix is a short list of steps in data (`src/TidyWindow.Core/Fixes/fix-catalog.json`): a standard Windows program with exact arguments, or one of four file and Explorer steps. Each step says which exit codes mean success, a warning, or "restart needed", and whether the fix may carry on after it fails. A runner executes them one at a time and reports as it goes. Nothing is a script.
+A fix is a short list of steps in data (`src/TSUGU.Core/Fixes/fix-catalog.json`): a standard Windows program with exact arguments, or one of four file and Explorer steps. Each step says which exit codes mean success, a warning, or "restart needed", and whether the fix may carry on after it fails. A runner executes them one at a time and reports as it goes. Nothing is a script.
 
 This keeps the useful part of the old page (a shelf of repairs, options, restart hints) without 17,000 lines of wrapper code, and makes every fix readable on the page before it runs.
 
@@ -12,7 +12,7 @@ This keeps the useful part of the old page (a shelf of repairs, options, restart
 
 - The old scripts collected their output into lists and result files, and printed it afterwards. The app also started administrator work in a separate window whose output cannot be read (the Queue says so for Chocolatey).
 - Fixes read each program's output as it arrives and pass it to the same Queue the installs use, so the Queue page, its colors and its collapsing rows all work for fixes.
-- For fixes that need administrator rights, the existing helper (`TidyWindow.CleanHost.exe --fix`) runs one step at a time and sends each line back over a private pipe. The helper is never given a command: it is given a fix id, the chosen options and a step position, and rebuilds the step from the catalog. It refuses a fix for the current user, a step the options turned off, and anything not in its catalog.
+- For fixes that need administrator rights, the existing helper (`TSUGU.AdminHost.exe --fix`) runs one step at a time and sends each line back over a private pipe. The helper is never given a command: it is given a fix id, the chosen options and a step position, and rebuilds the step from the catalog. It refuses a fix for the current user, a step the options turned off, and anything not in its catalog.
 - Programs that redraw one progress line (DISM, chkdsk) would flood the output, so redraws are shown about every ten percent. `sfc` writes UTF-16 (checked on this PC; its line endings are `\r\r\n`), so it is read as UTF-16. Other tools are read in the console code page, and Windows PowerShell is told to write UTF-8.
 - The Fixes page also shows the newest line of output on each row while it runs.
 

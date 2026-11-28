@@ -6,12 +6,12 @@ TSUGU is a Windows-specific desktop app built with C#, .NET 10 and WinUI 3. Nati
 
 | Path | Contents |
 | --- | --- |
-| [`src/TidyWindow.Desktop/`](../src/TidyWindow.Desktop/) | WinUI app. `Shell/` is the main window, `Features/` has one folder per page (view and view model together), and `Controls/`, `Common/` and `Styles/` are shared. |
-| [`src/TidyWindow.Core/`](../src/TidyWindow.Core/) | Everything that does the work, one folder per area: `Packages/` (managers, search, queue), `Repair/`, `Cleanup/`, `Scout/`, `Paths/`, `Startup/`, `Background/`, `Tune/`, `Debloat/`, `Fixes/`, `Unstick/`, `Lab/`, `Crashes/`, plus `Infrastructure/` (process runner, logs, output) and `Icons/`. Each area keeps its catalog next to its code. |
-| [`src/TidyWindow.CleanHost/`](../src/TidyWindow.CleanHost/) | The elevated helper for Windows-wide changes. |
-| [`src/TidyWindow.SearchHost/`](../src/TidyWindow.SearchHost/) | The Scout worker that talks to Everything. |
-| [`tests/TidyWindow.Tests/`](../tests/TidyWindow.Tests/) | Unit tests, in folders that mirror `TSUGU.Core` (and `Desktop/` for the UI code they link). |
-| [`tests/TidyWindow.UiSmoke/`](../tests/TidyWindow.UiSmoke/) | A small WinUI program that checks shared UI pieces and the live Scout lookup. Run by hand; it is part of the solution so CI keeps it compiling. |
+| [`src/TSUGU.Desktop/`](../src/TSUGU.Desktop/) | WinUI app. `Shell/` is the main window, `Features/` has one folder per page (view and view model together), and `Controls/`, `Common/` and `Styles/` are shared. |
+| [`src/TSUGU.Core/`](../src/TSUGU.Core/) | Everything that does the work, one folder per area: `Packages/` (managers, search, queue), `Repair/`, `Cleanup/`, `Scout/`, `Paths/`, `Startup/`, `Background/`, `Tune/`, `Debloat/`, `Fixes/`, `Unstick/`, `Lab/`, `Crashes/`, plus `Infrastructure/` (process runner, logs, output) and `Icons/`. Each area keeps its catalog next to its code. |
+| [`src/TSUGU.AdminHost/`](../src/TSUGU.AdminHost/) | The elevated helper for Windows-wide changes. |
+| [`src/TSUGU.SearchHost/`](../src/TSUGU.SearchHost/) | The Scout worker that talks to Everything. |
+| [`tests/TSUGU.Tests/`](../tests/TSUGU.Tests/) | Unit tests, in folders that mirror `TSUGU.Core` (and `Desktop/` for the UI code they link). |
+| [`tests/TSUGU.UiSmoke/`](../tests/TSUGU.UiSmoke/) | A small WinUI program that checks shared UI pieces and the live Scout lookup. Run by hand; it is part of the solution so CI keeps it compiling. |
 | [`docs/`](./) | Research, implementation decisions and validation notes. |
 | [`installer/`](../installer/) | Inno Setup script, the script that builds it, and an install/uninstall smoke test. |
 | [`tools/Brand/`](../tools/Brand/) | Script that renders the app icons. |
@@ -48,19 +48,19 @@ See [Scout research](scout-research.md) for candidate limits, backend requiremen
 
 ## Windows changes
 
-Cleanup, Quiet, Tune, Debloat and Fixes act on catalogs embedded in `TSUGU.Core` and checked when the app starts; a second allowlist in each feature refuses anything outside them. Lab has no catalog: `PowerGuard` allows a fixed set of `powercfg` arguments, and the priority change applies to one process the person picked. Windows-wide changes run in `TidyWindow.CleanHost.exe`, started only after the person approves elevation.
+Cleanup, Quiet, Tune and Fixes act on catalogs embedded in `TSUGU.Core` and checked when the app starts; a second allowlist in each feature refuses anything outside them. Lab has no catalog: `PowerGuard` allows a fixed set of `powercfg` arguments, and the priority change applies to one process the person picked. Windows-wide changes run in `TSUGU.AdminHost.exe`, started only after the person approves elevation.
 
 ### The helper boundary
 
 The app runs as the ordinary account and never elevates itself. When a feature needs administrator rights, the app first creates a named pipe with a random name whose permissions admit only the current account, administrators and SYSTEM (`HelperPipe.CreateServer`), then starts the helper through the Windows permission prompt from the `CleanHost` folder next to the app (`HelperPipe.LaunchElevated`). The helper connects by name, checks that the pipe's owner is the account it was started for, and reads JSON lines with a ceiling on line length. The app sends catalog item IDs and arguments; the helper loads its own copy of the catalog and rebuilds every action from it, so a damaged or hostile app process can choose which entry runs, not what it does.
 
-Anything the helper later writes back with administrator rights comes from `ProtectedStore` ([`src/TidyWindow.Core/Infrastructure/ProtectedStore.cs`](../src/TidyWindow.Core/Infrastructure/ProtectedStore.cs)): a folder under `%ProgramData%\TSUGU` that administrators own and no other account can change, created with those permissions in one step and checked again on every call. A folder or file there with the wrong owner or permissions is moved aside and never read. The startup items the helper removed, the registry a repair backed up and the originals of tweaks are kept there; the app keeps its own copy under `%LOCALAPPDATA%\TSUGU` for display, and the helper never trusts that copy.
+Anything the helper later writes back with administrator rights comes from `ProtectedStore` ([`src/TSUGU.Core/Infrastructure/ProtectedStore.cs`](../src/TSUGU.Core/Infrastructure/ProtectedStore.cs)): a folder under `%ProgramData%\TSUGU` that administrators own and no other account can change, created with those permissions in one step and checked again on every call. A folder or file there with the wrong owner or permissions is moved aside and never read. The startup items the helper removed, the registry a repair backed up and the originals of tweaks are kept there; the app keeps its own copy under `%LOCALAPPDATA%\TSUGU` for display, and the helper never trusts that copy.
 
 Two refusals follow from the same rule. `MachinePath` will not add a folder to the Windows-wide PATH when an account without administrator rights could change it or any folder above it, because a program planted there would run as whoever next types the command. And the helper starts package managers only from locations ordinary accounts cannot change.
 
-The app itself will not run as administrator. [`AppElevation`](../src/TidyWindow.Core/Infrastructure/AppElevation.cs) checks first thing, before anything is read or started: with a full administrator token, every history file the app reads and every package manager it starts would be working with those rights, and only the helper is written for them. So it says so and closes. With User Account Control off there is no limited token to go back to and no boundary to protect, so the check does not apply.
+The app itself will not run as administrator. [`AppElevation`](../src/TSUGU.Core/Infrastructure/AppElevation.cs) checks first thing, before anything is read or started: with a full administrator token, every history file the app reads and every package manager it starts would be working with those rights, and only the helper is written for them. So it says so and closes. With User Account Control off there is no limited token to go back to and no boundary to protect, so the check does not apply.
 
-What this does not cover: the helper is whatever `CleanHost\TidyWindow.CleanHost.exe` is in the install folder when the prompt is approved. Under Program Files only administrators can change it; in a per-user install or a portable copy in a writable folder, a program running as the user can replace it beforehand, and the prompt then approves that program. The installer therefore defaults to an all-users install and offers per-user as a choice, and the README says why.
+What this does not cover: the helper is whatever `CleanHost\TSUGU.AdminHost.exe` is in the install folder when the prompt is approved. Under Program Files only administrators can change it; in a per-user install or a portable copy in a writable folder, a program running as the user can replace it beforehand, and the prompt then approves that program. The installer therefore defaults to an all-users install and offers per-user as a choice, and the README says why.
 
 Debloat is the one page that removes software. The page scans without administrator rights and sends the helper only catalog item IDs. The helper loads the catalog again, checks each request against a protected list, removes the app for every account, rescans to confirm, and records the result so **Removed** can put it back. See [Debloat research](debloat-research.md).
 

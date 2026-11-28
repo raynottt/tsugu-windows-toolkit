@@ -82,7 +82,7 @@ A missing `C:\Windows\Installer` copy, verified: Python 3.12.10's Core Interpret
 
 Found by doing it, and fixed: the product's list entry names no install folder, so Repair judged the program gone and skipped the restore step, removing the Core product's record instead (the first attempt did exactly that). A product now counts as installed when any file or folder Windows Installer recorded for it is still on the PC.
 
-A deliberately broken, patched package, verified: a throwaway per-user MSI ("TSUGU Lab Widget", built with WiX 5) plus a patch (`.msp`) installed on a real PC, then broken and repaired with the real engine and the real administrator helper (the elevated `TidyWindow.CleanHost.exe`, over its pipe). Each case was checked before and after.
+A deliberately broken, patched package, verified: a throwaway per-user MSI ("TSUGU Lab Widget", built with WiX 5) plus a patch (`.msp`) installed on a real PC, then broken and repaired with the real engine and the real administrator helper (the elevated `TSUGU.AdminHost.exe`, over its pipe). Each case was checked before and after.
 
 - The patch's saved file was deleted from `C:\Windows\Installer` and its only copy parked in a folder the person chose. The scan reported the dead update; Repair put the file back byte for byte (SHA-256 equal) through the helper without removing a registry key; a plain `msiexec /fomus` then worked; Undo took the file out again; fixing again put it back.
 - The product's saved `.msi` was cut to 0 bytes. The scan reported a damaged saved copy (a plain `/fomus` on it returns 1619); Repair found the original through the product's source list, repaired from it with `/fvomus`, and Windows Installer got a healthy new `LocalPackage`. No registry key was removed.
@@ -113,10 +113,10 @@ Second round on the same PC (lab packages again, plus two real programs), each c
 ## 5. Read-only checks on any PC
 
 ```powershell
-$env:TIDYWINDOW_LIVE_TESTS = '1'
+$env:TSUGU_LIVE_TESTS = '1'
 dotnet test tests/TSUGU.Tests --filter "FullyQualifiedName~LiveRepair" --logger "console;verbosity=detailed"
 ```
-`TIDYWINDOW_ELEVATED_TESTS=1` from an elevated window also runs the privileged path on throwaway keys under `HKCU\Software\TSUGUTests` (fake product codes only). `TIDYWINDOW_LIVE_DOWNLOAD=1` additionally downloads a setup program into a temp folder and unpacks it; nothing is installed.
+`TSUGU_ELEVATED_TESTS=1` from an elevated window also runs the privileged path on throwaway keys under `HKCU\Software\TSUGUTests` (fake product codes only). `TSUGU_LIVE_DOWNLOAD=1` additionally downloads a setup program into a temp folder and unpacks it; nothing is installed.
 The live tests only read: the scan, the removal plan for every finding (never carried out), the capture of a real product key with its permissions, and that installer files are read by their own product code.
 
 ## Reporting what happened

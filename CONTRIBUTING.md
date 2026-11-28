@@ -30,7 +30,7 @@ git clone https://github.com/raynottt/tsugu-windows-toolkit.git
 cd TSUGU
 
 dotnet restore TSUGU.slnx --locked-mode
-dotnet build src/TidyWindow.Desktop/TSUGU.Desktop.csproj -c Release --no-restore --output artifacts/preview
+dotnet build src/TSUGU.Desktop/TSUGU.Desktop.csproj -c Release --no-restore --output artifacts/preview
 ./artifacts/preview/TSUGU.exe
 ```
 
@@ -57,19 +57,19 @@ Run the tests the way CI does, after the restore above:
 
 ```powershell
 dotnet build TSUGU.slnx -c Release --no-restore
-dotnet test tests/TidyWindow.Tests/TSUGU.Tests.csproj -c Release --no-build
+dotnet test tests/TSUGU.Tests/TSUGU.Tests.csproj -c Release --no-build
 ```
 
 The standard tests do not install packages, change Windows settings or need a network. Tests that look at the real PC are opt-in and are reported as skipped until you switch them on; `dotnet test --filter "Category!=Live"` leaves them out altogether.
 
 | Variable | What it switches on |
 | --- | --- |
-| `TIDYWINDOW_LIVE_TESTS=1` | Read-only checks of this PC's packages, services, registry, installed programs and caches. |
-| `TIDYWINDOW_LIVE_DOWNLOAD=1` (with the one above) | Also downloads one vendor installer and unpacks it in a temp folder. |
-| `TIDYWINDOW_RECOVERY_TESTS=1` with `TIDYWINDOW_TEST_ARTIFACTS=<folder>` | Copies your Scoop into that folder and runs the recovery scripts on the copy. |
-| `TIDYWINDOW_ELEVATED_TESTS=1`, in an administrator window | Runs the privileged repair path against a throwaway key under `HKCU`. |
+| `TSUGU_LIVE_TESTS=1` | Read-only checks of this PC's packages, services, registry, installed programs and caches. |
+| `TSUGU_LIVE_DOWNLOAD=1` (with the one above) | Also downloads one vendor installer and unpacks it in a temp folder. |
+| `TSUGU_RECOVERY_TESTS=1` with `TSUGU_TEST_ARTIFACTS=<folder>` | Copies your Scoop into that folder and runs the recovery scripts on the copy. |
+| `TSUGU_ELEVATED_TESTS=1`, in an administrator window | Runs the privileged repair path against a throwaway key under `HKCU`. |
 
-Add or update tests in `tests/TidyWindow.Tests/<Area>/` for the behavior you change.
+Add or update tests in `tests/TSUGU.Tests/<Area>/` for the behavior you change.
 
 ## Making a change
 

@@ -63,7 +63,7 @@ The error codes the recovery rung reads are from [Microsoft's list](https://lear
 
 ## The ladder
 
-Per finding, in `src/TidyWindow.Core/Repair/RepairService.cs`:
+Per finding, in `src/TSUGU.Core/Repair/RepairService.cs`:
 
 1. **Recover** (only when the program is still on the PC): look for the program's own installer file in its source list, the Package Cache (`{code}v*`) and `$PatchCache$`. A candidate is used only if the `ProductCode` in the file
    is the program's and, when Windows Installer registered one, the `PackageCode` is the same build. Then `msiexec /fvomus <file> /qn /norestart` (per-machine products through the helper). Success means exit 0, 3010 or 1641 **and** Windows Installer has a `LocalPackage` that exists afterwards. 3010/1641 are reported as *Fixed after restart*.
@@ -110,9 +110,9 @@ A pending restart is reported (Info, nothing to fix); an item whose repair needs
 
 ## Verified and not verified
 
-Verified here: all of the above against a throwaway registry tree with real permissions (the Python 3.13 case, a machine-wide product with S-1-5-18 and both Uninstall views, shared components and upgrade code that must survive, Burn bundle, ghost, leftover links, locked keys, partial failures) and read-only checks of this PC with `TIDYWINDOW_LIVE_TESTS=1`.
+Verified here: all of the above against a throwaway registry tree with real permissions (the Python 3.13 case, a machine-wide product with S-1-5-18 and both Uninstall views, shared components and upgrade code that must survive, Burn bundle, ghost, leftover links, locked keys, partial failures) and read-only checks of this PC with `TSUGU_LIVE_TESTS=1`.
 Also verified on this PC, elevated, on throwaway keys: the privileged path (backup, restore and take-ownership privileges) for keys owned by Administrators and by SYSTEM, removed and restored with their owner and permissions; and, read-only, that WinGet matches the installed Python by name and version (`Python.Python.3.13 3.13.16`).
-On 4 November 2026 the developer used the Repair page by hand on Windows 11 Pro (build 26300) and reports that it works very well; that report did not itemize the cases below. Not itemized, so still not recorded as verified (needs the friend's laptop or a VM, see `docs/repair-validation.md`): `msiexec /fvomus` on a real Python 3.13.9 whose Package Cache was cleared, the download and `/layout` of a real setup program through the repair (the live test for it exists and is opt-in with `TIDYWINDOW_LIVE_DOWNLOAD=1`, but was not run here), `/repair` of a downloaded Burn setup program, `winget install --force` of an Inno or NSIS program, and that the Python 3.13.16 installer then runs without the `core.msi` prompt.
+On 4 November 2026 the developer used the Repair page by hand on Windows 11 Pro (build 26300) and reports that it works very well; that report did not itemize the cases below. Not itemized, so still not recorded as verified (needs the friend's laptop or a VM, see `docs/repair-validation.md`): `msiexec /fvomus` on a real Python 3.13.9 whose Package Cache was cleared, the download and `/layout` of a real setup program through the repair (the live test for it exists and is opt-in with `TSUGU_LIVE_DOWNLOAD=1`, but was not run here), `/repair` of a downloaded Burn setup program, `winget install --force` of an Inno or NSIS program, and that the Python 3.13.16 installer then runs without the `core.msi` prompt.
 
 ## Cache and update-file repair (November 2026)
 
@@ -142,7 +142,7 @@ Some packages Visual Studio installs refuse to run outside it. The real example 
 - The *source* alone is not enough: 203 entries on this PC (197 hidden) were installed from `C:\ProgramData\Microsoft\VisualStudio\Packages`, and only the .NET SDK refuses. IIS Express, Web Deploy, LocalDB and the SQL CLR types repair like any program.
 - The package itself is therefore the authority: `PackageHealth.RefusesWithoutVisualStudio` reads the saved installer's `LaunchCondition` table and looks for "Visual Studio Installer" in a message. `UninstallEntry.FromVisualStudioCache` (the `InstallSource` registry value) only decides which few installers are worth opening for the Programs list, and `NamedFromVisualStudio` stays as the fallback when the saved installer cannot be read.
 - `RepairProgramAsync` now stops before the administrator prompt for such a program and says to use the Visual Studio Installer, so the check no longer lives only in one view.
-- A live test (`TIDYWINDOW_LIVE_TESTS=1`) asserts, for every visible program from that cache on this PC, that the name marker and the installer's own launch condition agree.
+- A live test (`TSUGU_LIVE_TESTS=1`) asserts, for every visible program from that cache on this PC, that the name marker and the installer's own launch condition agree.
 
 ### Left out on purpose
 
